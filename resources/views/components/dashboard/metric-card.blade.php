@@ -1,14 +1,13 @@
-<div class="w-full h-36 bg-white rounded-2xl border border-slate-300 flex flex-col p-4">
-
-    <div class="w-full flex flex-col items-center">
-        <p class="text-sm font-medium text-slate-600 mb-1">
+<div class="flex h-24 min-w-0 w-full flex-col rounded-xl border border-sky-200 bg-white p-2 sm:h-28 sm:p-3">
+    <div class="flex w-full flex-col items-center">
+        <p class="mb-1 truncate text-[9px] font-medium text-slate-600 sm:text-xs">
             {{ $title }}
         </p>
-        <div class="w-3/4 h-[1px] bg-[#bcd2f5]"></div>
+        <div class="h-px w-3/4 bg-[#bcd2f5]"></div>
     </div>
 
-    <div class="flex-1 flex items-center justify-center">
-        <span class="text-2xl font-semibold tracking-wide text-slate-900">
+    <div class="flex flex-1 items-center justify-center">
+        <span class="text-lg font-semibold tracking-wide text-slate-900 sm:text-2xl">
             {{ $value }}
         </span>
     </div>

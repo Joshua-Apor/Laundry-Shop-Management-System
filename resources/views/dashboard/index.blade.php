@@ -1,7 +1,7 @@
 <x-layout>
-    <h1 class="mb-6 text-2xl font-bold">Good Morning, User</h1>
+    <h1 class="mb-6 text-2xl font-bold">Good Morning, {{ auth()->user()->name }}</h1>
 
-    <div class="mb-6 grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-5">
+    <div class="mb-6 grid w-full grid-cols-5 gap-1 sm:gap-2">
         <x-dashboard.metric-card title="Total Orders" :value="$totalOrders" />
         <x-dashboard.metric-card title="Completed" :value="$completedOrders" />
         <x-dashboard.metric-card title="Ready for Pickup" :value="$readyForPickupOrders" />
@@ -20,7 +20,7 @@
                 <x-dashboard.customer-order
                     :code="'Order #'.$order->id"
                     :name="$order->fullname"
-                    :services="$order->service"
+                    :services="$order->service ?? []"
                     :weight="$order->weight.'kg'"
                     :phone="$order->phoneNumber" />
             @empty

@@ -1,26 +1,18 @@
-@props(['initial' => 'test',
-        'name' => 'test',
-        'phone' => 'test',
-        'orderTotal' => 'test', 
-        'priceTotal' => 'test',
-        ])
+@props([
+    'initial' => '',
+    'name' => '',
+    'phone' => '',
+    'orderTotal' => 0,
+    'priceTotal' => '0.00',
+])
 
-<div class="bg-white rounded-2xl border border-sky-100 p-4 shadow-sm flex items-center justify-between hover:border-sky-200 transition-colors">
+<div class="flex items-center justify-between rounded-2xl border border-sky-200 bg-white p-4 shadow-sm transition-colors hover:border-sky-300">
     <div class="flex items-center gap-3.5">
-        <!-- Avatar Circle -->
-        <div class="w-10 h-10 rounded-full bg-[#e92c81] text-white flex items-center justify-center font-bold text-sm shrink-0">
-            {{ $initial }}
-        </div>
-        <!-- Customer Details -->
+        <div class="grid size-10 shrink-0 place-items-center rounded-full bg-[#168cff] text-sm font-bold text-white">{{ $initial }}</div>
         <div>
-            <h3 class="font-bold text-slate-900 text-sm leading-tight">{{ $name }}</h3>
-            <p class="text-xs text-slate-400 mt-0.5">{{ $phone }}</p>
+            <h2 class="text-sm font-bold leading-tight text-slate-900">{{ $name }}</h2>
+            <p class="mt-0.5 text-xs text-slate-400">{{ $phone }}</p>
         </div>
     </div>
-
-    <!-- Stats -->
-    <div class="text-right">
-        <p class="text-sm font-bold text-slate-800">{{ $orderTotal }}</p>
-        <p class="text-xs text-slate-400">₱{{ $priceTotal }}</p>
-    </div>
+    <div class="text-right"><p class="text-sm font-bold text-slate-800">{{ $orderTotal }} order{{ $orderTotal == 1 ? '' : 's' }}</p><p class="text-xs text-slate-400">₱{{ $priceTotal }} total</p></div>
 </div>

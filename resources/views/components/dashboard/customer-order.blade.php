@@ -7,7 +7,7 @@
 ])
 
 <div class="mb-2 w-full rounded-xl border border-sky-200 bg-white p-4 shadow-sm">
-    <span class="mb-0.5 block text-[11px] font-mono tracking-wider text-slate-500">
+    <span class="mb-0.5 block font-mono text-[11px] tracking-wider text-slate-500">
         {{ $code }}
     </span>
     <div class="flex flex-wrap items-center gap-2">

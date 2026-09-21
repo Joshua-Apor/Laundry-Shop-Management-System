@@ -10,9 +10,13 @@ class CustomerController extends Controller
     public function index(): View
     {
         $customers = Order::query()
-            ->select(['fullname', 'phoneNumber'])
-            ->selectRaw('COUNT(*) as orders_count, SUM(total_amount) as total_spent')
-            ->groupBy('fullname', 'phoneNumber')
+            ->leftJoin('customers', 'customers.customer_id', '=', 'laundry_orders.customer_id')
+            ->select([
+                'customers.name as fullname',
+                'customers.contact_number as phoneNumber',
+            ])
+            ->selectRaw('COUNT(laundry_orders.order_id) as orders_count, SUM(laundry_orders.total_amount) as total_spent')
+            ->groupBy('customers.name', 'customers.contact_number')
             ->orderByDesc('total_spent')
             ->paginate(15);
 

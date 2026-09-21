@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
+    protected $table = 'laundry_orders';
+
+    protected $primaryKey = 'order_id';
+
+    public $timestamps = false;
+
     public const STATUSES = [
         'Received',
         'Processing',
