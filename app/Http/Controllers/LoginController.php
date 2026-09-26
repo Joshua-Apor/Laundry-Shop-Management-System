@@ -36,7 +36,7 @@ class LoginController extends Controller
 
         $destination = $request->user()->role === 'employee'
             ? route('employee.dashboard')
-            : route('dashboard');
+            : route('manager.dashboard');
 
         return redirect($destination);
     }

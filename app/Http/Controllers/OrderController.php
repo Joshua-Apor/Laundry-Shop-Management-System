@@ -13,7 +13,7 @@ class OrderController extends Controller
 {
     public function create(): View
     {
-        return view('orders.create');
+        return view('employee.orders.create');
     }
 
     public function index(Request $request): View
@@ -39,7 +39,7 @@ class OrderController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        return view('orders.index', [
+        return view('employee.orders.index', [
             'orders' => $orders,
             'search' => $search,
             'status' => $status,
@@ -48,7 +48,7 @@ class OrderController extends Controller
 
     public function show(Order $order): View
     {
-        return view('orders.show', ['order' => $order]);
+        return view('employee.orders.show', ['order' => $order]);
     }
 
     public function store(StoreOrderRequest $request): RedirectResponse

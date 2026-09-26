@@ -17,12 +17,15 @@
 <body @class([
     'min-h-screen font-sans text-slate-900 antialiased',
     'bg-[#eef2fb]' => $fullWidth,
-    'bg-[#fff4f8]' => ! $fullWidth && auth()->check() && auth()->user()->role === 'employee',
+    'bg-[#fbf7f8]' => ! $fullWidth && auth()->check() && auth()->user()->role === 'employee',
+    'bg-[#fbf7f8]' => ! $fullWidth && auth()->check() && auth()->user()->role === 'manager',
     'bg-[#f7f6f3]' => ! $fullWidth && (! auth()->check() || auth()->user()->role !== 'employee'),
 ])>
     @if ($navigation)
         @if (auth()->check() && auth()->user()->role === 'employee')
             <x-employee-nav />
+        @elseif (auth()->check() && auth()->user()->role === 'manager')
+            <x-manager-nav />
         @else
             <x-nav />
         @endif

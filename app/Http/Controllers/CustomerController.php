@@ -20,6 +20,6 @@ class CustomerController extends Controller
             ->orderByDesc('total_spent')
             ->paginate(15);
 
-        return view('customers.index', ['customers' => $customers]);
+        return view('employee.customers.index', ['customers' => $customers]);
     }
 }
