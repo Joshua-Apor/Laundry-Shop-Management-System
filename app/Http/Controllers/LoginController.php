@@ -38,7 +38,7 @@ class LoginController extends Controller
             ? route('employee.dashboard')
             : route('manager.dashboard');
 
-        return redirect($destination);
+        return redirect($destination)->with('success', 'Signed in successfully.');
     }
 
     public function destroy(Request $request): RedirectResponse
@@ -47,6 +47,6 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        return redirect()->route('login')->with('success', 'Signed out successfully.');
     }
 }

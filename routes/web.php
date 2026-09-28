@@ -21,6 +21,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/manager/orders-payments', [ManagerController::class, 'ordersAndPayments'])->name('manager.orders-payments');
     Route::get('/manager/sales-reports', [ManagerController::class, 'salesReports'])->name('manager.sales-reports');
     Route::get('/manager/employees', [ManagerController::class, 'employees'])->name('manager.employees');
+    Route::post('/manager/employees', [ManagerController::class, 'storeEmployee'])->name('manager.employees.store');
 
     Route::prefix('employee')->group(function (): void {
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
