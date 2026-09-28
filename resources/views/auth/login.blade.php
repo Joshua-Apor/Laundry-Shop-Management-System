@@ -2,11 +2,12 @@
 
     <div class="grid min-h-screen lg:grid-cols-[1fr_1fr]">
 
-        <!-- LEFT SIDE -->
+        {{-- LEFT SIDE --}}
         <section
-            class="relative flex min-h-[560px] flex-col overflow-hidden bg-[linear-gradient(145deg,#e51f87_0%,#b247b1_44%,#39b9ed_100%)] px-8 py-10 text-white sm:px-12 lg:min-h-screen lg:px-10 xl:px-14">
+            class="relative flex min-h-[560px] flex-col overflow-hidden bg-[linear-gradient(145deg,#e51f87_0%,#b247b1_44%,#39b9ed_100%)] px-8 py-10 text-white sm:px-12 lg:min-h-screen lg:px-10 xl:px-14"
+        >
 
-            <!-- Logo / Branding -->
+            {{-- Logo / Branding --}}
             <div class="relative z-10 flex items-center gap-4">
 
                 <img
@@ -16,7 +17,6 @@
                 >
 
                 <div class="flex flex-col">
-
                     <span class="text-2xl font-extrabold tracking-tight">
                         I Laba U
                     </span>
@@ -24,15 +24,17 @@
                     <span class="mt-0.5 text-sm font-medium text-white/75">
                         Laundry Shop Management System
                     </span>
-
                 </div>
+
             </div>
 
-            <!-- Main Description -->
+
+            {{-- Main Description --}}
             <div class="relative z-10 my-auto max-w-xl py-16">
 
                 <h1
-                    class="max-w-md text-4xl font-extrabold leading-[1.08] tracking-[-0.04em] sm:text-5xl">
+                    class="max-w-md text-4xl font-extrabold leading-[1.08] tracking-[-0.04em] sm:text-5xl"
+                >
                     Manage your shop,<br>
                     effortlessly.
                 </h1>
@@ -42,55 +44,71 @@
                     customers when their laundry is ready — all from one place.
                 </p>
 
-                <!-- Features -->
-                <div class="mt-8 grid max-w-lg grid-cols-1 gap-5 text-sm font-medium sm:grid-cols-2">
+
+                {{-- Features --}}
+                <div
+                    class="mt-8 grid max-w-lg grid-cols-1 gap-5 text-sm font-medium sm:grid-cols-2"
+                >
 
                     <span class="flex items-center gap-3">
-                        <i class="fa-solid fa-basket-shopping w-5 text-center text-lg"
-                            aria-hidden="true"></i>
+                        <i
+                            class="fa-solid fa-basket-shopping w-5 text-center text-lg"
+                            aria-hidden="true"
+                        ></i>
                         Order Tracking
                     </span>
 
                     <span class="flex items-center gap-3">
-                        <i class="fa-solid fa-comment-sms w-5 text-center text-lg"
-                            aria-hidden="true"></i>
+                        <i
+                            class="fa-solid fa-comment-sms w-5 text-center text-lg"
+                            aria-hidden="true"
+                        ></i>
                         SMS Notifications
                     </span>
 
                     <span class="flex items-center gap-3">
-                        <i class="fa-solid fa-credit-card w-5 text-center text-lg"
-                            aria-hidden="true"></i>
+                        <i
+                            class="fa-solid fa-credit-card w-5 text-center text-lg"
+                            aria-hidden="true"
+                        ></i>
                         Payment Monitoring
                     </span>
 
                     <span class="flex items-center gap-3">
-                        <i class="fa-solid fa-chart-column w-5 text-center text-lg"
-                            aria-hidden="true"></i>
+                        <i
+                            class="fa-solid fa-chart-column w-5 text-center text-lg"
+                            aria-hidden="true"
+                        ></i>
                         Sales Reports
                     </span>
 
                 </div>
+
             </div>
 
-            <!-- Footer -->
+
+            {{-- Footer --}}
             <p class="relative z-10 text-xs text-white/60">
                 Purok Narra, Tagum City — © 2026
             </p>
 
-            <!-- Background Decoration -->
+
+            {{-- Background Decoration --}}
             <span
-                class="absolute -right-24 top-1/2 h-72 w-72 rounded-full bg-white/10 blur-3xl">
-            </span>
+                class="absolute -right-24 top-1/2 h-72 w-72 rounded-full bg-white/10 blur-3xl"
+            ></span>
 
         </section>
 
 
-        <!-- RIGHT SIDE -->
-        <section class="flex items-center justify-center px-6 py-12 sm:px-12 lg:px-16 xl:px-24">
+        {{-- RIGHT SIDE --}}
+        <section
+            class="flex items-center justify-center px-6 py-12 sm:px-12 lg:px-16 xl:px-24"
+        >
 
             <div class="w-full max-w-[390px]">
 
-                <!-- Heading -->
+                {{-- Heading --}}
                 <h2 class="text-2xl font-extrabold tracking-[-0.03em]">
                     Welcome back
                 </h2>
@@ -100,8 +118,9 @@
                 </p>
 
 
-                <!-- Login Form -->
+                {{-- Login Form --}}
                 <form
+                    id="loginForm"
                     method="POST"
                     action="{{ route('login.store') }}"
                     class="mt-7 space-y-4"
@@ -111,14 +130,18 @@
                     @csrf
 
 
-                    <!-- Role -->
+                    {{-- Role --}}
                     <fieldset>
 
-                        <legend class="mb-2 text-[11px] font-bold uppercase tracking-wide text-[#66809b]">
+                        <legend
+                            class="mb-2 text-[11px] font-bold uppercase tracking-wide text-[#66809b]"
+                        >
                             Sign in as
                         </legend>
 
-                        <div class="grid grid-cols-2 gap-1 rounded-xl border border-[#b9dff3] bg-[#e8f5fb] p-1">
+                        <div
+                            class="grid grid-cols-2 gap-1 rounded-xl border border-[#b9dff3] bg-[#e8f5fb] p-1"
+                        >
 
                             @foreach (['employee' => 'Employee', 'manager' => 'Manager'] as $value => $label)
 
@@ -135,12 +158,14 @@
                                     >
 
                                     <span>
+
                                         <i
                                             class="fa-solid {{ $value === 'employee' ? 'fa-user' : 'fa-tag' }} mr-1"
-                                            aria-hidden="true">
-                                        </i>
+                                            aria-hidden="true"
+                                        ></i>
 
                                         {{ $label }}
+
                                     </span>
 
                                 </label>
@@ -152,11 +177,12 @@
                     </fieldset>
 
 
-                    <!-- Username -->
+                    {{-- Username --}}
                     <label
                         class="block text-sm font-semibold"
                         for="username"
                     >
+
                         Username
 
                         <input
@@ -173,11 +199,12 @@
                     </label>
 
 
-                    <!-- Password -->
+                    {{-- Password --}}
                     <label
                         class="block text-sm font-semibold"
                         for="password"
                     >
+
                         Password
 
                         <span class="relative mt-1.5 block">
@@ -189,16 +216,22 @@
                                 required
                                 placeholder="••••••••"
                                 autocomplete="new-password"
+                                data-password-input
                                 class="block w-full rounded-xl border border-[#b9dff3] bg-white px-3.5 py-3 pr-11 text-sm font-normal outline-none transition placeholder:text-[#a3aeba] focus:border-[#4bb8eb] focus:ring-4 focus:ring-[#4bb8eb]/15"
                             >
 
                             <button
                                 type="button"
-                                aria-label="Show password"
                                 data-password-toggle
-                                class="absolute inset-y-0 right-0 px-3 text-sm text-[#66809b]"
+                                aria-label="Show password"
+                                class="absolute inset-y-0 right-0 px-3 text-sm text-[#66809b] transition hover:text-[#168cff]"
                             >
-                                <i class="fa-solid fa-eye" aria-hidden="true"></i>
+
+                                <i
+                                    class="fa-solid fa-eye"
+                                    aria-hidden="true"
+                                ></i>
+
                             </button>
 
                         </span>
@@ -206,43 +239,64 @@
                     </label>
 
 
-                    <!-- Error -->
+                    {{-- Error --}}
                     @error('username')
-
                         <p class="text-xs font-medium text-rose-600">
                             {{ $message }}
                         </p>
-
                     @enderror
 
 
-                    <!-- Sign In Button -->
+                    {{-- Sign In Button --}}
                     <button
                         type="submit"
-                        class="w-full rounded-xl bg-[#168cff] px-4 py-3 text-sm font-extrabold text-white shadow-lg shadow-[#168cff]/25 transition hover:-translate-y-0.5 hover:bg-[#0878df] focus:outline-none focus:ring-4 focus:ring-[#168cff]/20"
+                        id="signInButton"
+                        data-loading-button
+                        data-loading-message="Signing in..."
+                        class="flex w-full items-center justify-center gap-2 rounded-xl bg-[#168cff] px-4 py-3 text-sm font-extrabold text-white shadow-lg shadow-[#168cff]/25 transition hover:-translate-y-0.5 hover:bg-[#0878df] focus:outline-none focus:ring-4 focus:ring-[#168cff]/20 disabled:cursor-not-allowed disabled:opacity-80"
                     >
-                        Sign In
+
+                        <span
+                            data-loading-spinner
+                            class="hidden h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+                            aria-hidden="true"
+                        ></span>
+
+                        <span data-loading-text>
+                            Sign In
+                        </span>
+
                     </button>
 
                 </form>
 
 
-                <!-- Demo Credentials -->
-                <div class="mt-5 rounded-xl bg-[#e5f3fa] px-3.5 py-3 text-xs leading-5 text-[#66809b]">
+                {{-- Demo Credentials --}}
+                <div
+                    class="mt-5 rounded-xl bg-[#e5f3fa] px-3.5 py-3 text-xs leading-5 text-[#66809b]"
+                >
 
                     <strong class="block text-[#56829e]">
                         Demo credentials
                     </strong>
 
                     <span>
-                        <i class="fa-solid fa-user mr-1" aria-hidden="true"></i>
+                        <i
+                            class="fa-solid fa-user mr-1"
+                            aria-hidden="true"
+                        ></i>
+
                         Employee — josh / employee123
                     </span>
 
                     <br>
 
                     <span>
-                        <i class="fa-solid fa-tag mr-1" aria-hidden="true"></i>
+                        <i
+                            class="fa-solid fa-tag mr-1"
+                            aria-hidden="true"
+                        ></i>
+
                         Manager — manager / manager123
                     </span>
 
@@ -253,32 +307,5 @@
         </section>
 
     </div>
-
-
-    <!-- Password Toggle -->
-    <script>
-
-        document
-            .querySelector('[data-password-toggle]')
-            .addEventListener('click', (event) => {
-
-                const password = document.querySelector('#password');
-                const icon = event.currentTarget.querySelector('i');
-
-                const isPassword = password.type === 'password';
-
-                password.type = isPassword ? 'text' : 'password';
-
-                event.currentTarget.setAttribute(
-                    'aria-label',
-                    isPassword ? 'Hide password' : 'Show password'
-                );
-
-                icon.classList.toggle('fa-eye', !isPassword);
-                icon.classList.toggle('fa-eye-slash', isPassword);
-
-            });
-
-    </script>
 
 </x-layout>

@@ -10,14 +10,61 @@
                 </p>
             </div>
 
-            <button
-                type="button"
-                class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#168cff] px-3 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-[#0878df]"
-            >
-                <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                Add Employee
-            </button>
+            <details class="group relative shrink-0" @if ($errors->any()) open @endif>
+                <summary class="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-lg bg-[#168cff] px-3 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-[#0878df] [&::-webkit-details-marker]:hidden">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                    Add Employee
+                </summary>
+
+                <form method="POST" action="{{ route('manager.employees.store') }}" class="absolute right-0 top-full z-10 mt-3 w-[min(90vw,600px)] rounded-xl border border-sky-200 bg-white p-4 shadow-sm sm:p-5">
+                    @csrf
+                    <h2 class="text-sm font-bold text-slate-800">Create employee account</h2>
+                    <p class="mt-1 text-xs text-slate-500">Set a username and initial password for the new employee.</p>
+
+                    <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                        <div>
+                            <label for="name" class="mb-1 block text-xs font-semibold text-slate-700">Full name</label>
+                            <input id="name" name="name" type="text" value="{{ old('name') }}" required maxlength="255" autocomplete="name" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[#168cff] focus:ring-2 focus:ring-sky-100">
+                            @error('name')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="username" class="mb-1 block text-xs font-semibold text-slate-700">Username</label>
+                            <input id="username" name="username" type="text" value="{{ old('username') }}" required maxlength="255" autocomplete="username" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[#168cff] focus:ring-2 focus:ring-sky-100">
+                            @error('username')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="password" class="mb-1 block text-xs font-semibold text-slate-700">Initial password</label>
+                            <input id="password" name="password" type="password" required minlength="8" autocomplete="new-password" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[#168cff] focus:ring-2 focus:ring-sky-100">
+                            @error('password')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="password_confirmation" class="mb-1 block text-xs font-semibold text-slate-700">Confirm password</label>
+                            <input id="password_confirmation" name="password_confirmation" type="password" required minlength="8" autocomplete="new-password" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[#168cff] focus:ring-2 focus:ring-sky-100">
+                        </div>
+                    </div>
+
+                    <div class="mt-4 flex justify-end">
+                        <button type="submit" class="inline-flex items-center gap-1.5 rounded-lg bg-[#168cff] px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-[#0878df]">
+                            <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                            Create Employee
+                        </button>
+                    </div>
+                </form>
+            </details>
         </div>
+
+        @if (session('status'))
+            <p role="status" class="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{{ session('status') }}</p>
+        @endif
 
         {{-- Metrics: Always in one row, including mobile --}}
         <div class="grid grid-cols-3 gap-2">
@@ -66,7 +113,7 @@
                             </div>
 
                             <p class="text-xs text-slate-500">
-                                @{{ $employee->username }}
+                                @ {{ $employee->username }}
                             </p>
 
                             <p class="mt-1 text-xs text-slate-400">

@@ -95,11 +95,15 @@
 
                     <button
                         type="submit"
-                        class="whitespace-nowrap rounded-md border border-[#d9b8c6] bg-white/70 px-2 py-1.5 text-[10px] font-semibold text-[#5d2943] transition-colors hover:bg-[#2f7dcc] hover:text-white sm:px-3 sm:text-xs">
+                        data-loading-button
+                        data-loading-message="Signing out..."
+                        class="whitespace-nowrap rounded-md border border-[#d9b8c6] bg-white/70 px-2 py-1.5 text-[10px] font-semibold text-[#5d2943] transition-colors hover:bg-[#2f7dcc] hover:text-white disabled:cursor-not-allowed disabled:opacity-70 sm:px-3 sm:text-xs"
+                    >
+                        <span data-loading-spinner class="hidden"></span>
 
                         <i class="fa-solid fa-right-from-bracket mr-1" aria-hidden="true"></i>
-                        Sign out
 
+                        <span data-loading-text>Sign out</span>
                     </button>
                 </form>
 

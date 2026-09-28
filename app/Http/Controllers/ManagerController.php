@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -79,13 +80,37 @@ class ManagerController extends Controller
         return view('manager.sales-reports');
     }
 
-    public function employees(): View
+    public function employees(Request $request): View
     {
+        abort_unless($request->user()?->role === 'manager', 403);
+
         $employees = User::query()
             ->where('role', 'employee')
             ->orderBy('name')
             ->get();
 
         return view('manager.employees', ['employees' => $employees]);
+    }
+
+    public function storeEmployee(Request $request): RedirectResponse
+    {
+        abort_unless($request->user()?->role === 'manager', 403);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'max:255', 'unique:users,username'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'password.min' => 'The password must be at least 8 characters long.',
+        ]);
+
+        User::query()->create([
+            'name' => $validated['name'],
+            'username' => $validated['username'],
+            'password' => $validated['password'],
+            'role' => 'employee',
+        ]);
+
+        return redirect()->route('manager.employees')->with('status', 'Employee account created.');
     }
 }
