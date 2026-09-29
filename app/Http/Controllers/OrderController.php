@@ -13,7 +13,7 @@ class OrderController extends Controller
 {
     public function create(): View
     {
-        return view('employee.orders.create');
+        return view('employee.records.create');
     }
 
     public function index(Request $request): View
@@ -35,11 +35,11 @@ class OrderController extends Controller
             ->when(in_array($status, Order::STATUSES, true), function ($query) use ($status): void {
                 $query->where('status', $status);
             })
-            ->latest()
+            ->latest('order_date')
             ->paginate(15)
             ->withQueryString();
 
-        return view('employee.orders.index', [
+        return view('employee.records.index', [
             'orders' => $orders,
             'search' => $search,
             'status' => $status,
@@ -48,7 +48,7 @@ class OrderController extends Controller
 
     public function show(Order $order): View
     {
-        return view('employee.orders.show', ['order' => $order]);
+        return view('employee.records.show', ['order' => $order]);
     }
 
     public function store(StoreOrderRequest $request): RedirectResponse
@@ -73,7 +73,7 @@ class OrderController extends Controller
             'status' => 'Received',
         ]);
 
-        return redirect()->route('orders.index')->with('success', 'Order created successfully.');
+        return redirect()->route('records.index')->with('success', 'Order created successfully.');
     }
 
     public function updateStatus(Request $request, Order $order): RedirectResponse
@@ -84,13 +84,13 @@ class OrderController extends Controller
 
         $order->update(['status' => $validated['status']]);
 
-        return redirect()->route('orders.index')->with('success', "Order #{$order->id} moved to {$order->status}.");
+        return redirect()->route('records.index')->with('success', "Order #{$order->id} moved to {$order->status}.");
     }
 
     public function recordPayment(Order $order): RedirectResponse
     {
         $order->update(['amount_paid' => $order->total_amount]);
 
-        return redirect()->route('orders.index')->with('success', "Payment recorded for order #{$order->id}.");
+        return redirect()->route('records.index')->with('success', "Payment recorded for order #{$order->id}.");
     }
 }

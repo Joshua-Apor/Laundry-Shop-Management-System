@@ -43,14 +43,14 @@
                     Dashboard
                 </a>
 
-                <a href="{{ route('orders.index') }}"
+                <a href="{{ route('customers.index') }}"
                    @class([
                        'shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 transition-colors',
-                       'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('orders.index', 'orders.show'),
-                       'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('orders.index', 'orders.show'),
+                       'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('customers.index'),
+                       'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('customers.index'),
                    ])>
-                    <i class="fa-solid fa-box mr-1" aria-hidden="true"></i>
-                    Orders
+                    <i class="fa-solid fa-users mr-1" aria-hidden="true"></i>
+                    Customers
                 </a>
 
                 <a href="{{ route('orders.create') }}"
@@ -63,14 +63,14 @@
                     New Order
                 </a>
 
-                <a href="{{ route('customers.index') }}"
+                <a href="{{ route('records.index') }}"
                    @class([
                        'shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 transition-colors',
-                       'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('customers.index'),
-                       'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('customers.index'),
+                       'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('records.*'),
+                       'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('records.*'),
                    ])>
-                    <i class="fa-solid fa-users mr-1" aria-hidden="true"></i>
-                    Customers
+                    <i class="fa-solid fa-box mr-1" aria-hidden="true"></i>
+                    Records
                 </a>
 
             </nav>
@@ -127,14 +127,14 @@
                 <span>Dashboard</span>
             </a>
 
-            <a href="{{ route('orders.index') }}"
+            <a href="{{ route('customers.index') }}"
                @class([
                    'flex min-w-0 items-center justify-center gap-1 rounded-md px-1 py-1.5 text-[10px] transition-colors',
-                   'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('orders.index', 'orders.show'),
-                   'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('orders.index', 'orders.show'),
+                   'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('customers.index'),
+                   'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('customers.index'),
                ])>
-                <i class="fa-solid fa-box" aria-hidden="true"></i>
-                <span>Orders</span>
+                <i class="fa-solid fa-users" aria-hidden="true"></i>
+                <span>Customers</span>
             </a>
 
             <a href="{{ route('orders.create') }}"
@@ -147,14 +147,14 @@
                 <span>New Order</span>
             </a>
 
-            <a href="{{ route('customers.index') }}"
+            <a href="{{ route('records.index') }}"
                @class([
                    'flex min-w-0 items-center justify-center gap-1 rounded-md px-1 py-1.5 text-[10px] transition-colors',
-                   'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('customers.index'),
-                   'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('customers.index'),
+                   'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('records.*'),
+                   'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('records.*'),
                ])>
-                <i class="fa-solid fa-users" aria-hidden="true"></i>
-                <span>Customers</span>
+                <i class="fa-solid fa-box" aria-hidden="true"></i>
+                <span>Records</span>
             </a>
 
         </nav>

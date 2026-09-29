@@ -24,12 +24,13 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/manager/employees', [ManagerController::class, 'storeEmployee'])->name('manager.employees.store');
 
     Route::prefix('employee')->group(function (): void {
-        Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('/records', [OrderController::class, 'index'])->name('records.index');
+        Route::redirect('/orders', '/employee/records');
         Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
         Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
-        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-        Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status.update');
-        Route::patch('/orders/{order}/payment', [OrderController::class, 'recordPayment'])->name('orders.payment.record');
+        Route::get('/records/{order}', [OrderController::class, 'show'])->name('records.show');
+        Route::patch('/records/{order}/status', [OrderController::class, 'updateStatus'])->name('records.status.update');
+        Route::patch('/records/{order}/payment', [OrderController::class, 'recordPayment'])->name('records.payment.record');
         Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
     });
 });

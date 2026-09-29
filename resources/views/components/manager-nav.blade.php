@@ -1,4 +1,4 @@
-<header class="border-b border-[#d8e7f5] bg-white text-[#263653] shadow-sm">
+<header class="border-b border-[#ead4dd] bg-[#f8eef2] text-[#5d2943] shadow-sm">
 
     <div class="mx-auto max-w-[1178px] px-3 sm:px-6">
 

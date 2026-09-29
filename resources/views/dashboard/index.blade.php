@@ -1,6 +1,16 @@
 <x-layout>
     <h1 class="mb-6 text-2xl font-bold">Good Morning, {{ auth()->user()->name }}</h1>
 
+    <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-lg font-semibold">
+            Today's Summary
+        </h2>
+
+        <span class="text-sm font-medium">
+            {{ now()->format('F d, Y') }}
+        </span>
+    </div>
+
     <div class="mx-auto mb-6 grid w-full max-w-5xl grid-cols-2 gap-2 sm:grid-cols-4">
         <x-dashboard.metric-card title="Total Orders" :value="$totalOrders" />
         <x-dashboard.metric-card title="Completed" :value="$completedOrders" />
@@ -11,7 +21,7 @@
     <div>
         <div class="mb-4 flex flex-row items-center justify-between">
             <span class="text-base font-bold">Recent Orders</span>
-            <a href="{{ route('orders.index') }}" class="cursor-pointer text-sm font-medium">View all →</a>
+            <a href="{{ route('records.index') }}" class="cursor-pointer text-sm font-medium">View all →</a>
         </div>
 
         <div class="space-y-2">
