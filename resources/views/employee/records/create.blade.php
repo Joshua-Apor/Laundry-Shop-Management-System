@@ -38,6 +38,17 @@
                         </div>
                     </div>
 
+                    <button
+                        type="button"
+                        data-modal-trigger
+                        data-modal-target="customer-picker"
+                        data-loading-message="Loading customers..."
+                        class="mb-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#168CFF] px-3.5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0878df] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                        <span data-loading-spinner class="hidden size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true"></span>
+                        <span data-loading-text>Choose Existing Customer</span>
+                    </button>
+
 
                     <div class="space-y-4">
 
@@ -46,13 +57,27 @@
                             Full Name
                             <span class="text-rose-500">*</span>
 
-                            <input
-                                type="text"
-                                name="full_name"
-                                placeholder="e.g. Maria Santos"
-                                required
-                                class="w-full rounded-lg border border-sky-200 bg-white px-3.5 py-2.5 text-sm font-normal text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300"
-                            >
+                            <span class="relative block">
+                                <input
+                                    type="text"
+                                    name="full_name"
+                                    id="customer-name"
+                                    value="{{ old('full_name') }}"
+                                    placeholder="e.g. Maria Santos"
+                                    autocomplete="off"
+                                    aria-autocomplete="list"
+                                    aria-controls="customer-suggestions"
+                                    aria-expanded="false"
+                                    required
+                                    class="w-full rounded-lg border border-sky-200 bg-white px-3.5 py-2.5 text-sm font-normal text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300"
+                                >
+                                <span
+                                    id="customer-suggestions"
+                                    role="listbox"
+                                    class="absolute inset-x-0 top-full z-20 mt-1 hidden max-h-60 overflow-y-auto rounded-lg border border-sky-200 bg-white p-1 shadow-lg"
+                                    data-customer-suggestions
+                                ></span>
+                            </span>
                         </label>
 
 
@@ -70,6 +95,8 @@
                                 <input
                                     type="text"
                                     name="phone_number"
+                                    id="customer-phone"
+                                    value="{{ old('phone_number') }}"
                                     placeholder="09XX XXX XXXX"
                                     required
                                     class="w-full px-3.5 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none"
@@ -89,10 +116,11 @@
 
                             <textarea
                                 name="address"
+                                id="customer-address"
                                 rows="2"
                                 placeholder="Street, barangay, city"
                                 class="w-full resize-y rounded-lg border border-sky-200 bg-white px-3.5 py-2.5 text-sm font-normal text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300"
-                            ></textarea>
+                            >{{ old('address') }}</textarea>
                         </label>
 
                     </div>
@@ -346,6 +374,42 @@
             </button>
 
         </form>
+
+        <x-modal id="customer-picker" title="Choose a customer" class="w-[min(36rem,calc(100vw-2rem))]">
+            <div class="space-y-4">
+                <label for="customer-search" class="sr-only">Search customers by name or phone number</label>
+                <input
+                    id="customer-search"
+                    type="search"
+                    placeholder="Search by customer name or phone number..."
+                    autocomplete="off"
+                    data-customer-search
+                    class="w-full rounded-lg border border-sky-200 bg-white px-3.5 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300"
+                >
+
+                <div class="max-h-80 space-y-2 overflow-y-auto" data-customer-list>
+                    @forelse ($customers as $customer)
+                        <button
+                            type="button"
+                            data-customer-option
+                            data-name="{{ $customer->name }}"
+                            data-phone="{{ $customer->contact_number }}"
+                            data-address="{{ $customer->address }}"
+                            class="flex w-full items-start justify-between gap-3 rounded-lg border border-sky-100 bg-white p-3 text-left transition-colors hover:border-sky-300 hover:bg-sky-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+                        >
+                            <span class="min-w-0">
+                                <span class="block truncate text-sm font-semibold text-slate-800">{{ $customer->name }}</span>
+                                <span class="mt-1 block text-xs text-slate-500">{{ $customer->contact_number }}</span>
+                            </span>
+                            <i class="fa-solid fa-chevron-right mt-1 text-xs text-slate-400" aria-hidden="true"></i>
+                        </button>
+                    @empty
+                        <p class="rounded-lg bg-slate-50 p-4 text-center text-sm text-slate-500">No customers to show yet.</p>
+                    @endforelse
+                    <p class="hidden rounded-lg bg-slate-50 p-4 text-center text-sm text-slate-500" data-customer-empty>No matching customers found.</p>
+                </div>
+            </div>
+        </x-modal>
 
     </div>
 

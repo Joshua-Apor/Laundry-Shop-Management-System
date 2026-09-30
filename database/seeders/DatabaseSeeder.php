@@ -55,7 +55,7 @@ class DatabaseSeeder extends Seeder
         }
 
         $sampleOrders = [
-            ['customer' => 0, 'days_ago' => 0, 'weight' => 4.50, 'total' => 270.00, 'paid' => 270.00, 'status' => 'Received', 'pickup_days' => null],
+            ['customer' => 0, 'days_ago' => 0, 'weight' => 4.50, 'total' => 270.00, 'paid' => 270.00, 'status' => 'Processing', 'pickup_days' => null],
             ['customer' => 1, 'days_ago' => 1, 'weight' => 6.25, 'total' => 375.00, 'paid' => 200.00, 'status' => 'Processing', 'pickup_days' => null],
             ['customer' => 2, 'days_ago' => 2, 'weight' => 3.00, 'total' => 180.00, 'paid' => 180.00, 'status' => 'Ready for Pickup', 'pickup_days' => 0],
             ['customer' => 3, 'days_ago' => 5, 'weight' => 5.00, 'total' => 300.00, 'paid' => 300.00, 'status' => 'Completed', 'pickup_days' => -1],

@@ -1,49 +1,115 @@
 <x-layout>
-    <div class="space-y-4">
-        <div>
-            <h1 class="text-2xl font-bold text-slate-900">Order Records &amp; Payments</h1>
-            <p class="text-sm text-slate-500">{{ $orders->total() }} total orders</p>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <x-dashboard.metric-card title="Total Revenue" :value="'₱'.number_format($totalRevenue, 0)" />
-            <x-dashboard.metric-card title="Total Collected" :value="'₱'.number_format($totalCollected, 0)" />
-            <x-dashboard.metric-card title="Outstanding" :value="'₱'.number_format($outstanding, 0)" />
-            <x-dashboard.metric-card title="Completed Orders" :value="$completedOrders" />
+    <div class="mx-auto max-w-6xl space-y-6 p-6">
+        <div class="flex items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">
+                    Order Records &amp; Payments
+                </h1>
+                <p class="text-sm text-slate-500">
+                    {{ $orders->total() }} total orders
+                </p>
+            </div>
         </div>
 
         <form method="GET" action="{{ route('manager.orders-payments') }}">
-            <label class="sr-only" for="order-search">Search orders</label>
-            <input id="order-search" name="search" value="{{ $search }}" placeholder="Search by name, claim #, or phone..." class="w-full rounded-lg border border-sky-200 bg-white px-4 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300">
+            <label class="sr-only" for="order-search">
+                Search orders
+            </label>
+
+            <input
+                id="order-search"
+                type="search"
+                name="search"
+                value="{{ $search }}"
+                placeholder="Search by name, claim #, or phone..."
+                class="w-full rounded-lg border border-sky-200 bg-white px-4 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300"
+            >
         </form>
 
-        <div class="overflow-hidden rounded-xl border border-sky-200 bg-white shadow-sm">
-            <div class="overflow-x-auto">
-                <table class="w-full min-w-[1100px] text-left text-xs">
-                    <thead class="bg-sky-50 uppercase tracking-wide text-slate-500">
-                        <tr>
-                            <th class="px-3 py-3 font-semibold">Claim #</th><th class="px-3 py-3 font-semibold">Customer</th><th class="px-3 py-3 font-semibold">Date</th><th class="px-3 py-3 font-semibold">Services</th><th class="px-3 py-3 font-semibold">Weight</th><th class="px-3 py-3 font-semibold">Total</th><th class="px-3 py-3 font-semibold">Paid</th><th class="px-3 py-3 font-semibold">Balance</th><th class="px-3 py-3 font-semibold">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-sky-100">
-                        @forelse ($orders as $order)
-                            <tr>
-                                <td class="px-3 py-3 font-mono text-slate-500">CLM-{{ str_pad($order->id, 3, '0', STR_PAD_LEFT) }}</td>
-                                <td class="px-3 py-3"><p class="font-semibold text-slate-800">{{ $order->fullname }}</p><p class="text-[10px] text-slate-400">{{ $order->phoneNumber }}</p></td>
-                                <td class="px-3 py-3 text-slate-500">{{ $order->order_date }}</td>
-                                <td class="px-3 py-3 text-slate-600">{{ implode(', ', $order->service ?? []) }}</td>
-                                <td class="px-3 py-3 text-slate-600">{{ $order->weight }}kg</td>
-                                <td class="px-3 py-3 font-semibold">₱{{ number_format($order->total_amount, 0) }}</td>
-                                <td class="px-3 py-3 font-semibold text-cyan-600">₱{{ number_format($order->amount_paid, 0) }}</td>
-                                <td class="px-3 py-3 font-semibold text-pink-600">₱{{ number_format($order->balance, 0) }}</td>
-                                <td class="px-3 py-3"><span class="rounded-full bg-sky-50 px-2 py-1 text-[10px] font-semibold text-sky-700">{{ $order->status }}</span></td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="9" class="px-4 py-10 text-center text-slate-400">No orders found.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+        {{-- Table Header --}}
+        <div class="hidden grid-cols-[1.1fr_1.4fr_1fr_1.2fr_1fr] gap-4 px-5 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:grid">
+            <span>Order Number</span>
+            <span>Customer Name</span>
+            <span>Laundry Weight</span>
+            <span>Total Amount</span>
+
+            {{-- Center Status Header --}}
+            <span class="text-center">
+                Status
+            </span>
+        </div>
+
+        <div class="space-y-2">
+            @forelse ($orders as $order)
+                <div class="relative">
+                    <div
+                        class="relative grid min-h-20 grid-cols-2 items-center gap-x-4 gap-y-3 rounded-2xl border border-sky-200 bg-white px-4 py-4 text-sm shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50/40 sm:grid-cols-[1.1fr_1.4fr_1fr_1.2fr_1fr] sm:gap-4 sm:px-5"
+                    >
+                        {{-- Full row clickable area --}}
+                        <button
+                            type="button"
+                            data-modal-trigger
+                            data-modal-target="record-details-{{ $order->order_id }}"
+                            aria-label="View details for order {{ $order->order_id }}"
+                            class="absolute inset-0 z-10 rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+                        >
+                            <span
+                                data-loading-spinner
+                                class="absolute right-3 top-3 hidden size-3.5 animate-spin rounded-full border-2 border-sky-200 border-t-sky-600 sm:right-5 sm:top-1/2 sm:-translate-y-1/2"
+                                aria-hidden="true"
+                            ></span>
+
+                            <span data-loading-text class="sr-only">
+                                Open order details
+                            </span>
+                        </button>
+
+                        {{-- Order Number --}}
+                        <span class="pointer-events-none relative z-0 font-mono font-medium text-sky-700">
+                            Order #{{ $order->order_id }}
+
+                            <span class="mt-1 block font-sans text-xs text-slate-500">
+                                {{ $order->order_date }}
+                            </span>
+                        </span>
+
+                        {{-- Customer Name --}}
+                        <span
+                            class="pointer-events-none relative z-0 col-span-2 row-start-2 min-w-0 sm:row-auto sm:col-span-1"
+                        >
+                            <span class="block truncate font-medium text-slate-900">
+                                {{ $order->fullname }}
+                            </span>
+                        </span>
+
+                        {{-- Laundry Weight --}}
+                        <span class="pointer-events-none relative z-0 text-slate-600">
+                            {{ $order->weight }} kg
+                        </span>
+
+                        {{-- Total Amount --}}
+                        <span class="pointer-events-none relative z-0 font-semibold text-slate-900">
+                            ₱{{ number_format((float) $order->total_amount, 2) }}
+                        </span>
+
+                        {{-- Status --}}
+                        <div
+                            class="relative z-20 col-start-2 row-start-1 flex justify-start sm:col-start-5 sm:row-auto sm:justify-center"
+                        >
+                            <x-orders.status-control
+                                :order="$order"
+                                :editable="false"
+                            />
+                        </div>
+                    </div>
+
+                    <x-orders.record-details-modal :order="$order" />
+                </div>
+            @empty
+                <div class="rounded-2xl border border-sky-100 bg-white p-12 text-center text-sm text-slate-400">
+                    No orders found.
+                </div>
+            @endforelse
         </div>
 
         {{ $orders->links() }}

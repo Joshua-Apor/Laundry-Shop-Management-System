@@ -25,10 +25,13 @@ class StoreOrderRequest extends FormRequest
         return [
             'full_name' => ['required', 'string', 'max:255'],
             'phone_number' => ['required', 'string', 'max:11'],
+            'address' => ['nullable', 'string', 'max:1000'],
             'services' => ['required', 'array', 'min:1'],
             'services.*' => ['required', 'string', 'distinct', 'in:Wash & Dry,Ironing,Folding,Self-Service'],
             'weight' => ['required', 'numeric', 'min:0.1'],
+            'laundry_amount' => ['nullable', 'numeric', 'min:0'],
             'special_request' => ['nullable', 'string', 'max:1000'],
+            'special_request_price' => ['nullable', 'numeric', 'min:0'],
             'payment_method' => ['required', 'string', 'in:Cash,GCash'],
             'amount_paid' => ['nullable', 'numeric', 'min:0'],
         ];
