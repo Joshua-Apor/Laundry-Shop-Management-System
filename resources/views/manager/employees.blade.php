@@ -5,8 +5,8 @@
             <div>
                 <h1 class="text-2xl font-bold text-slate-900">Employee Management</h1>
                 <p class="text-sm text-slate-500">
-                    {{ $employees->where('account_status', true)->count() }} active ·
-                    {{ $employees->where('account_status', false)->count() }} inactive
+                    {{ $employees->where('is_logged_in', true)->count() }} active ·
+                    {{ $employees->where('is_logged_in', false)->count() }} inactive
                 </p>
             </div>
 
@@ -75,12 +75,12 @@
 
             <x-dashboard.metric-card
                 title="Active"
-                :value="$employees->where('account_status', true)->count()"
+                :value="$employees->where('is_logged_in', true)->count()"
             />
 
             <x-dashboard.metric-card
                 title="Inactive"
-                :value="$employees->where('account_status', false)->count()"
+                :value="$employees->where('is_logged_in', false)->count()"
             />
         </div>
 
@@ -89,7 +89,7 @@
 
             @forelse ($employees as $employee)
 
-                @php($isActive = (bool) $employee->account_status)
+                @php($isActive = (bool) $employee->is_logged_in)
 
                 <article class="rounded-xl border border-sky-200 bg-white p-4 shadow-sm">
 
@@ -106,8 +106,12 @@
                                     {{ $employee->name }}
                                 </h2>
 
-                                <span class="rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-semibold text-[#168cff]">
-                                    <i class="fa-solid fa-circle text-[7px]" aria-hidden="true"></i>
+                                <span @class([
+                                    'inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold',
+                                    'bg-emerald-50 text-emerald-700' => $isActive,
+                                    'bg-slate-100 text-slate-500' => ! $isActive,
+                                ])>
+                                    <i @class(['fa-solid fa-circle text-[7px]', 'text-emerald-500' => $isActive, 'text-slate-400' => ! $isActive]) aria-hidden="true"></i>
                                     {{ $isActive ? 'Active' : 'Inactive' }}
                                 </span>
                             </div>
@@ -126,25 +130,24 @@
 
                     <div class="mt-4 flex gap-2">
 
-                        <button
-                            type="button"
-                            class="flex-1 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-semibold text-[#168cff] transition-colors hover:bg-[#168cff] hover:text-white"
-                        >
-                            <i class="fa-solid fa-pause mr-1" aria-hidden="true"></i>
-                            {{ $isActive ? 'Set Inactive' : 'Set Active' }}
-                        </button>
-
-                        <button
-                            type="button"
-                            class="rounded-lg border border-sky-200 bg-white px-3 py-2 text-xs font-semibold text-[#168cff] transition-colors hover:bg-sky-50"
-                        >
-                            <i class="fa-solid fa-trash mr-1" aria-hidden="true"></i>
-                            Remove
+                        <button type="button" data-modal-trigger data-modal-target="employee-delete-{{ $employee->user_id }}" class="w-full rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50">
+                                <i class="fa-solid fa-trash mr-1" aria-hidden="true"></i>
+                                Remove
                         </button>
 
                     </div>
 
                 </article>
+
+                <x-modal :id="'employee-delete-'.$employee->user_id" title="Remove employee?">
+                    <p class="text-sm leading-6 text-slate-600">Remove {{ $employee->name }}'s access to the employee account? Their existing customer orders and records will be kept.</p>
+                    <form method="POST" action="{{ route('manager.employees.destroy', $employee) }}" class="mt-5 flex justify-end gap-2">
+                        @csrf
+                        @method('DELETE')
+                        <button type="button" data-modal-close class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Cancel</button>
+                        <button type="submit" class="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-700">Remove employee</button>
+                    </form>
+                </x-modal>
 
             @empty
 

@@ -16,6 +16,7 @@
             @forelse ($customers as $customer)
                 <x-customers.customer-cont-modal
                     :initial="strtoupper(substr($customer->fullname, 0, 2))"
+                    :customer-id="$customer->customer_id"
                     :name="$customer->fullname"
                     :phone="$customer->phoneNumber"
                     :address="$customer->address"

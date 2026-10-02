@@ -25,6 +25,7 @@
                 <x-orders.info-item label="Status" icon="fa-circle-check">{{ $order->status }}</x-orders.info-item>
                 <x-orders.info-item label="Laundry weight" icon="fa-weight-scale">{{ number_format((float) $order->weight, 2) }} kg</x-orders.info-item>
                 <x-orders.info-item label="Order date" icon="fa-calendar-days">{{ $order->order_date }}</x-orders.info-item>
+                <x-orders.info-item label="Order time" icon="fa-clock">{{ $order->order_time ? \Illuminate\Support\Carbon::parse($order->order_time)->format('g:i A') : 'Time unavailable' }}</x-orders.info-item>
                 <x-orders.info-item label="Pickup date" icon="fa-calendar-check">{{ $order->pickup_date }}</x-orders.info-item>
                 <div class="sm:col-span-2">
                     <x-orders.info-item label="Services" icon="fa-soap">{{ $order->services }}</x-orders.info-item>

@@ -15,7 +15,10 @@
 
     <div>
         <div class="mb-4 flex flex-row items-center justify-between">
-            <span class="text-base font-bold">Recent Orders</span>
+            <span>
+                <span class="block text-base font-bold">Recent Orders</span>
+                <span class="block text-xs font-medium text-slate-500">Newest by order date</span>
+            </span>
             <a href="{{ auth()->user()->role === 'manager' ? route('manager.orders-payments') : route('records.index') }}" class="cursor-pointer text-sm font-medium">
                 View all →
             </a>
@@ -57,6 +60,10 @@
                         {{-- Order Number --}}
                         <span class="pointer-events-none relative z-0 font-mono font-medium text-sky-700">
                             Order #{{ $order->order_id }}
+                            <span class="mt-1 block font-sans text-xs text-slate-500">
+                                {{ \Illuminate\Support\Carbon::parse($order->order_date)->format('M j, Y') }}
+                                <span class="block">{{ $order->order_time ? \Illuminate\Support\Carbon::parse($order->order_time)->format('g:i A') : 'Time unavailable' }}</span>
+                            </span>
                         </span>
 
                         {{-- Customer Name --}}

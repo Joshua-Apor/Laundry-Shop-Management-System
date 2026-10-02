@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class LoginController extends Controller
@@ -43,6 +44,10 @@ class LoginController extends Controller
 
     public function destroy(Request $request): RedirectResponse
     {
+        DB::table(config('session.table', 'sessions'))
+            ->where('id', $request->session()->getId())
+            ->delete();
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

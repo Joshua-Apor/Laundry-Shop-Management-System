@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class OrderController extends Controller
@@ -68,29 +69,45 @@ class OrderController extends Controller
         $specialRequestPrice = (float) ($validated['special_request_price'] ?? 0);
         $total = $laundryAmount + $serviceFee + $specialRequestPrice;
         $amountPaid = (float) ($validated['amount_paid'] ?? 0);
+        $orderCreatedAt = now();
 
-        DB::transaction(function () use ($validated, $weight, $laundryAmount, $serviceFee, $total, $amountPaid): void {
-            $customer = DB::table('customers')
-                ->where('contact_number', $validated['phone_number'])
-                ->first();
+        DB::transaction(function () use ($validated, $weight, $laundryAmount, $serviceFee, $total, $amountPaid, $orderCreatedAt): void {
+            if (isset($validated['customer_id'])) {
+                $customer = DB::table('customers')
+                    ->where('customer_id', $validated['customer_id'])
+                    ->first(['customer_id', 'contact_number']);
 
-            $customerData = [
-                'name' => $validated['full_name'],
-                'contact_number' => $validated['phone_number'],
-                'address' => $validated['address'] ?? '',
-            ];
+                if ($customer === null || $customer->contact_number !== $validated['phone_number']) {
+                    throw ValidationException::withMessages([
+                        'phone_number' => 'The selected customer does not match this phone number. Choose the customer again.',
+                    ]);
+                }
 
-            if ($customer === null) {
-                $customerId = DB::table('customers')->insertGetId($customerData);
+                $customerId = (int) $customer->customer_id;
             } else {
-                $customerId = $customer->customer_id;
-                DB::table('customers')->where('customer_id', $customerId)->update($customerData);
+                $existingCustomer = DB::table('customers')
+                    ->where('contact_number', $validated['phone_number'])
+                    ->lockForUpdate()
+                    ->first(['customer_id']);
+
+                if ($existingCustomer !== null) {
+                    throw ValidationException::withMessages([
+                        'phone_number' => 'This phone number is already registered. Choose the existing customer or enter a different number.',
+                    ]);
+                }
+
+                $customerId = DB::table('customers')->insertGetId([
+                    'name' => $validated['full_name'],
+                    'contact_number' => $validated['phone_number'],
+                    'address' => $validated['address'] ?? '',
+                ]);
             }
 
             $orderId = DB::table('laundry_orders')->insertGetId([
                 'customer_id' => $customerId,
                 'user_id' => auth()->id(),
-                'order_date' => now()->toDateString(),
+                'order_date' => $orderCreatedAt->toDateString(),
+                'order_time' => $orderCreatedAt->format('H:i:s'),
                 'laundry_weight' => $weight,
                 'total_amount' => $total,
                 'amount_paid' => $amountPaid,

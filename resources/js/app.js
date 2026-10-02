@@ -6,6 +6,7 @@ document.addEventListener('click', (event) => {
         document.getElementById('customer-name').value = customerOption.dataset.name;
         document.getElementById('customer-phone').value = customerOption.dataset.phone;
         document.getElementById('customer-address').value = customerOption.dataset.address;
+        document.getElementById('customer-id').value = customerOption.dataset.customerId;
         customerOption.closest('dialog')?.close();
         suggestionList?.classList.add('hidden');
         document.getElementById('customer-name').setAttribute('aria-expanded', 'false');
@@ -68,6 +69,10 @@ document.addEventListener('click', (event) => {
 });
 
 document.addEventListener('input', (event) => {
+    if (event.target.matches('#customer-name, #customer-phone')) {
+        document.getElementById('customer-id').value = '';
+    }
+
     if (event.target.matches('#customer-name')) {
         const search = event.target.value.trim().toLocaleLowerCase();
         const suggestionList = document.querySelector('[data-customer-suggestions]');
@@ -93,6 +98,7 @@ document.addEventListener('input', (event) => {
             option.type = 'button';
             option.setAttribute('role', 'option');
             option.dataset.customerOption = '';
+            option.dataset.customerId = customer.dataset.customerId;
             option.dataset.name = customer.dataset.name;
             option.dataset.phone = customer.dataset.phone;
             option.dataset.address = customer.dataset.address;

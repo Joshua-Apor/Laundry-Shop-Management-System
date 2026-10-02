@@ -12,7 +12,8 @@ class DashboardController extends Controller
         $recentOrders = Order::query()
             ->withRecordDetails()
             ->addSelect('laundry_orders.order_id as id')
-            ->latest('laundry_orders.order_date')
+            ->orderByDesc('laundry_orders.order_date')
+            ->orderByDesc('laundry_orders.order_id')
             ->take(4)
             ->get();
 

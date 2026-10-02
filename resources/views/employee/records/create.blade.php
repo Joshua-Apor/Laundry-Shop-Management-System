@@ -15,6 +15,7 @@
 
         <form action="{{ route('orders.store') }}" method="POST">
             @csrf
+            <input type="hidden" name="customer_id" id="customer-id" value="{{ old('customer_id') }}">
 
             {{-- MAIN GRID --}}
             <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
@@ -107,6 +108,9 @@
                             <span class="block text-[11px] font-normal text-slate-400">
                                 Used to send SMS pickup notifications
                             </span>
+                            @error('phone_number')
+                                <span role="alert" class="block text-xs font-medium text-red-600">{{ $message }}</span>
+                            @enderror
 
                         </label>
 
@@ -392,6 +396,7 @@
                         <button
                             type="button"
                             data-customer-option
+                            data-customer-id="{{ $customer->customer_id }}"
                             data-name="{{ $customer->name }}"
                             data-phone="{{ $customer->contact_number }}"
                             data-address="{{ $customer->address }}"
