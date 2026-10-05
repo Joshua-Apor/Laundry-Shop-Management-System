@@ -147,19 +147,13 @@
                         data-modal-target="record-details-{{ $order->order_id }}"
                         aria-label="View details for order {{ $order->order_id }}"
                         class="absolute inset-0 z-10 rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500">
-                        <span
-                            data-loading-spinner
-                            class="absolute right-3 top-3 hidden size-3.5 animate-spin rounded-full border-2 border-sky-200 border-t-sky-600 sm:right-5 sm:top-1/2 sm:-translate-y-1/2"
-                            aria-hidden="true"></span>
-
-                        <span data-loading-text class="sr-only">
-                            Open order details
-                        </span>
                     </button>
 
                     {{-- Order Number --}}
-                    <span class="pointer-events-none relative z-0 font-mono font-medium text-sky-700">
-                        Order #{{ $order->order_id }}
+                    <span class="pointer-events-none relative z-0">
+                        <span class="inline-flex rounded-md border border-sky-200 bg-sky-50 px-1.5 py-0.5 font-mono text-xs font-bold text-sky-800">
+                            Order #{{ $order->order_id }}
+                        </span>
 
                         <span class="mt-1 block font-sans text-xs text-slate-500">
                             {{ \Illuminate\Support\Carbon::parse($order->order_date)->format('M j, Y') }}

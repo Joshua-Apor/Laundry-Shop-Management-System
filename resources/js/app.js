@@ -1,4 +1,54 @@
+async function loadDashboardResults(container) {
+    container.setAttribute('aria-busy', 'true');
+
+    try {
+        const response = await fetch(container.dataset.dashboardEndpoint, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                Accept: 'text/html',
+            },
+            credentials: 'same-origin',
+        });
+
+        if (!response.ok || response.redirected) {
+            throw new Error('Dashboard request failed.');
+        }
+
+        const documentContent = new DOMParser().parseFromString(await response.text(), 'text/html');
+        const fragment = documentContent.querySelector('[data-dashboard-fragment]');
+
+        if (!fragment) {
+            throw new Error('Dashboard response was incomplete.');
+        }
+
+        container.innerHTML = fragment.innerHTML;
+        container.removeAttribute('aria-busy');
+    } catch {
+        container.removeAttribute('aria-busy');
+        container.innerHTML = `
+            <div class="rounded-xl border border-red-200 bg-red-50 p-5 text-center" role="alert">
+                <p class="text-sm font-semibold text-red-700">Dashboard data could not be loaded.</p>
+                <button type="button" data-dashboard-retry class="mt-3 rounded-lg bg-[#168cff] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0878df]">
+                    Try again
+                </button>
+            </div>
+        `;
+    }
+}
+
 document.addEventListener('click', (event) => {
+    const retryButton = event.target.closest('[data-dashboard-retry]');
+
+    if (retryButton) {
+        const container = retryButton.closest('[data-dashboard-results]');
+
+        if (container) {
+            loadDashboardResults(container);
+        }
+
+        return;
+    }
+
     const suggestionList = document.querySelector('[data-customer-suggestions]');
     const customerOption = event.target.closest('[data-customer-option]');
 
@@ -40,32 +90,17 @@ document.addEventListener('click', (event) => {
     }
 
     const modal = document.getElementById(button.dataset.modalTarget);
-    const spinner = button.querySelector('[data-loading-spinner]');
-    const text = button.querySelector('[data-loading-text]');
-    const defaultText = text?.textContent ?? 'View Details';
 
     if (!modal || !(modal instanceof HTMLDialogElement)) {
         return;
     }
 
-    button.disabled = true;
-    spinner?.classList.remove('hidden');
+    modal.showModal();
+    modal.querySelector('[data-close-record-modal], [data-modal-close]')?.focus();
+});
 
-    if (text) {
-        text.textContent = button.dataset.loadingMessage ?? 'Loading details...';
-    }
-
-    window.setTimeout(() => {
-        button.disabled = false;
-        spinner?.classList.add('hidden');
-
-        if (text) {
-            text.textContent = defaultText;
-        }
-
-        modal.showModal();
-        modal.querySelector('[data-close-record-modal], [data-modal-close]')?.focus();
-    }, 350);
+document.querySelectorAll('[data-dashboard-results]').forEach((container) => {
+    loadDashboardResults(container);
 });
 
 document.addEventListener('input', (event) => {

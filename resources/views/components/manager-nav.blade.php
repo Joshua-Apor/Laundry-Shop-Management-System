@@ -111,27 +111,21 @@
                 </span>
 
                 {{-- Avatar --}}
-                <span class="grid size-7 shrink-0 place-items-center rounded-full bg-[#8b5cf6] text-[10px] font-bold text-white sm:size-8">
+                <a href="{{ route('profile.edit') }}" aria-label="My profile" title="My profile" class="grid size-7 shrink-0 place-items-center rounded-full bg-[#8b5cf6] text-[10px] font-bold text-white transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8b5cf6] sm:size-8">
                     {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
-                </span>
+                </a>
 
                 {{-- Sign Out --}}
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-
-                    <button
-                        type="submit"
-                        data-loading-button
-                        data-loading-message="Signing out..."
-                        class="inline-flex h-8 w-32 items-center justify-center gap-1 whitespace-nowrap rounded-md border border-[#d9b8c6] bg-white/70 px-2 text-[10px] font-semibold text-[#5d2943] transition-colors hover:bg-[#2f7dcc] hover:text-white disabled:cursor-not-allowed disabled:opacity-70 sm:w-36 sm:text-xs"
-                    >
-                        <span data-loading-spinner class="hidden size-4 animate-spin rounded-full border-2 border-[#d9b8c6] border-t-[#5d2943]" aria-hidden="true"></span>
-
-                        <i class="fa-solid fa-right-from-bracket mr-1" aria-hidden="true"></i>
-
-                        <span data-loading-text>Sign out</span>
-                    </button>
-                </form>
+                <button
+                    type="button"
+                    data-modal-trigger
+                    data-modal-target="logout-confirmation"
+                    aria-label="Sign out"
+                    title="Sign out"
+                    class="grid size-8 shrink-0 place-items-center rounded-md border border-[#d9b8c6] bg-white/70 text-xs font-semibold text-[#5d2943] transition-colors hover:bg-[#2f7dcc] hover:text-white"
+                >
+                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                </button>
 
             </div>
 
@@ -139,14 +133,23 @@
 
 
         {{-- MOBILE NAVIGATION --}}
-        <nav
-            class="grid grid-cols-6 border-t border-[#d8e7f5] py-1 xl:hidden"
-            aria-label="Mobile manager navigation">
+        <details class="group border-t border-[#d8e7f5] xl:hidden">
+            <summary class="flex cursor-pointer list-none items-center justify-between py-2 text-xs font-semibold text-[#52647f] [&::-webkit-details-marker]:hidden">
+                <span class="flex items-center gap-2">
+                    <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                    Menu
+                </span>
+                <i class="fa-solid fa-chevron-down text-[10px] transition-transform group-open:rotate-180" aria-hidden="true"></i>
+            </summary>
+
+            <nav
+                class="grid grid-cols-2 gap-1 border-t border-[#d8e7f5] py-2 sm:grid-cols-3"
+                aria-label="Mobile manager navigation">
 
             {{-- Dashboard --}}
             <a href="{{ route('manager.dashboard') }}"
                @class([
-                   'flex min-w-0 items-center justify-center gap-1 rounded-md px-0.5 py-1.5 text-[9px] transition-colors',
+                   'flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-md px-1 py-2 text-[10px] transition-colors',
                    'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('manager.dashboard'),
                    'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('manager.dashboard'),
                ])>
@@ -157,7 +160,7 @@
             {{-- Customer Records --}}
             <a href="{{ route('manager.customer-records') }}"
                @class([
-                   'flex min-w-0 items-center justify-center gap-1 rounded-md px-0.5 py-1.5 text-[9px] transition-colors',
+                   'flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-md px-1 py-2 text-[10px] transition-colors',
                    'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('manager.customer-records'),
                    'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('manager.customer-records'),
                ])>
@@ -168,7 +171,7 @@
             {{-- Orders & Payments --}}
             <a href="{{ route('manager.orders-payments') }}"
                @class([
-                   'flex min-w-0 items-center justify-center gap-1 rounded-md px-0.5 py-1.5 text-[9px] transition-colors',
+                   'flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-md px-1 py-2 text-[10px] transition-colors',
                    'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('manager.orders-payments'),
                    'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('manager.orders-payments'),
                ])>
@@ -179,7 +182,7 @@
             {{-- Services --}}
             <a href="{{ route('manager.services') }}"
                @class([
-                   'flex min-w-0 items-center justify-center gap-1 rounded-md px-0.5 py-1.5 text-[9px] transition-colors',
+                   'flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-md px-1 py-2 text-[10px] transition-colors',
                    'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('manager.services*'),
                    'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('manager.services*'),
                ])>
@@ -190,7 +193,7 @@
             {{-- Sales Reports --}}
             <a href="{{ route('manager.sales-reports') }}"
                @class([
-                   'flex min-w-0 items-center justify-center gap-1 rounded-md px-0.5 py-1.5 text-[9px] transition-colors',
+                   'flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-md px-1 py-2 text-[10px] transition-colors',
                    'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('manager.sales-reports'),
                    'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('manager.sales-reports'),
                ])>
@@ -201,7 +204,7 @@
             {{-- Employees --}}
             <a href="{{ route('manager.employees') }}"
                @class([
-                   'flex min-w-0 items-center justify-center gap-1 rounded-md px-0.5 py-1.5 text-[9px] transition-colors',
+                   'flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-md px-1 py-2 text-[10px] transition-colors',
                    'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('manager.employees'),
                    'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('manager.employees'),
                ])>
@@ -209,7 +212,8 @@
                 <span>Employees</span>
             </a>
 
-        </nav>
+            </nav>
+        </details>
 
     </div>
 

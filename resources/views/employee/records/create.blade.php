@@ -43,11 +43,9 @@
                         type="button"
                         data-modal-trigger
                         data-modal-target="customer-picker"
-                        data-loading-message="Loading customers..."
-                        class="mb-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#168CFF] px-3.5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0878df] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 disabled:cursor-not-allowed disabled:opacity-70"
+                        class="mb-4 inline-flex w-full items-center justify-center rounded-lg bg-[#168CFF] px-3.5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0878df] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
                     >
-                        <span data-loading-spinner class="hidden size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true"></span>
-                        <span data-loading-text>Choose Existing Customer</span>
+                        Choose Existing Customer
                     </button>
 
 

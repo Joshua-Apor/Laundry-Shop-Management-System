@@ -15,6 +15,8 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
@@ -85,6 +87,20 @@
             @includeIf('components.nav')
         @endif
     @endif
+
+    @auth
+        <x-modal id="logout-confirmation" title="Sign out?">
+            <p class="text-sm leading-6 text-slate-600">Are you sure you want to sign out of your account?</p>
+            <form method="POST" action="{{ route('logout') }}" class="mt-5 flex justify-end gap-2">
+                @csrf
+                <button type="button" data-modal-close class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Cancel</button>
+                <button type="submit" data-loading-button data-loading-message="Signing out..." class="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-70">
+                    <span data-loading-spinner class="hidden size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true"></span>
+                    <span data-loading-text>Sign out</span>
+                </button>
+            </form>
+        </x-modal>
+    @endauth
 
 
     <main class="{{ $fullWidth ? '' : 'mx-auto max-w-[1178px] px-4 py-6 sm:px-6' }}">

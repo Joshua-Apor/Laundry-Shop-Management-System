@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ManagerController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +18,9 @@ Route::redirect('/', '/login');
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/data', [DashboardController::class, 'data'])->name('dashboard.data');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/employee/dashboard', [DashboardController::class, 'index'])->name('employee.dashboard');
     Route::get('/manager/dashboard', [DashboardController::class, 'index'])->name('manager.dashboard');
     Route::get('/manager/customer-records', [ManagerController::class, 'customerRecords'])->name('manager.customer-records');

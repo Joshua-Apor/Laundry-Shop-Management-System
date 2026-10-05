@@ -129,7 +129,7 @@
                             <tbody class="divide-y divide-sky-50">
                                 @forelse ($report['orders'] as $order)
                                     <tr>
-                                        <td class="px-4 py-3 font-mono text-sky-700">#{{ $order['order_id'] }}</td>
+                                        <td class="px-4 py-3"><span class="inline-flex rounded-md border border-sky-200 bg-sky-50 px-1.5 py-0.5 font-mono text-xs font-bold text-sky-800">#{{ $order['order_id'] }}</span></td>
                                         <td class="px-4 py-3 text-slate-600">{{ $order['order_date'] }}</td>
                                         <td class="px-4 py-3 font-medium text-slate-800">{{ $order['customer'] }}</td>
                                         <td class="px-4 py-3 text-slate-600">{{ $order['employee'] }}</td>

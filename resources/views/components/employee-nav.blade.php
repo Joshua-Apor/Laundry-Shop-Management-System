@@ -85,27 +85,21 @@
                 </span>
 
                 {{-- Avatar --}}
-                <span class="grid size-7 shrink-0 place-items-center rounded-full bg-[#168cff] text-[10px] font-bold text-white sm:size-8">
+                <a href="{{ route('profile.edit') }}" aria-label="My profile" title="My profile" class="grid size-7 shrink-0 place-items-center rounded-full bg-[#168cff] text-[10px] font-bold text-white transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#168cff] sm:size-8">
                     {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
-                </span>
+                </a>
 
                 {{-- Sign Out --}}
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-
-                    <button
-                        type="submit"
-                        data-loading-button
-                        data-loading-message="Signing out..."
-                        class="inline-flex h-8 w-32 items-center justify-center gap-1 whitespace-nowrap rounded-md border border-[#d9b8c6] bg-white/70 px-2 text-[10px] font-semibold text-[#5d2943] transition-colors hover:bg-[#2f7dcc] hover:text-white disabled:cursor-not-allowed disabled:opacity-70 sm:w-36 sm:text-xs"
-                    >
-                        <span data-loading-spinner class="hidden size-4 animate-spin rounded-full border-2 border-[#d9b8c6] border-t-[#5d2943]" aria-hidden="true"></span>
-
-                        <i class="fa-solid fa-right-from-bracket mr-1" aria-hidden="true"></i>
-
-                        <span data-loading-text>Sign out</span>
-                    </button>
-                </form>
+                <button
+                    type="button"
+                    data-modal-trigger
+                    data-modal-target="logout-confirmation"
+                    aria-label="Sign out"
+                    title="Sign out"
+                    class="grid size-8 shrink-0 place-items-center rounded-md border border-[#d9b8c6] bg-white/70 text-xs font-semibold text-[#5d2943] transition-colors hover:bg-[#2f7dcc] hover:text-white"
+                >
+                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                </button>
 
             </div>
 
