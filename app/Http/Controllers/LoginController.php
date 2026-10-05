@@ -18,19 +18,36 @@ class LoginController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
-            'username' => ['required', 'string'],
+            'identifier' => ['required', 'string'],
             'password' => ['required', 'string'],
             'role' => ['required', 'string', 'in:employee,manager'],
         ]);
 
-        if (! Auth::attempt([
-            'username' => $credentials['username'],
+        $loginCredentials = [
             'password' => $credentials['password'],
             'role' => $credentials['role'],
-        ], $request->boolean('remember'))) {
+        ];
+        $identifier = $credentials['identifier'];
+
+        if (filter_var($identifier, FILTER_VALIDATE_EMAIL) !== false) {
+            $authenticated = Auth::attempt([
+                ...$loginCredentials,
+                'email' => $identifier,
+            ], $request->boolean('remember'));
+        } else {
+            $authenticated = Auth::attempt([
+                ...$loginCredentials,
+                'username' => $identifier,
+            ], $request->boolean('remember')) || Auth::attempt([
+                ...$loginCredentials,
+                'name' => $identifier,
+            ], $request->boolean('remember'));
+        }
+
+        if (! $authenticated) {
             return back()
-                ->withErrors(['username' => 'Those credentials do not match our records.'])
-                ->onlyInput('username', 'role');
+                ->withErrors(['identifier' => 'Those credentials do not match our records.'])
+                ->onlyInput('identifier', 'role');
         }
 
         $request->session()->regenerate();

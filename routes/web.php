@@ -6,6 +6,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ManagerController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SalesReportController;
+use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [LoginController::class, 'create'])->name('login');
@@ -20,6 +21,9 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/manager/dashboard', [DashboardController::class, 'index'])->name('manager.dashboard');
     Route::get('/manager/customer-records', [ManagerController::class, 'customerRecords'])->name('manager.customer-records');
     Route::get('/manager/orders-payments', [ManagerController::class, 'ordersAndPayments'])->name('manager.orders-payments');
+    Route::get('/manager/services', [ServiceController::class, 'index'])->name('manager.services');
+    Route::post('/manager/services', [ServiceController::class, 'store'])->name('manager.services.store');
+    Route::delete('/manager/services/{service}', [ServiceController::class, 'destroy'])->name('manager.services.destroy');
     Route::get('/manager/sales-reports', [SalesReportController::class, 'index'])->name('manager.sales-reports');
     Route::get('/manager/sales-reports/export/{format}', [SalesReportController::class, 'export'])->name('manager.sales-reports.export');
     Route::get('/manager/employees', [ManagerController::class, 'employees'])->name('manager.employees');

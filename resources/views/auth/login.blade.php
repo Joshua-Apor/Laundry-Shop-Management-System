@@ -177,20 +177,21 @@
                     </fieldset>
 
 
-                    {{-- Username --}}
+                    {{-- Name or Email --}}
                     <label
                         class="block text-sm font-semibold"
-                        for="username"
+                        for="identifier"
                     >
 
-                        Username
+                        Name or Email
 
                         <input
-                            id="username"
-                            name="username"
+                            id="identifier"
+                            name="identifier"
                             required
                             autofocus
-                            placeholder="e.g. josh"
+                            value="{{ old('identifier') }}"
+                            placeholder="Enter your name or email"
                             autocomplete="off"
                             spellcheck="false"
                             class="mt-1.5 block w-full rounded-xl border border-[#b9dff3] bg-white px-3.5 py-3 text-sm font-normal outline-none transition placeholder:text-[#a3aeba] focus:border-[#4bb8eb] focus:ring-4 focus:ring-[#4bb8eb]/15"
@@ -240,7 +241,7 @@
 
 
                     {{-- Error --}}
-                    @error('username')
+                    @error('identifier')
                         <p class="text-xs font-medium text-rose-600">
                             {{ $message }}
                         </p>

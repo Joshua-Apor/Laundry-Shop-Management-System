@@ -154,30 +154,27 @@
 
                     <div class="space-y-3">
 
-                        @foreach (['Wash & Dry', 'Ironing', 'Folding', 'Self-Service'] as $service)
+                        @forelse ($services as $service)
 
                             <label class="flex cursor-pointer items-center justify-between rounded-lg border border-sky-200 p-3 text-sm text-slate-700 transition-colors hover:bg-sky-50">
 
                                 <span class="font-medium">
-                                    {{ $service }}
-
-                                    @if ($service === 'Ironing')
-                                        <span class="font-normal text-slate-400">
-                                            (+₱30)
-                                        </span>
-                                    @endif
+                                    {{ $service->service_name }}
+                                    <span class="font-normal text-slate-400">(₱{{ number_format((float) $service->base_price, 2) }} {{ $service->price_unit }})</span>
                                 </span>
 
                                 <input
                                     type="checkbox"
                                     name="services[]"
-                                    value="{{ $service }}"
+                                    value="{{ $service->service_id }}"
                                     class="rounded text-[#168cff] focus:ring-[#168cff]"
                                 >
 
                             </label>
 
-                        @endforeach
+                        @empty
+                            <p class="rounded-lg bg-amber-50 p-3 text-xs text-amber-800">No services are available. Ask a manager to add services first.</p>
+                        @endforelse
 
                     </div>
 

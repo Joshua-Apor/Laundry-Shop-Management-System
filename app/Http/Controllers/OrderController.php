@@ -15,12 +15,19 @@ class OrderController extends Controller
 {
     public function create(): View
     {
+        abort_unless(auth()->user()?->role === 'employee', 403);
+
         $customers = DB::table('customers')
             ->select(['customer_id', 'name', 'contact_number', 'address'])
             ->orderBy('name')
             ->get();
 
-        return view('employee.records.create', ['customers' => $customers]);
+        $services = DB::table('services')
+            ->whereNull('deleted_at')
+            ->orderBy('service_name')
+            ->get(['service_id', 'service_name', 'base_price', 'price_unit']);
+
+        return view('employee.records.create', ['customers' => $customers, 'services' => $services]);
     }
 
     public function index(Request $request): View
@@ -65,13 +72,16 @@ class OrderController extends Controller
 
         $weight = (float) $validated['weight'];
         $laundryAmount = (float) ($validated['laundry_amount'] ?? ($weight * 60));
-        $serviceFee = in_array('Ironing', $validated['services'], true) ? 30 : 0;
+        $selectedServices = DB::table('services')
+            ->whereIn('service_id', $validated['services'])
+            ->get(['service_id', 'service_name', 'base_price', 'price_unit']);
+        $serviceFee = (float) $selectedServices->sum('base_price');
         $specialRequestPrice = (float) ($validated['special_request_price'] ?? 0);
         $total = $laundryAmount + $serviceFee + $specialRequestPrice;
         $amountPaid = (float) ($validated['amount_paid'] ?? 0);
         $orderCreatedAt = now();
 
-        DB::transaction(function () use ($validated, $weight, $laundryAmount, $serviceFee, $total, $amountPaid, $orderCreatedAt): void {
+        DB::transaction(function () use ($validated, $weight, $total, $amountPaid, $orderCreatedAt, $selectedServices): void {
             if (isset($validated['customer_id'])) {
                 $customer = DB::table('customers')
                     ->where('customer_id', $validated['customer_id'])
@@ -116,30 +126,12 @@ class OrderController extends Controller
                 'pickup_date' => null,
             ]);
 
-            foreach ($validated['services'] as $serviceName) {
-                $serviceId = DB::table('services')
-                    ->where('service_name', $serviceName)
-                    ->value('service_id');
-
-                if ($serviceId === null) {
-                    $serviceId = DB::table('services')->insertGetId([
-                        'service_name' => $serviceName,
-                        'description' => null,
-                        'base_price' => 0,
-                    ]);
-                }
-
-                $fee = match ($serviceName) {
-                    'Wash & Dry' => $laundryAmount,
-                    'Ironing' => $serviceFee,
-                    default => 0,
-                };
-
+            foreach ($selectedServices as $service) {
                 DB::table('order_services')->insert([
                     'order_id' => $orderId,
-                    'service_id' => $serviceId,
+                    'service_id' => $service->service_id,
                     'quantity' => 1,
-                    'service_fee' => $fee,
+                    'service_fee' => $service->base_price,
                 ]);
             }
 

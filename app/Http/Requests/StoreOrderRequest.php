@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 class StoreOrderRequest extends FormRequest
@@ -30,7 +31,12 @@ class StoreOrderRequest extends FormRequest
             'customer_id' => ['nullable', 'integer', 'exists:customers,customer_id'],
             'address' => ['nullable', 'string', 'max:1000'],
             'services' => ['required', 'array', 'min:1'],
-            'services.*' => ['required', 'string', 'distinct', 'in:Wash & Dry,Ironing,Folding,Self-Service'],
+            'services.*' => [
+                'required',
+                'integer',
+                'distinct',
+                Rule::exists('services', 'service_id')->whereNull('deleted_at'),
+            ],
             'weight' => ['required', 'numeric', 'min:0.1'],
             'laundry_amount' => ['nullable', 'numeric', 'min:0'],
             'special_request' => ['nullable', 'string', 'max:1000'],

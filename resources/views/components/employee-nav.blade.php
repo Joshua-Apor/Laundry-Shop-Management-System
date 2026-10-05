@@ -1,13 +1,13 @@
 <header class="border-b border-[#ead4dd] bg-[#f8eef2] text-[#5d2943] shadow-sm">
 
-    <div class="mx-auto max-w-[1178px] px-3 sm:px-6">
+    <div class="mx-auto max-w-[1536px] px-4 sm:px-6 xl:px-10">
 
         {{-- TOP ROW --}}
-        <div class="flex min-h-14 items-center gap-3">
+        <div class="relative flex min-h-14 items-center justify-between gap-3">
 
             {{-- Logo / Brand --}}
             <a href="{{ route('employee.dashboard') }}"
-               class="flex min-w-0 flex-1 items-center gap-1.5 sm:flex-none sm:gap-2">
+               class="flex min-w-0 shrink-0 items-center gap-1.5 sm:gap-2">
 
                 <img
                     src="{{ asset('images/logo.png') }}"
@@ -30,7 +30,7 @@
 
             {{-- DESKTOP NAVIGATION --}}
             <nav
-                class="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 text-[13px] sm:flex"
+                class="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 text-[13px] lg:flex"
                 aria-label="Employee navigation">
 
                 <a href="{{ route('employee.dashboard') }}"
@@ -97,9 +97,9 @@
                         type="submit"
                         data-loading-button
                         data-loading-message="Signing out..."
-                        class="whitespace-nowrap rounded-md border border-[#d9b8c6] bg-white/70 px-2 py-1.5 text-[10px] font-semibold text-[#5d2943] transition-colors hover:bg-[#2f7dcc] hover:text-white disabled:cursor-not-allowed disabled:opacity-70 sm:px-3 sm:text-xs"
+                        class="inline-flex h-8 w-32 items-center justify-center gap-1 whitespace-nowrap rounded-md border border-[#d9b8c6] bg-white/70 px-2 text-[10px] font-semibold text-[#5d2943] transition-colors hover:bg-[#2f7dcc] hover:text-white disabled:cursor-not-allowed disabled:opacity-70 sm:w-36 sm:text-xs"
                     >
-                        <span data-loading-spinner class="hidden"></span>
+                        <span data-loading-spinner class="hidden size-4 animate-spin rounded-full border-2 border-[#d9b8c6] border-t-[#5d2943]" aria-hidden="true"></span>
 
                         <i class="fa-solid fa-right-from-bracket mr-1" aria-hidden="true"></i>
 
@@ -114,7 +114,7 @@
 
         {{-- MOBILE NAVIGATION --}}
         <nav
-            class="grid grid-cols-4 border-t border-[#ead4dd] py-1 sm:hidden"
+            class="grid grid-cols-4 border-t border-[#ead4dd] py-1 lg:hidden"
             aria-label="Mobile employee navigation">
 
             <a href="{{ route('employee.dashboard') }}"

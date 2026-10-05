@@ -143,6 +143,7 @@ class ManagerController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', 'unique:users,username'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ], [
             'password.min' => 'The password must be at least 8 characters long.',
@@ -151,11 +152,12 @@ class ManagerController extends Controller
         User::query()->create([
             'name' => $validated['name'],
             'username' => $validated['username'],
+            'email' => $validated['email'],
             'password' => $validated['password'],
             'role' => 'employee',
         ]);
 
-        return redirect()->route('manager.employees')->with('status', 'Employee account created.');
+        return redirect()->route('manager.employees')->with('success', 'Employee account created.');
     }
 
     public function destroyEmployee(Request $request, User $employee): RedirectResponse
@@ -166,6 +168,6 @@ class ManagerController extends Controller
         DB::table(config('session.table', 'sessions'))->where('user_id', $employee->getKey())->delete();
         $employee->delete();
 
-        return redirect()->route('manager.employees')->with('status', 'Employee account removed. Order history was preserved.');
+        return redirect()->route('manager.employees')->with('success', 'Employee account removed. Order history was preserved.');
     }
 }

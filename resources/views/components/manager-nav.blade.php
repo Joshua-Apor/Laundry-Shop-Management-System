@@ -1,13 +1,13 @@
 <header class="border-b border-[#ead4dd] bg-[#f8eef2] text-[#5d2943] shadow-sm">
 
-    <div class="mx-auto max-w-[1178px] px-3 sm:px-6">
+    <div class="mx-auto max-w-[1536px] px-4 sm:px-6 xl:px-10">
 
         {{-- TOP ROW --}}
-        <div class="flex min-h-14 items-center gap-3">
+        <div class="relative flex min-h-14 items-center justify-between gap-3">
 
             {{-- Logo / Brand --}}
             <a href="{{ route('manager.dashboard') }}"
-               class="flex min-w-0 flex-1 items-center gap-1.5 sm:flex-none sm:gap-2">
+               class="flex min-w-0 shrink-0 items-center gap-1.5 sm:gap-2">
 
                 <img
                     src="{{ asset('images/logo.png') }}"
@@ -30,7 +30,7 @@
 
             {{-- DESKTOP NAVIGATION --}}
             <nav
-                class="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 text-[13px] text-[#52647f] sm:flex"
+                class="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 text-[13px] text-[#52647f] xl:flex"
                 aria-label="Manager navigation">
 
                 {{-- Dashboard --}}
@@ -66,6 +66,17 @@
                     Orders & Payments
                 </a>
 
+                {{-- Services --}}
+                <a href="{{ route('manager.services') }}"
+                   @class([
+                       'shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 transition-colors',
+                       'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('manager.services*'),
+                       'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('manager.services*'),
+                   ])>
+                    <i class="fa-solid fa-soap mr-1" aria-hidden="true"></i>
+                    Services
+                </a>
+
                 {{-- Sales Reports --}}
                 <a href="{{ route('manager.sales-reports') }}"
                    @class([
@@ -95,7 +106,7 @@
             <div class="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
 
                 {{-- Username - desktop only --}}
-                <span class="hidden max-w-32 truncate text-xs font-semibold text-[#52647f] lg:block">
+                <span class="hidden max-w-32 truncate text-xs font-semibold text-[#52647f] 2xl:block">
                     {{ auth()->user()->name }}
                 </span>
 
@@ -112,9 +123,9 @@
                         type="submit"
                         data-loading-button
                         data-loading-message="Signing out..."
-                        class="whitespace-nowrap rounded-md border border-[#d9b8c6] bg-white/70 px-2 py-1.5 text-[10px] font-semibold text-[#5d2943] transition-colors hover:bg-[#2f7dcc] hover:text-white disabled:cursor-not-allowed disabled:opacity-70 sm:px-3 sm:text-xs"
+                        class="inline-flex h-8 w-32 items-center justify-center gap-1 whitespace-nowrap rounded-md border border-[#d9b8c6] bg-white/70 px-2 text-[10px] font-semibold text-[#5d2943] transition-colors hover:bg-[#2f7dcc] hover:text-white disabled:cursor-not-allowed disabled:opacity-70 sm:w-36 sm:text-xs"
                     >
-                        <span data-loading-spinner class="hidden"></span>
+                        <span data-loading-spinner class="hidden size-4 animate-spin rounded-full border-2 border-[#d9b8c6] border-t-[#5d2943]" aria-hidden="true"></span>
 
                         <i class="fa-solid fa-right-from-bracket mr-1" aria-hidden="true"></i>
 
@@ -129,7 +140,7 @@
 
         {{-- MOBILE NAVIGATION --}}
         <nav
-            class="grid grid-cols-5 border-t border-[#d8e7f5] py-1 sm:hidden"
+            class="grid grid-cols-6 border-t border-[#d8e7f5] py-1 xl:hidden"
             aria-label="Mobile manager navigation">
 
             {{-- Dashboard --}}
@@ -163,6 +174,17 @@
                ])>
                 <i class="fa-solid fa-receipt" aria-hidden="true"></i>
                 <span>Orders</span>
+            </a>
+
+            {{-- Services --}}
+            <a href="{{ route('manager.services') }}"
+               @class([
+                   'flex min-w-0 items-center justify-center gap-1 rounded-md px-0.5 py-1.5 text-[9px] transition-colors',
+                   'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('manager.services*'),
+                   'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('manager.services*'),
+               ])>
+                <i class="fa-solid fa-soap" aria-hidden="true"></i>
+                <span>Services</span>
             </a>
 
             {{-- Sales Reports --}}

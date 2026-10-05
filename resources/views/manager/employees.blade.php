@@ -39,6 +39,14 @@
                         </div>
 
                         <div>
+                            <label for="email" class="mb-1 block text-xs font-semibold text-slate-700">Email</label>
+                            <input id="email" name="email" type="email" value="{{ old('email') }}" required maxlength="255" autocomplete="email" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[#168cff] focus:ring-2 focus:ring-sky-100">
+                            @error('email')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
                             <label for="password" class="mb-1 block text-xs font-semibold text-slate-700">Initial password</label>
                             <input id="password" name="password" type="password" required minlength="8" autocomplete="new-password" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[#168cff] focus:ring-2 focus:ring-sky-100">
                             @error('password')
@@ -53,20 +61,18 @@
                     </div>
 
                     <div class="mt-4 flex justify-end">
-                        <button type="submit" class="inline-flex items-center gap-1.5 rounded-lg bg-[#168cff] px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-[#0878df]">
-                            <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
-                            Create Employee
+                        <button type="submit" data-loading-button data-loading-message="Creating account..." class="inline-flex h-10 w-48 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-[#168cff] px-3 text-xs font-bold text-white transition-colors hover:bg-[#0878df] disabled:cursor-not-allowed disabled:opacity-70">
+                            <span data-loading-spinner class="hidden size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true"></span>
+                            <span data-loading-text>
+                                <i class="fa-solid fa-user-plus mr-1.5" aria-hidden="true"></i>
+                                Create Employee Account
+                            </span>
                         </button>
                     </div>
                 </form>
             </details>
         </div>
 
-        @if (session('status'))
-            <p role="status" class="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{{ session('status') }}</p>
-        @endif
-
-        {{-- Metrics: Always in one row, including mobile --}}
         <div class="grid grid-cols-3 gap-2">
             <x-dashboard.metric-card
                 title="Total Staff"
@@ -119,6 +125,10 @@
                             <p class="text-xs text-slate-500">
                                 @ {{ $employee->username }}
                             </p>
+
+                            @if ($employee->email)
+                                <p class="mt-1 break-all text-xs text-slate-500">{{ $employee->email }}</p>
+                            @endif
 
                             <p class="mt-1 text-xs text-slate-400">
                                 <i class="fa-solid fa-calendar-plus mr-1" aria-hidden="true"></i>

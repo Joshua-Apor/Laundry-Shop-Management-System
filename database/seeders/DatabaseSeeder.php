@@ -16,10 +16,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(ServiceSeeder::class);
+
         User::query()->updateOrCreate([
             'username' => 'josh',
         ], [
-            'name' => 'Josh',
+            'name' => 'Demo Employee',
+            'email' => 'demo.employee@example.com',
             'password' => 'employee123',
             'role' => 'employee',
         ]);
@@ -27,7 +30,8 @@ class DatabaseSeeder extends Seeder
         User::query()->updateOrCreate([
             'username' => 'manager',
         ], [
-            'name' => 'Manager',
+            'name' => 'Demo Manager',
+            'email' => 'demo.manager@example.com',
             'password' => 'manager123',
             'role' => 'manager',
         ]);
@@ -35,10 +39,10 @@ class DatabaseSeeder extends Seeder
         $employeeId = User::query()->where('username', 'josh')->value('user_id');
 
         $sampleCustomers = [
-            ['name' => 'Demo Customer One', 'contact_number' => '09990000001', 'address' => 'Demo Address 1'],
-            ['name' => 'Demo Customer Two', 'contact_number' => '09990000002', 'address' => 'Demo Address 2'],
-            ['name' => 'Demo Customer Three', 'contact_number' => '09990000003', 'address' => 'Demo Address 3'],
-            ['name' => 'Demo Customer Four', 'contact_number' => '09990000004', 'address' => 'Demo Address 4'],
+            ['name' => 'Demo Customer 1', 'contact_number' => '09990000001', 'address' => 'Demo Address 1'],
+            ['name' => 'Demo Customer 2', 'contact_number' => '09990000002', 'address' => 'Demo Address 2'],
+            ['name' => 'Demo Customer 3', 'contact_number' => '09990000003', 'address' => 'Demo Address 3'],
+            ['name' => 'Demo Customer 4', 'contact_number' => '09990000004', 'address' => 'Demo Address 4'],
         ];
 
         $customerIds = [];
