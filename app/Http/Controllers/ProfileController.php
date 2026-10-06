@@ -9,6 +9,33 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
+    public function updateInitialPassword(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        abort_unless($user?->role === 'employee' && $user->must_change_password, 403);
+
+        $validated = $request->validate([
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user->password = $validated['password'];
+        $user->must_change_password = false;
+        $user->save();
+        $request->session()->forget('password_reset_prompt_dismissed');
+
+        return redirect()->route('employee.dashboard')->with('success', 'Password updated successfully.');
+    }
+
+    public function deferInitialPassword(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        abort_unless($user?->role === 'employee' && $user->must_change_password, 403);
+
+        $request->session()->put('password_reset_prompt_dismissed', true);
+
+        return redirect()->route('employee.dashboard');
+    }
+
     public function edit(Request $request): View
     {
         return view('profile.edit', ['user' => $request->user()]);

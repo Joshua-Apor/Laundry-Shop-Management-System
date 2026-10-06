@@ -51,6 +51,7 @@ class LoginController extends Controller
         }
 
         $request->session()->regenerate();
+        $request->session()->forget('password_reset_prompt_dismissed');
 
         $destination = $request->user()->role === 'employee'
             ? route('employee.dashboard')

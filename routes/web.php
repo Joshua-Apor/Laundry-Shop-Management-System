@@ -21,6 +21,8 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard/data', [DashboardController::class, 'data'])->name('dashboard.data');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/employee/password/initial', [ProfileController::class, 'updateInitialPassword'])->name('employee.password.initial.update');
+    Route::post('/employee/password/initial/later', [ProfileController::class, 'deferInitialPassword'])->name('employee.password.initial.defer');
     Route::get('/employee/dashboard', [DashboardController::class, 'index'])->name('employee.dashboard');
     Route::get('/manager/dashboard', [DashboardController::class, 'index'])->name('manager.dashboard');
     Route::get('/manager/customer-records', [ManagerController::class, 'customerRecords'])->name('manager.customer-records');

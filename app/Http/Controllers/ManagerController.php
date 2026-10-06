@@ -157,6 +157,7 @@ class ManagerController extends Controller
             'email' => $validated['email'],
             'password' => $password,
             'role' => 'employee',
+            'must_change_password' => true,
         ]);
 
         try {

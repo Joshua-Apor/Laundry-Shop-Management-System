@@ -177,3 +177,9 @@ document.addEventListener('input', (event) => {
 
     event.target.closest('dialog').querySelector('[data-customer-empty]')?.classList.toggle('hidden', visibleOptions > 0);
 });
+
+document.querySelectorAll('[data-modal-open-on-load]').forEach((dialog) => {
+    if (dialog instanceof HTMLDialogElement && !dialog.open) {
+        dialog.showModal();
+    }
+});
