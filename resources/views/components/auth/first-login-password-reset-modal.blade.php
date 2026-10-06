@@ -1,5 +1,5 @@
 <x-modal id="employee-password-reset" title="Reset Password" data-modal-open-on-load>
-    <p class="text-sm leading-6 text-slate-600">You are using a temporary password. Create a new password now, or choose Later to do this another time.</p>
+    <p class="text-sm leading-6 text-slate-600">You are using a temporary password. Create a new password with at least 8 characters now, or choose Later to do this another time.</p>
 
     <form method="POST" action="{{ route('employee.password.initial.update') }}" class="mt-5 space-y-4">
         @csrf

@@ -240,6 +240,17 @@
                     </label>
 
 
+                    <button
+                        type="button"
+                        data-modal-trigger
+                        data-modal-target="forgot-password-modal"
+                        data-modal-loading-trigger
+                        class="relative flex h-6 w-full items-center justify-end text-xs font-semibold text-[#168cff] transition hover:text-[#0878df]"
+                    >
+                        <span data-loading-spinner class="absolute left-0 hidden size-3 animate-spin rounded-full border-2 border-sky-200 border-t-[#168cff]" aria-hidden="true"></span>
+                        <span>Forgot password?</span>
+                    </button>
+
                     {{-- Error --}}
                     @error('identifier')
                         <p class="text-xs font-medium text-rose-600">
@@ -308,5 +319,7 @@
         </section>
 
     </div>
+
+    <x-auth.forgot-password-modal />
 
 </x-layout>

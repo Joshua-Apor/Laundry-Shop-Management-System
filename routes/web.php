@@ -5,7 +5,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ManagerController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProfilePasswordResetController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
@@ -16,11 +18,22 @@ Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 
 Route::redirect('/', '/login');
 
+Route::middleware(['guest', 'throttle:10,1'])->group(function (): void {
+    Route::post('/forgot-password/code', [PasswordResetController::class, 'sendCode'])->name('password.reset.code.send');
+    Route::post('/forgot-password/verify', [PasswordResetController::class, 'verifyCode'])->name('password.reset.code.verify');
+    Route::post('/forgot-password/reset', [PasswordResetController::class, 'resetPassword'])->name('password.reset.update');
+    Route::post('/forgot-password/cancel', [PasswordResetController::class, 'cancel'])->name('password.reset.cancel');
+});
+
 Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/data', [DashboardController::class, 'data'])->name('dashboard.data');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/password/code', [ProfilePasswordResetController::class, 'sendCode'])->middleware('throttle:10,1')->name('profile.password.code.send');
+    Route::post('/profile/password/verify', [ProfilePasswordResetController::class, 'verifyCode'])->middleware('throttle:10,1')->name('profile.password.code.verify');
+    Route::post('/profile/password/reset', [ProfilePasswordResetController::class, 'resetPassword'])->middleware('throttle:10,1')->name('profile.password.reset');
+    Route::post('/profile/password/cancel', [ProfilePasswordResetController::class, 'cancel'])->name('profile.password.cancel');
     Route::post('/employee/password/initial', [ProfileController::class, 'updateInitialPassword'])->name('employee.password.initial.update');
     Route::post('/employee/password/initial/later', [ProfileController::class, 'deferInitialPassword'])->name('employee.password.initial.defer');
     Route::get('/employee/dashboard', [DashboardController::class, 'index'])->name('employee.dashboard');

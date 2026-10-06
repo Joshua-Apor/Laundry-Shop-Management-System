@@ -34,7 +34,7 @@
     <section class="space-y-4 border-t border-slate-100 pt-5">
         <div>
             <h2 class="font-bold text-slate-900">Change password</h2>
-            <p class="mt-1 text-xs text-slate-500">Leave these fields blank to keep your current password.</p>
+            <p class="mt-1 text-xs text-slate-500">Leave these fields blank to keep your current password. New passwords need at least 8 characters.</p>
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
@@ -55,6 +55,17 @@
                 <input id="profile-password-confirmation" name="password_confirmation" type="password" minlength="8" autocomplete="new-password" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100">
             </div>
         </div>
+    </section>
+
+    <section class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-5">
+        <div>
+            <h2 class="font-bold text-slate-900">Reset password with email</h2>
+            <p class="mt-1 text-xs text-slate-500">Verify a code sent to your account email to choose a new password.</p>
+        </div>
+        <button type="button" data-modal-trigger data-modal-target="profile-password-reset-modal" data-modal-loading-trigger class="relative inline-flex h-10 items-center justify-center rounded-lg border border-sky-200 pl-7 pr-4 text-sm font-bold text-sky-700 transition-colors hover:bg-sky-50">
+            <span data-loading-spinner class="absolute left-2 hidden size-3 animate-spin rounded-full border-2 border-sky-200 border-t-[#168cff]" aria-hidden="true"></span>
+            <span>Reset using email code</span>
+        </button>
     </section>
 
     <div class="flex flex-wrap items-center justify-end gap-3 border-t border-slate-100 pt-5">

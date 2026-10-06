@@ -7,5 +7,6 @@
         </div>
 
         <x-profile.form :user="$user" />
+        <x-profile.password-reset-modal :user="$user" />
     </section>
 </x-layout>

@@ -95,8 +95,22 @@ document.addEventListener('click', (event) => {
         return;
     }
 
+    if (button.matches('[data-modal-loading-trigger]')) {
+        const spinner = button.querySelector('[data-loading-spinner]');
+
+        button.disabled = true;
+        button.setAttribute('aria-busy', 'true');
+        spinner?.classList.remove('hidden');
+
+        window.setTimeout(() => {
+            button.disabled = false;
+            button.removeAttribute('aria-busy');
+            spinner?.classList.add('hidden');
+        }, 400);
+    }
+
     modal.showModal();
-    modal.querySelector('[data-close-record-modal], [data-modal-close]')?.focus();
+    (modal.querySelector('[data-pin-code-digit]') ?? modal.querySelector('[data-close-record-modal], [data-modal-close]'))?.focus();
 });
 
 document.querySelectorAll('[data-dashboard-results]').forEach((container) => {
@@ -178,8 +192,112 @@ document.addEventListener('input', (event) => {
     event.target.closest('dialog').querySelector('[data-customer-empty]')?.classList.toggle('hidden', visibleOptions > 0);
 });
 
+function getPinCodeInputs(container) {
+    return Array.from(container.querySelectorAll('[data-pin-code-digit]'));
+}
+
+function syncPinCodeValue(container) {
+    const value = getPinCodeInputs(container)
+        .map((input) => input.value.replace(/\D/g, '').slice(-1))
+        .join('');
+
+    container.querySelector('[data-pin-code-value]').value = value;
+}
+
+document.addEventListener('input', (event) => {
+    const input = event.target.closest('[data-pin-code-digit]');
+
+    if (!input) {
+        return;
+    }
+
+    const container = input.closest('[data-pin-code-input]');
+    const inputs = getPinCodeInputs(container);
+    const inputIndex = inputs.indexOf(input);
+    const characters = input.value.replace(/\D/g, '');
+
+    if (characters.length > 1) {
+        characters.slice(0, inputs.length - inputIndex).split('').forEach((character, characterIndex) => {
+            inputs[inputIndex + characterIndex].value = character;
+        });
+
+        syncPinCodeValue(container);
+        inputs[Math.min(inputIndex + characters.length, inputs.length) - 1]?.focus();
+
+        return;
+    }
+
+    input.value = characters.slice(-1);
+    syncPinCodeValue(container);
+
+    if (input.value !== '') {
+        inputs[inputIndex + 1]?.focus();
+    }
+});
+
+document.addEventListener('keydown', (event) => {
+    const input = event.target.closest('[data-pin-code-digit]');
+
+    if (!input) {
+        return;
+    }
+
+    const inputs = getPinCodeInputs(input.closest('[data-pin-code-input]'));
+    const inputIndex = inputs.indexOf(input);
+
+    if (event.key === 'Backspace' && input.value === '') {
+        const previousInput = inputs[inputIndex - 1];
+
+        if (previousInput) {
+            event.preventDefault();
+            previousInput.value = '';
+            syncPinCodeValue(input.closest('[data-pin-code-input]'));
+            previousInput.focus();
+        }
+    } else if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        inputs[inputIndex - 1]?.focus();
+    } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        inputs[inputIndex + 1]?.focus();
+    }
+});
+
+document.addEventListener('focusin', (event) => {
+    const input = event.target.closest('[data-pin-code-digit]');
+
+    if (input) {
+        input.select();
+    }
+});
+document.addEventListener('paste', (event) => {
+    const input = event.target.closest('[data-pin-code-digit]');
+
+    if (!input) {
+        return;
+    }
+
+    const container = input.closest('[data-pin-code-input]');
+    const inputs = getPinCodeInputs(container);
+    const inputIndex = inputs.indexOf(input);
+    const characters = (event.clipboardData?.getData('text') ?? '').replace(/\D/g, '').slice(0, inputs.length - inputIndex);
+
+    if (characters === '') {
+        return;
+    }
+
+    event.preventDefault();
+    characters.split('').forEach((character, characterIndex) => {
+        inputs[inputIndex + characterIndex].value = character;
+    });
+
+    syncPinCodeValue(container);
+    inputs[Math.min(inputIndex + characters.length, inputs.length) - 1]?.focus();
+});
+
 document.querySelectorAll('[data-modal-open-on-load]').forEach((dialog) => {
     if (dialog instanceof HTMLDialogElement && !dialog.open) {
         dialog.showModal();
+        dialog.querySelector('[data-pin-code-digit]')?.focus();
     }
 });
