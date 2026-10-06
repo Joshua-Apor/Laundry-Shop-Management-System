@@ -45,11 +45,11 @@ class Order extends Model
     {
         $query
             ->leftJoin('customers', 'customers.customer_id', '=', 'laundry_orders.customer_id')
-            ->leftJoin('users', 'users.user_id', '=', 'laundry_orders.user_id')
             ->select([
                 'laundry_orders.order_id',
                 'laundry_orders.customer_id',
                 'laundry_orders.user_id',
+                'laundry_orders.employee_name as employeeName',
                 'laundry_orders.order_date',
                 'laundry_orders.order_time',
                 'laundry_orders.laundry_weight as weight',
@@ -61,7 +61,7 @@ class Order extends Model
                 'customers.name as fullname',
                 'customers.contact_number as phoneNumber',
                 'customers.address as customerAddress',
-                'users.name as employeeName',
+
             ])
             ->selectSub(
                 DB::table('order_services')

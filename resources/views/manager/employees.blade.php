@@ -19,7 +19,7 @@
                 <form method="POST" action="{{ route('manager.employees.store') }}" class="absolute right-0 top-full z-10 mt-3 w-[min(90vw,600px)] rounded-xl border border-sky-200 bg-white p-4 shadow-sm sm:p-5">
                     @csrf
                     <h2 class="text-sm font-bold text-slate-800">Create employee account</h2>
-                    <p class="mt-1 text-xs text-slate-500">Set a username and initial password for the new employee.</p>
+                    <p class="mt-1 text-xs text-slate-500">Set a username and email. A generated password will be sent to the employee.</p>
 
                     <div class="mt-4 grid gap-3 sm:grid-cols-2">
                         <div>
@@ -46,18 +46,7 @@
                             @enderror
                         </div>
 
-                        <div>
-                            <label for="password" class="mb-1 block text-xs font-semibold text-slate-700">Initial password</label>
-                            <input id="password" name="password" type="password" required minlength="8" autocomplete="new-password" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[#168cff] focus:ring-2 focus:ring-sky-100">
-                            @error('password')
-                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
 
-                        <div>
-                            <label for="password_confirmation" class="mb-1 block text-xs font-semibold text-slate-700">Confirm password</label>
-                            <input id="password_confirmation" name="password_confirmation" type="password" required minlength="8" autocomplete="new-password" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[#168cff] focus:ring-2 focus:ring-sky-100">
-                        </div>
                     </div>
 
                     <div class="mt-4 flex justify-end">
@@ -149,13 +138,13 @@
 
                 </article>
 
-                <x-modal :id="'employee-delete-'.$employee->user_id" title="Remove employee?">
-                    <p class="text-sm leading-6 text-slate-600">Remove {{ $employee->name }}'s access to the employee account? Their existing customer orders and records will be kept.</p>
+                <x-modal :id="'employee-delete-'.$employee->user_id" title="Permanently delete employee?">
+                    <p class="text-sm leading-6 text-slate-600">Permanently delete {{ $employee->name }}'s employee account? Their customer records and orders will be kept.</p>
                     <form method="POST" action="{{ route('manager.employees.destroy', $employee) }}" class="mt-5 flex justify-end gap-2">
                         @csrf
                         @method('DELETE')
                         <button type="button" data-modal-close class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Cancel</button>
-                        <button type="submit" class="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-700">Remove employee</button>
+                        <button type="submit" class="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-700">Delete employee</button>
                     </form>
                 </x-modal>
 

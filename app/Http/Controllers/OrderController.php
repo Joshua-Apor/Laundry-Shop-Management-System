@@ -80,8 +80,9 @@ class OrderController extends Controller
         $total = $laundryAmount + $serviceFee + $specialRequestPrice;
         $amountPaid = (float) ($validated['amount_paid'] ?? 0);
         $orderCreatedAt = now();
+        $employeeName = $request->user()->name;
 
-        DB::transaction(function () use ($validated, $weight, $total, $amountPaid, $orderCreatedAt, $selectedServices): void {
+        DB::transaction(function () use ($validated, $weight, $total, $amountPaid, $orderCreatedAt, $employeeName, $selectedServices): void {
             if (isset($validated['customer_id'])) {
                 $customer = DB::table('customers')
                     ->where('customer_id', $validated['customer_id'])
@@ -116,6 +117,7 @@ class OrderController extends Controller
             $orderId = DB::table('laundry_orders')->insertGetId([
                 'customer_id' => $customerId,
                 'user_id' => auth()->id(),
+                'employee_name' => $employeeName,
                 'order_date' => $orderCreatedAt->toDateString(),
                 'order_time' => $orderCreatedAt->format('H:i:s'),
                 'laundry_weight' => $weight,

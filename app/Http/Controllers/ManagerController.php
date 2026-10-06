@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\EmployeeWelcome;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Throwable;
 
 class ManagerController extends Controller
 {
@@ -144,20 +148,33 @@ class ManagerController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', 'unique:users,username'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ], [
-            'password.min' => 'The password must be at least 8 characters long.',
         ]);
 
-        User::query()->create([
+        $password = Str::password(16);
+        $employee = User::query()->create([
             'name' => $validated['name'],
             'username' => $validated['username'],
             'email' => $validated['email'],
-            'password' => $validated['password'],
+            'password' => $password,
             'role' => 'employee',
         ]);
 
-        return redirect()->route('manager.employees')->with('success', 'Employee account created.');
+        try {
+            Mail::to($employee->email)->send(new EmployeeWelcome(
+                $employee->name,
+                $employee->username,
+                $password,
+            ));
+        } catch (Throwable $exception) {
+            report($exception);
+            $employee->delete();
+
+            return back()->withInput()->withErrors([
+                'email' => 'The employee account was not created because the welcome email could not be sent. Check the mail settings and try again.',
+            ]);
+        }
+
+        return redirect()->route('manager.employees')->with('success', 'Employee account created and email sent.');
     }
 
     public function destroyEmployee(Request $request, User $employee): RedirectResponse
@@ -166,8 +183,8 @@ class ManagerController extends Controller
         abort_unless($employee->role === 'employee', 404);
 
         DB::table(config('session.table', 'sessions'))->where('user_id', $employee->getKey())->delete();
-        $employee->delete();
+        $employee->forceDelete();
 
-        return redirect()->route('manager.employees')->with('success', 'Employee account removed. Order history was preserved.');
+        return redirect()->route('manager.employees')->with('success', 'Employee permanently deleted.');
     }
 }
