@@ -301,3 +301,360 @@ document.querySelectorAll('[data-modal-open-on-load]').forEach((dialog) => {
         dialog.querySelector('[data-pin-code-digit]')?.focus();
     }
 });
+
+const profilePictureInput = document.querySelector('[data-profile-picture-input]');
+
+if (profilePictureInput) {
+    const profilePictureError = document.querySelector('[data-profile-picture-error]');
+    const profilePicturePreview = document.querySelector('[data-profile-picture-preview]');
+    const profilePictureInitials = document.querySelector('[data-profile-picture-initials]');
+    const cropper = document.querySelector('[data-profile-picture-cropper]');
+    const cropFrame = document.querySelector('[data-profile-picture-crop-frame]');
+    const cropImage = document.querySelector('[data-profile-picture-crop-image]');
+    const cropCircle = document.querySelector('[data-profile-picture-crop-circle]');
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+    let selectedImageUrl = null;
+    let croppedPreviewUrl = null;
+    let originalPreviewUrl = profilePicturePreview?.getAttribute('src') ?? null;
+    let cropScale = 1;
+    let cropLeft = 0;
+    let cropTop = 0;
+    let cropDiameter = 0;
+    let circleLeft = 0;
+    let circleTop = 0;
+    let dragStart = null;
+
+    const showProfilePictureError = (message) => {
+        profilePictureError.textContent = message;
+        profilePictureError.classList.remove('hidden');
+    };
+
+    const clearProfilePictureError = () => {
+        profilePictureError.textContent = '';
+        profilePictureError.classList.add('hidden');
+    };
+
+    const resetProfilePicturePreview = () => {
+        if (selectedImageUrl) {
+            URL.revokeObjectURL(selectedImageUrl);
+            selectedImageUrl = null;
+        }
+
+        if (croppedPreviewUrl) {
+            URL.revokeObjectURL(croppedPreviewUrl);
+            croppedPreviewUrl = null;
+        }
+
+        if (originalPreviewUrl) {
+            profilePicturePreview.src = originalPreviewUrl;
+            profilePicturePreview.classList.remove('hidden');
+            profilePictureInitials?.classList.add('hidden');
+        } else {
+            profilePicturePreview.removeAttribute('src');
+            profilePicturePreview.classList.add('hidden');
+            profilePictureInitials?.classList.remove('hidden');
+        }
+    };
+
+    const discardPendingCrop = () => {
+        profilePictureInput.value = '';
+
+        if (cropper.open) {
+            cropper.close();
+        }
+
+        resetProfilePicturePreview();
+        clearProfilePictureError();
+    };
+
+    const positionCropImage = (center = false) => {
+        const frameWidth = cropFrame.clientWidth;
+        const frameHeight = cropFrame.clientHeight;
+        const imageWidth = cropImage.naturalWidth * cropScale;
+        const imageHeight = cropImage.naturalHeight * cropScale;
+        const minimumLeft = frameWidth - imageWidth;
+        const minimumTop = frameHeight - imageHeight;
+
+        if (center) {
+            cropLeft = (frameWidth - imageWidth) / 2;
+            cropTop = (frameHeight - imageHeight) / 2;
+        }
+
+        cropLeft = Math.min(0, Math.max(minimumLeft, cropLeft));
+        cropTop = Math.min(0, Math.max(minimumTop, cropTop));
+        cropImage.style.width = imageWidth + 'px';
+        cropImage.style.height = imageHeight + 'px';
+        cropImage.style.left = cropLeft + 'px';
+        cropImage.style.top = cropTop + 'px';
+    };
+
+    const positionCropCircle = (center = false) => {
+        const frameWidth = cropFrame.clientWidth;
+        const frameHeight = cropFrame.clientHeight;
+        const minimumFrameSide = Math.min(frameWidth, frameHeight);
+
+        cropDiameter = Math.min(minimumFrameSide * 0.98, Math.max(minimumFrameSide * 0.35, cropDiameter));
+
+        if (center) {
+            circleLeft = (frameWidth - cropDiameter) / 2;
+            circleTop = (frameHeight - cropDiameter) / 2;
+        }
+
+        circleLeft = Math.min(frameWidth - cropDiameter, Math.max(0, circleLeft));
+        circleTop = Math.min(frameHeight - cropDiameter, Math.max(0, circleTop));
+        cropCircle.style.width = cropDiameter + 'px';
+        cropCircle.style.height = cropDiameter + 'px';
+        cropCircle.style.left = circleLeft + 'px';
+        cropCircle.style.top = circleTop + 'px';
+    };
+
+    const updateCropScale = (center = false) => {
+        const frameWidth = cropFrame.clientWidth;
+        const frameHeight = cropFrame.clientHeight;
+
+        cropDiameter = Math.min(frameWidth, frameHeight) * 0.92;
+        positionCropCircle(true);
+        const coverScale = Math.max(frameWidth / cropImage.naturalWidth, frameHeight / cropImage.naturalHeight);
+
+        cropScale = coverScale;
+        positionCropImage(center);
+    };
+
+    profilePictureInput.addEventListener('change', () => {
+        const file = profilePictureInput.files?.[0];
+
+        clearProfilePictureError();
+
+        if (!file) {
+            return;
+        }
+
+        const extension = file.name.split('.').pop()?.toLowerCase();
+
+        if (!allowedExtensions.includes(extension) || !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+            profilePictureInput.value = '';
+            if (cropper.open) {
+                cropper.close();
+            }
+            resetProfilePicturePreview();
+            showProfilePictureError('That file type is not allowed. Choose a JPG, PNG, or WebP image.');
+
+            return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+            profilePictureInput.value = '';
+            if (cropper.open) {
+                cropper.close();
+            }
+            resetProfilePicturePreview();
+            showProfilePictureError('The picture is larger than 2 MB. Choose a smaller image.');
+
+            return;
+        }
+
+        if (selectedImageUrl) {
+            URL.revokeObjectURL(selectedImageUrl);
+        }
+
+        selectedImageUrl = URL.createObjectURL(file);
+        cropImage.onload = () => {
+            cropper.showModal();
+            updateCropScale(true);
+            cropFrame.focus();
+        };
+        cropImage.src = selectedImageUrl;
+    });
+
+    cropFrame.addEventListener('pointerdown', (event) => {
+        if (event.target.closest('[data-profile-picture-crop-circle]')) {
+            return;
+        }
+
+        dragStart = {
+            mode: 'image',
+            pointerId: event.pointerId,
+            x: event.clientX,
+            y: event.clientY,
+            left: cropLeft,
+            top: cropTop,
+        };
+
+        cropFrame.setPointerCapture(event.pointerId);
+    });
+
+    cropFrame.addEventListener('pointermove', (event) => {
+        if (!dragStart || dragStart.pointerId !== event.pointerId) {
+            return;
+        }
+
+        const horizontalMovement = event.clientX - dragStart.x;
+        const verticalMovement = event.clientY - dragStart.y;
+
+        if (dragStart.mode === 'image') {
+            cropLeft = dragStart.left + horizontalMovement;
+            cropTop = dragStart.top + verticalMovement;
+            positionCropImage();
+        } else if (dragStart.mode === 'circle') {
+            circleLeft = dragStart.left + horizontalMovement;
+            circleTop = dragStart.top + verticalMovement;
+            positionCropCircle();
+        } else {
+            const minimumFrameSide = Math.min(cropFrame.clientWidth, cropFrame.clientHeight);
+            const corner = dragStart.corner.split('-');
+            const horizontalDirection = corner[1] === 'right' ? 1 : -1;
+            const verticalDirection = corner[0] === 'bottom' ? 1 : -1;
+            const diameterChange = (horizontalDirection * horizontalMovement + verticalDirection * verticalMovement) / 2;
+            const centerX = dragStart.left + dragStart.diameter / 2;
+            const centerY = dragStart.top + dragStart.diameter / 2;
+
+            cropDiameter = dragStart.diameter + diameterChange;
+            positionCropCircle();
+            circleLeft = centerX - cropDiameter / 2;
+            circleTop = centerY - cropDiameter / 2;
+            positionCropCircle();
+        }
+    });
+
+    cropFrame.addEventListener('pointerup', () => {
+        dragStart = null;
+    });
+
+    cropFrame.addEventListener('pointercancel', () => {
+        dragStart = null;
+    });
+
+    cropCircle.addEventListener('pointerdown', (event) => {
+        event.stopPropagation();
+
+        const resizeHandle = event.target.closest('[data-profile-picture-crop-resize]');
+
+        dragStart = {
+            mode: resizeHandle ? 'resize' : 'circle',
+            corner: resizeHandle?.dataset.profilePictureCropResize,
+            pointerId: event.pointerId,
+            x: event.clientX,
+            y: event.clientY,
+            left: circleLeft,
+            top: circleTop,
+            diameter: cropDiameter,
+        };
+
+        cropFrame.setPointerCapture(event.pointerId);
+    });
+
+    cropCircle.addEventListener('keydown', (event) => {
+        const movement = event.shiftKey ? 8 : 12;
+
+        if (event.shiftKey && ['ArrowLeft', 'ArrowDown'].includes(event.key)) {
+            cropDiameter -= movement;
+        } else if (event.shiftKey && ['ArrowRight', 'ArrowUp'].includes(event.key)) {
+            cropDiameter += movement;
+        } else if (event.key === 'ArrowLeft') {
+            circleLeft -= movement;
+        } else if (event.key === 'ArrowRight') {
+            circleLeft += movement;
+        } else if (event.key === 'ArrowUp') {
+            circleTop -= movement;
+        } else if (event.key === 'ArrowDown') {
+            circleTop += movement;
+        } else {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+        positionCropCircle();
+    });
+
+    cropFrame.addEventListener('keydown', (event) => {
+        const movement = event.shiftKey ? 25 : 8;
+
+        if (event.key === 'ArrowLeft') {
+            cropLeft -= movement;
+        } else if (event.key === 'ArrowRight') {
+            cropLeft += movement;
+        } else if (event.key === 'ArrowUp') {
+            cropTop -= movement;
+        } else if (event.key === 'ArrowDown') {
+            cropTop += movement;
+        } else {
+            return;
+        }
+
+        event.preventDefault();
+        positionCropImage();
+    });
+
+    document.querySelector('[data-profile-picture-crop]')?.addEventListener('click', () => {
+        const sourceX = (circleLeft - cropLeft) / cropScale;
+        const sourceY = (circleTop - cropTop) / cropScale;
+        const sourceSize = cropDiameter / cropScale;
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        const sourceFile = profilePictureInput.files?.[0];
+
+        if (!context || !sourceFile) {
+            showProfilePictureError('The crop could not be created. Please choose the picture again.');
+
+            return;
+        }
+
+        canvas.width = 512;
+        canvas.height = 512;
+
+        if (sourceFile.type === 'image/jpeg') {
+            context.fillStyle = '#ffffff';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        context.drawImage(cropImage, sourceX, sourceY, sourceSize, sourceSize, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((blob) => {
+            if (!blob) {
+                showProfilePictureError('The crop could not be created. Please try again.');
+
+                return;
+            }
+
+            const extension = sourceFile.name.split('.').pop().toLowerCase();
+            const croppedFile = new File([blob], 'profile-picture.' + extension, {
+                type: sourceFile.type,
+                lastModified: Date.now(),
+            });
+            const transfer = new DataTransfer();
+
+            transfer.items.add(croppedFile);
+            profilePictureInput.files = transfer.files;
+            if (croppedPreviewUrl) {
+                URL.revokeObjectURL(croppedPreviewUrl);
+            }
+
+            croppedPreviewUrl = URL.createObjectURL(blob);
+            profilePicturePreview.src = croppedPreviewUrl;
+            profilePicturePreview.classList.remove('hidden');
+            profilePictureInitials?.classList.add('hidden');
+            cropper.close();
+            clearProfilePictureError();
+        }, sourceFile.type, 0.92);
+    });
+
+    document.querySelector('[data-profile-picture-cancel]')?.addEventListener('click', discardPendingCrop);
+
+    cropper.addEventListener('cancel', (event) => {
+        event.preventDefault();
+        discardPendingCrop();
+    });
+
+    cropper.addEventListener('click', (event) => {
+        if (event.target === cropper) {
+            discardPendingCrop();
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        if (cropper.open && cropImage.complete) {
+            cropDiameter = Math.min(cropFrame.clientWidth, cropFrame.clientHeight) * 0.92;
+            updateCropScale(true);
+        }
+    });
+}

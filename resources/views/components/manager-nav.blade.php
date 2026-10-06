@@ -111,8 +111,12 @@
                 </span>
 
                 {{-- Avatar --}}
-                <a href="{{ route('profile.edit') }}" aria-label="My profile" title="My profile" class="grid size-7 shrink-0 place-items-center rounded-full bg-[#8b5cf6] text-[10px] font-bold text-white transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8b5cf6] sm:size-8">
-                    {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                <a href="{{ route('profile.edit') }}" aria-label="My profile" title="My profile" class="grid size-7 shrink-0 place-items-center overflow-hidden rounded-full bg-[#8b5cf6] text-[10px] font-bold text-white transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8b5cf6] sm:size-8">
+                    @if (auth()->user()->profile_picture_path)
+                        <img src="{{ asset('storage/'.auth()->user()->profile_picture_path) }}" alt="" class="size-full object-cover">
+                    @else
+                        {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                    @endif
                 </a>
 
                 {{-- Sign Out --}}
