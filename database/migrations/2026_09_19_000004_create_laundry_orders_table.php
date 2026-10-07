@@ -16,7 +16,11 @@ return new class extends Migration
             $table->unsignedBigInteger('customer_id');
             $table->unsignedBigInteger('user_id');
             $table->date('order_date');
+            $table->time('order_time')->nullable();
             $table->decimal('laundry_weight', 8, 2)->nullable();
+            $table->string('order_type')->default('Drop Off');
+            $table->unsignedInteger('self_service_loads')->nullable();
+            $table->string('employee_name')->nullable();
             $table->decimal('total_amount', 10, 2)->default(0);
             $table->decimal('amount_paid', 10, 2)->default(0);
             $table->decimal('balance', 10, 2)->default(0);

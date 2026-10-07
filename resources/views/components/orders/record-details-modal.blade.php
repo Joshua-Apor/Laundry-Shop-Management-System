@@ -23,7 +23,7 @@
             </summary>
             <div class="grid grid-cols-1 gap-3 border-t border-sky-100 p-4 sm:grid-cols-2">
                 <x-orders.info-item label="Status" icon="fa-circle-check">{{ $order->status }}</x-orders.info-item>
-                <x-orders.info-item label="Laundry weight" icon="fa-weight-scale">{{ number_format((float) $order->weight, 2) }} kg</x-orders.info-item>
+                <x-orders.info-item :label="$order->order_type === 'Self Service' ? 'Self service loads' : 'Drop off weight'" icon="fa-weight-scale">{{ $order->order_type === 'Self Service' ? $order->self_service_loads.' loads' : number_format((float) $order->weight, 2).' kg' }}</x-orders.info-item>
                 <x-orders.info-item label="Order date" icon="fa-calendar-days">{{ $order->order_date }}</x-orders.info-item>
                 <x-orders.info-item label="Order time" icon="fa-clock">{{ $order->order_time ? \Illuminate\Support\Carbon::parse($order->order_time)->format('g:i A') : 'Time unavailable' }}</x-orders.info-item>
                 <x-orders.info-item label="Pickup date" icon="fa-calendar-check">{{ $order->pickup_date }}</x-orders.info-item>

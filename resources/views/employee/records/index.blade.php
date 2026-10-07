@@ -19,7 +19,7 @@
         <div class="hidden grid-cols-[1.1fr_1.4fr_1fr_1.2fr_1fr] gap-4 px-5 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:grid">
             <span>Order Number</span>
             <span>Customer Name</span>
-            <span>Laundry Weight</span>
+            <span>Service type</span>
             <span>Total Amount</span>
             <span>Status</span>
         </div>
@@ -36,7 +36,7 @@
                     <span class="pointer-events-none relative z-0 col-span-2 row-start-2 min-w-0 sm:row-auto sm:col-span-1">
                         <span class="block truncate font-medium text-slate-900">{{ $order->fullname }}</span>
                     </span>
-                    <span class="pointer-events-none relative z-0 text-slate-600">{{ $order->weight }} kg</span>
+                    <span class="pointer-events-none relative z-0 text-slate-600">{{ $order->order_type === 'Self Service' ? $order->self_service_loads.' loads' : $order->weight.' kg' }}</span>
                     <span class="pointer-events-none relative z-0 font-semibold text-slate-900">₱{{ number_format((float) $order->total_amount, 2) }}</span>
                     <div class="col-start-2 row-start-1 sm:row-auto sm:col-auto">
                         <x-orders.status-control :order="$order" />

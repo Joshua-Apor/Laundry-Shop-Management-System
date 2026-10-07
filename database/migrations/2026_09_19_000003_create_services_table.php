@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('service_name');
             $table->text('description')->nullable();
             $table->decimal('base_price', 10, 2);
+            $table->string('price_unit', 30)->default('/order');
+            $table->softDeletes();
         });
     }
 

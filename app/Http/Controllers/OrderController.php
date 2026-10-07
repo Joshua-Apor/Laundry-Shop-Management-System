@@ -70,19 +70,36 @@ class OrderController extends Controller
     {
         $validated = $request->validated();
 
-        $weight = (float) $validated['weight'];
-        $laundryAmount = (float) ($validated['laundry_amount'] ?? ($weight * 60));
+        $weight = isset($validated['weight']) ? (float) $validated['weight'] : null;
+        $selfServiceLoads = $validated['self_service_loads'] ?? null;
+        $serviceQuantities = $validated['service_quantities'] ?? [];
         $selectedServices = DB::table('services')
             ->whereIn('service_id', $validated['services'])
             ->get(['service_id', 'service_name', 'base_price', 'price_unit']);
-        $serviceFee = (float) $selectedServices->sum('base_price');
+        $serviceUnits = $selectedServices->mapWithKeys(function (object $service) use ($weight, $selfServiceLoads, $serviceQuantities): array {
+            $quantity = match ($service->service_name) {
+                'Drop Off' => $weight,
+                'Self Service' => (int) $selfServiceLoads,
+                default => (int) ($serviceQuantities[$service->service_id] ?? 1),
+            };
+
+            return [$service->service_id => $quantity];
+        });
+        $serviceFees = $selectedServices->mapWithKeys(function (object $service) use ($weight, $serviceUnits): array {
+            $fee = $service->service_name === 'Drop Off' && $weight !== null && $weight <= 5
+                ? 175
+                : (float) $service->base_price * $serviceUnits[$service->service_id];
+
+            return [$service->service_id => $fee];
+        });
+        $serviceFee = (float) $serviceFees->sum();
         $specialRequestPrice = (float) ($validated['special_request_price'] ?? 0);
-        $total = $laundryAmount + $serviceFee + $specialRequestPrice;
+        $total = $serviceFee + $specialRequestPrice;
         $amountPaid = (float) ($validated['amount_paid'] ?? 0);
         $orderCreatedAt = now();
         $employeeName = $request->user()->name;
 
-        DB::transaction(function () use ($validated, $weight, $total, $amountPaid, $orderCreatedAt, $employeeName, $selectedServices): void {
+        DB::transaction(function () use ($validated, $weight, $selfServiceLoads, $serviceUnits, $serviceFees, $total, $amountPaid, $orderCreatedAt, $employeeName, $selectedServices): void {
             if (isset($validated['customer_id'])) {
                 $customer = DB::table('customers')
                     ->where('customer_id', $validated['customer_id'])
@@ -121,6 +138,8 @@ class OrderController extends Controller
                 'order_date' => $orderCreatedAt->toDateString(),
                 'order_time' => $orderCreatedAt->format('H:i:s'),
                 'laundry_weight' => $weight,
+                'order_type' => $validated['order_type'],
+                'self_service_loads' => $selfServiceLoads,
                 'total_amount' => $total,
                 'amount_paid' => $amountPaid,
                 'balance' => max($total - $amountPaid, 0),
@@ -132,8 +151,8 @@ class OrderController extends Controller
                 DB::table('order_services')->insert([
                     'order_id' => $orderId,
                     'service_id' => $service->service_id,
-                    'quantity' => 1,
-                    'service_fee' => $service->base_price,
+                    'quantity' => $service->service_name === 'Drop Off' ? 1 : $serviceUnits[$service->service_id],
+                    'service_fee' => $serviceFees[$service->service_id],
                 ]);
             }
 

@@ -304,6 +304,364 @@ document.querySelectorAll('[data-modal-open-on-load]').forEach((dialog) => {
 
 const profilePictureInput = document.querySelector('[data-profile-picture-input]');
 
+const modalOrderForm = document.querySelector('[data-order-form]');
+
+if (modalOrderForm) {
+    const firstPhase = modalOrderForm.querySelector('[data-order-phase="1"]');
+    const secondPhase = modalOrderForm.querySelector('[data-order-phase="2"]');
+    const stepIndicators = modalOrderForm.querySelectorAll('[data-order-step-indicator]');
+    const modal = document.querySelector('[data-order-service-dialog]');
+    const typeInput = modalOrderForm.querySelector('[data-order-selected-type]');
+    const serviceList = modalOrderForm.querySelector('[data-selected-services-list]');
+    const emptyMessage = modalOrderForm.querySelector('[data-selected-services-empty]');
+    const totalDisplay = modalOrderForm.querySelector('[data-order-total]');
+    const modalTypes = modal.querySelectorAll('[data-dialog-order-type]');
+    const modalAddons = modal.querySelector('[data-order-modal-addons]');
+    const modalAddonOptions = modal.querySelectorAll('[data-order-modal-addon]');
+    const modalError = modal.querySelector('[data-order-modal-error]');
+    const oldAddonInputs = firstPhase.querySelectorAll('[data-order-addon]:checked');
+    const chosenServices = new Map();
+    const oldSelectedType = typeInput.value || firstPhase.querySelector('[data-order-type-choice]:checked')?.value || '';
+    const oldWeight = firstPhase.querySelector('[data-order-weight]')?.value || '';
+    const oldLoads = firstPhase.querySelector('[data-order-loads]')?.value || '';
+    let baseQuantity = oldSelectedType === 'Drop Off' ? oldWeight : oldSelectedType === 'Self Service' ? oldLoads : '';
+    const baseQuantities = new Map();
+
+    if (oldSelectedType) {
+        baseQuantities.set(oldSelectedType, baseQuantity);
+    }
+
+    oldAddonInputs.forEach((checkbox) => {
+        const option = modal.querySelector(`[data-order-modal-addon-input][value="${CSS.escape(checkbox.value)}"]`);
+
+        if (option) {
+            const oldQuantity = firstPhase.querySelector(`[data-order-addon-quantity][name="service_quantities[${CSS.escape(checkbox.value)}]"]`)?.value || '1';
+            chosenServices.set(checkbox.value, oldQuantity);
+        }
+    });
+
+    if (firstPhase) {
+        firstPhase.remove();
+    }
+
+    secondPhase.hidden = false;
+    modalOrderForm.querySelector('[data-order-back]')?.remove();
+    modalOrderForm.querySelector('fieldset[disabled][hidden]')?.remove();
+    modalOrderForm.querySelector('[name="laundry_amount"]')?.closest('label')?.remove();
+
+    const formatMoney = (amount) => new Intl.NumberFormat('en-PH', {
+        style: 'currency',
+        currency: 'PHP',
+    }).format(amount);
+
+    const updateProgress = (currentStep) => {
+        stepIndicators.forEach((indicator) => {
+            const isCurrent = indicator.dataset.orderStepIndicator === String(currentStep);
+
+            if (isCurrent) {
+                indicator.setAttribute('aria-current', 'step');
+            } else {
+                indicator.removeAttribute('aria-current');
+            }
+
+            indicator.classList.toggle('border-sky-300', isCurrent);
+            indicator.classList.toggle('bg-sky-50', isCurrent);
+            indicator.classList.toggle('font-semibold', isCurrent);
+            indicator.classList.toggle('text-sky-800', isCurrent);
+            indicator.classList.toggle('border-slate-200', !isCurrent);
+            indicator.classList.toggle('bg-white', !isCurrent);
+            indicator.classList.toggle('text-slate-500', !isCurrent);
+        });
+    };
+
+    const updateOrderTotal = () => {
+        const serviceTotal = Array.from(serviceList.querySelectorAll('[data-service-line-total]'))
+            .reduce((total, line) => total + Number(line.dataset.serviceLineTotal), 0);
+        const specialRequestPrice = Number(modalOrderForm.querySelector('[name="special_request_price"]')?.value || 0);
+
+        totalDisplay.textContent = formatMoney(serviceTotal + specialRequestPrice);
+    };
+
+    const createSelectedServiceRow = ({ id, name, price, unit, quantity, quantityName, step = '1', minimum = '1', fixedPrice = null, fixedLimit = null }) => {
+        const row = document.createElement('div');
+        row.className = 'rounded-lg border border-sky-100 p-3';
+        row.dataset.selectedServiceId = id;
+
+        const serviceInput = document.createElement('input');
+        serviceInput.type = 'hidden';
+        serviceInput.name = 'services[]';
+        serviceInput.value = id;
+        row.append(serviceInput);
+
+        const heading = document.createElement('div');
+        heading.className = 'flex items-start justify-between gap-3';
+
+        const serviceName = document.createElement('span');
+        serviceName.className = 'text-sm font-semibold text-slate-800';
+        serviceName.textContent = name;
+
+        const pricePerUnit = document.createElement('span');
+        pricePerUnit.className = 'shrink-0 text-xs text-slate-500';
+        pricePerUnit.textContent = fixedPrice === null
+            ? `${formatMoney(price)} ${unit}`
+            : `${formatMoney(fixedPrice)} up to ${fixedLimit} kg, then ${formatMoney(price)} ${unit}`;
+        heading.append(serviceName, pricePerUnit);
+        row.append(heading);
+
+        const quantityArea = document.createElement('div');
+        quantityArea.className = 'mt-3 flex items-center justify-between gap-3';
+
+        const quantityLabel = document.createElement('label');
+        quantityLabel.className = 'flex min-w-0 items-center gap-2 text-xs font-medium text-slate-600';
+        quantityLabel.textContent = `Quantity (${unit.replace(/^\//, '')})`;
+
+        const quantityInput = document.createElement('input');
+        quantityInput.type = 'number';
+        quantityInput.name = quantityName;
+        quantityInput.value = quantity || '1';
+        quantityInput.min = minimum;
+        quantityInput.step = step;
+        quantityInput.required = true;
+        quantityInput.className = 'w-24 rounded-lg border border-sky-200 px-2.5 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-300';
+        quantityLabel.append(quantityInput);
+
+        const lineTotal = document.createElement('span');
+        lineTotal.className = 'shrink-0 text-sm font-semibold text-slate-900';
+        lineTotal.dataset.serviceLineTotal = '0';
+        quantityArea.append(quantityLabel, lineTotal);
+        row.append(quantityArea);
+
+        const updateLineTotal = () => {
+            const quantity = Math.max(0, Number(quantityInput.value) || 0);
+            const lineAmount = fixedPrice !== null && quantity > 0 && quantity <= fixedLimit
+                ? fixedPrice
+                : quantity * price;
+
+            lineTotal.dataset.serviceLineTotal = String(lineAmount);
+            lineTotal.textContent = formatMoney(lineAmount);
+            updateOrderTotal();
+        };
+
+        quantityInput.addEventListener('input', updateLineTotal);
+        updateLineTotal();
+
+        return row;
+    };
+
+    const renderSelectedServices = () => {
+        serviceList.querySelectorAll('[data-selected-service-id]').forEach((row) => row.remove());
+        emptyMessage.classList.toggle('hidden', Boolean(typeInput.value));
+
+        if (!typeInput.value) {
+            updateOrderTotal();
+
+            return;
+        }
+
+        const selectedType = Array.from(modalTypes).find((radio) => radio.value === typeInput.value);
+        const typeId = selectedType.dataset.serviceId;
+        const baseService = createSelectedServiceRow({
+            id: typeId,
+            name: typeInput.value,
+            price: Number(selectedType.dataset.servicePrice),
+            unit: selectedType.dataset.serviceUnit,
+            quantity: baseQuantity,
+            quantityName: typeInput.value === 'Drop Off' ? 'weight' : 'self_service_loads',
+            step: typeInput.value === 'Drop Off' ? '0.1' : '1',
+            minimum: typeInput.value === 'Drop Off' ? '0.1' : '1',
+            fixedPrice: selectedType.dataset.serviceFixedPrice ? Number(selectedType.dataset.serviceFixedPrice) : null,
+            fixedLimit: selectedType.dataset.serviceFixedLimit ? Number(selectedType.dataset.serviceFixedLimit) : null,
+        });
+
+        serviceList.prepend(baseService);
+
+        chosenServices.forEach((quantity, serviceId) => {
+            const option = modal.querySelector(`[data-order-modal-addon-input][value="${CSS.escape(serviceId)}"]`);
+
+            if (!option || option.disabled) {
+                return;
+            }
+
+            serviceList.append(createSelectedServiceRow({
+                id: serviceId,
+                name: option.dataset.serviceName,
+                price: Number(option.dataset.servicePrice),
+                unit: option.dataset.serviceUnit,
+                quantity,
+                quantityName: `service_quantities[${serviceId}]`,
+            }));
+        });
+
+        updateOrderTotal();
+    };
+
+    const refreshModalOptions = () => {
+        const chosenType = modal.querySelector('[data-dialog-order-type]:checked')?.value || '';
+
+        modalAddons.classList.toggle('hidden', !chosenType);
+        modalAddonOptions.forEach((option) => {
+            const checkbox = option.querySelector('[data-order-modal-addon-input]');
+            const visible = option.dataset.orderModalAddon === 'Both' || chosenType === 'Self Service';
+
+            option.classList.toggle('hidden', !visible);
+            checkbox.disabled = !visible;
+
+            if (!visible) {
+                checkbox.checked = false;
+            }
+        });
+    };
+
+    modalOrderForm.querySelector('[data-open-order-service-modal]')?.addEventListener('click', () => {
+        modalTypes.forEach((radio) => {
+            radio.checked = radio.value === typeInput.value;
+        });
+        modal.querySelectorAll('[data-order-modal-addon-input]').forEach((checkbox) => {
+            checkbox.checked = chosenServices.has(checkbox.value);
+        });
+        modalError.classList.add('hidden');
+        refreshModalOptions();
+        modal.showModal();
+    });
+
+    modalTypes.forEach((radio) => radio.addEventListener('change', refreshModalOptions));
+    modal.querySelector('[data-order-modal-cancel]')?.addEventListener('click', () => modal.close());
+    modal.querySelector('[data-order-modal-done]')?.addEventListener('click', () => {
+        const selectedType = modal.querySelector('[data-dialog-order-type]:checked');
+
+        if (!selectedType) {
+            modalError.textContent = 'Choose Drop Off or Self Service to continue.';
+            modalError.classList.remove('hidden');
+
+            return;
+        }
+
+        const existingQuantities = new Map();
+        serviceList.querySelectorAll('[data-selected-service-id]').forEach((row) => {
+            const quantityInput = row.querySelector('[name^="service_quantities["]');
+
+            if (quantityInput) {
+                existingQuantities.set(row.dataset.selectedServiceId, quantityInput.value);
+            }
+        });
+        const currentBaseQuantity = serviceList.querySelector('[name="weight"], [name="self_service_loads"]')?.value;
+        if (typeInput.value && currentBaseQuantity) {
+            baseQuantities.set(typeInput.value, currentBaseQuantity);
+        }
+        baseQuantity = baseQuantities.get(selectedType.value) ?? (selectedType.value === 'Drop Off' ? oldWeight : oldLoads);
+        typeInput.value = selectedType.value;
+        chosenServices.clear();
+        modal.querySelectorAll('[data-order-modal-addon-input]:checked:not(:disabled)').forEach((checkbox) => {
+            chosenServices.set(checkbox.value, existingQuantities.get(checkbox.value) || '1');
+        });
+        renderSelectedServices();
+        updateProgress(2);
+        modal.close();
+    });
+    modalOrderForm.querySelector('[name="special_request_price"]')?.addEventListener('input', updateOrderTotal);
+
+    if (oldSelectedType) {
+        typeInput.value = oldSelectedType;
+        renderSelectedServices();
+        updateProgress(2);
+    } else {
+        updateOrderTotal();
+        updateProgress(1);
+    }
+}
+
+const orderForm = document.querySelector('[data-order-phase="1"]')?.closest('form');
+
+if (orderForm && !document.querySelector('[data-order-service-dialog]')) {
+    const phaseOne = orderForm.querySelector('[data-order-phase="1"]');
+    const phaseTwo = orderForm.querySelector('[data-order-phase="2"]');
+    const typeChoices = orderForm.querySelectorAll('[data-order-type-choice]');
+    const typeFields = orderForm.querySelectorAll('[data-order-type-fields]');
+    const addonsFieldset = orderForm.querySelector('[data-order-addons]');
+    const addonOptions = orderForm.querySelectorAll('[data-order-addon-option]');
+    const baseServices = orderForm.querySelectorAll('[data-order-base-service]');
+    const weightInput = orderForm.querySelector('[data-order-weight]');
+    const loadsInput = orderForm.querySelector('[data-order-loads]');
+    const summary = orderForm.querySelector('[data-order-options-summary]');
+    const stepIndicators = orderForm.querySelectorAll('[data-order-step-indicator]');
+    const laundryAmountInput = orderForm.querySelector('[name="laundry_amount"]');
+
+    if (laundryAmountInput) {
+        laundryAmountInput.closest('label')?.remove();
+    }
+
+    const selectedType = () => orderForm.querySelector('[data-order-type-choice]:checked')?.value ?? '';
+
+    const refreshOrderServices = () => {
+        const orderType = selectedType();
+
+        typeFields.forEach((fields) => fields.classList.toggle('hidden', fields.dataset.orderTypeFields !== orderType));
+        weightInput.disabled = orderType !== 'Drop Off';
+        weightInput.required = orderType === 'Drop Off';
+        loadsInput.disabled = orderType !== 'Self Service';
+        loadsInput.required = orderType === 'Self Service';
+        addonsFieldset.disabled = orderType === '';
+        addonsFieldset.classList.toggle('hidden', orderType === '');
+
+        addonOptions.forEach((option) => {
+            const isAvailable = option.dataset.orderAddonOption === 'Both' || orderType === 'Self Service';
+            const checkbox = option.querySelector('[data-order-addon]');
+            const quantityLabel = option.querySelector('[data-order-addon-quantity-label]');
+            const quantityInput = option.querySelector('[data-order-addon-quantity]');
+
+            option.classList.toggle('hidden', !isAvailable);
+            checkbox.disabled = !orderType || !isAvailable;
+            quantityLabel.classList.toggle('hidden', !checkbox.checked || !isAvailable);
+            quantityInput.disabled = !checkbox.checked || !isAvailable;
+            quantityInput.required = checkbox.checked && isAvailable;
+        });
+
+        baseServices.forEach((service) => {
+            service.disabled = service.dataset.orderBaseService !== orderType;
+        });
+
+        const selectedAddons = Array.from(orderForm.querySelectorAll('[data-order-addon]:checked'), (checkbox) => checkbox.closest('div').querySelector('label').textContent.trim().split(' (')[0]);
+        summary.textContent = orderType ? [orderType, ...selectedAddons].join(' · ') : 'Choose service options in phase 1.';
+    };
+
+    const showPhase = (phase) => {
+        const isFirstPhase = phase === 1;
+
+        phaseOne.hidden = !isFirstPhase;
+        phaseTwo.hidden = isFirstPhase;
+        stepIndicators.forEach((indicator) => {
+            const isCurrent = indicator.dataset.orderStepIndicator === String(phase);
+
+            if (isCurrent) {
+                indicator.setAttribute('aria-current', 'step');
+            } else {
+                indicator.removeAttribute('aria-current');
+            }
+        });
+
+        if (!isFirstPhase) {
+            orderForm.querySelector('#customer-name')?.focus();
+        }
+    };
+
+    typeChoices.forEach((choice) => choice.addEventListener('change', refreshOrderServices));
+    orderForm.querySelectorAll('[data-order-addon]').forEach((checkbox) => checkbox.addEventListener('change', refreshOrderServices));
+    orderForm.querySelector('[data-order-next]')?.addEventListener('click', () => {
+        const requiredFields = phaseOne.querySelectorAll(':required');
+
+        for (const field of requiredFields) {
+            if (!field.reportValidity()) {
+                return;
+            }
+        }
+
+        showPhase(2);
+    });
+    orderForm.querySelector('[data-order-back]')?.addEventListener('click', () => showPhase(1));
+
+    refreshOrderServices();
+}
+
 if (profilePictureInput) {
     const profilePictureError = document.querySelector('[data-profile-picture-error]');
     const profilePicturePreview = document.querySelector('[data-profile-picture-preview]');

@@ -12,10 +12,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('laundry_orders', function (Blueprint $table) {
-            $table->string('employee_name')->nullable();
-        });
-
         DB::table('laundry_orders')
             ->join('users', 'users.user_id', '=', 'laundry_orders.user_id')
             ->select(['laundry_orders.order_id', 'users.name as recorded_employee_name'])
@@ -50,7 +46,6 @@ return new class extends Migration
                 ->references('user_id')
                 ->on('users')
                 ->cascadeOnDelete();
-            $table->dropColumn('employee_name');
         });
     }
 };

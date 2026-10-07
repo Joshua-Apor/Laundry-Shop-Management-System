@@ -13,15 +13,74 @@
         </div>
 
 
-        <form action="{{ route('orders.store') }}" method="POST">
+        <form action="{{ route('orders.store') }}" method="POST" data-order-form>
             @csrf
             <input type="hidden" name="customer_id" id="customer-id" value="{{ old('customer_id') }}">
 
+            <section data-order-phase="1" class="mb-5 rounded-2xl border border-sky-100 bg-white p-6 shadow-sm">
+                <h2 class="text-lg font-bold text-slate-900">Choose a laundry service</h2>
+                <p class="mt-1 text-sm text-slate-500">Choose Drop Off or Self Service first. Prices and quantities follow each service’s price unit.</p>
+
+                <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                    @foreach (['Drop Off', 'Self Service'] as $orderType)
+                        <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-sky-200 p-4 font-semibold text-slate-800 has-[:checked]:border-sky-500 has-[:checked]:bg-sky-50">
+                            <input type="radio" name="order_type" value="{{ $orderType }}" data-order-type-choice @checked(old('order_type') === $orderType) required class="text-sky-600 focus:ring-sky-500">
+                            <span>{{ $orderType }}
+                                @foreach ($services->where('service_name', $orderType) as $service)
+                                    <span class="font-normal text-slate-500">(₱{{ number_format((float) $service->base_price, 2) }} {{ $service->price_unit }})</span>
+                                    <input type="hidden" name="services[]" value="{{ $service->service_id }}" data-order-base-service="{{ $orderType }}" disabled>
+                                @endforeach
+                            </span>
+                        </label>
+                    @endforeach
+                </div>
+
+                <div data-order-type-fields="Drop Off" class="mt-5 hidden">
+                    <label class="block space-y-1 text-sm font-semibold text-slate-700">Laundry weight (kg)
+                        <input type="number" name="weight" min="0.1" step="0.1" value="{{ old('weight') }}" data-order-weight disabled class="w-full rounded-lg border border-sky-200 px-3.5 py-2.5 text-sm font-normal focus:outline-none focus:ring-2 focus:ring-sky-300">
+                    </label>
+                </div>
+
+                <div data-order-type-fields="Self Service" class="mt-5 hidden">
+                    <label class="block space-y-1 text-sm font-semibold text-slate-700">Number of loads
+                        <input type="number" name="self_service_loads" min="1" max="100" step="1" value="{{ old('self_service_loads') }}" data-order-loads disabled class="w-full rounded-lg border border-sky-200 px-3.5 py-2.5 text-sm font-normal focus:outline-none focus:ring-2 focus:ring-sky-300">
+                    </label>
+                </div>
+
+                <fieldset data-order-addons class="mt-5 hidden space-y-3">
+                    <legend class="text-sm font-semibold text-slate-700">Additional services</legend>
+                    <div class="grid gap-3 sm:grid-cols-2">
+                        @foreach ($services->whereNotIn('service_name', ['Drop Off', 'Self Service']) as $service)
+                            <div data-order-addon-option="{{ in_array($service->service_name, ['Dry', 'Sabon'], true) ? 'Self Service' : 'Both' }}" class="hidden rounded-xl border border-sky-200 p-3">
+                                <label class="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
+                                    <input type="checkbox" name="services[]" value="{{ $service->service_id }}" @checked(in_array((string) $service->service_id, old('services', []), true)) data-order-addon disabled class="rounded text-sky-600 focus:ring-sky-500">
+                                    {{ $service->service_name }} <span class="font-normal text-slate-500">(₱{{ number_format((float) $service->base_price, 2) }} {{ $service->price_unit }})</span>
+                                </label>
+                                <label class="mt-2 hidden space-y-1 text-xs font-medium text-slate-600" data-order-addon-quantity-label>
+                                    Quantity ({{ ltrim($service->price_unit, '/') }})
+                                    <input type="number" name="service_quantities[{{ $service->service_id }}]" value="{{ old('service_quantities.'.$service->service_id, 1) }}" min="1" step="1" data-order-addon-quantity disabled class="w-full rounded-lg border border-sky-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                </fieldset>
+
+                @error('order_type')<p class="mt-3 text-sm text-red-600" role="alert">{{ $message }}</p>@enderror
+                @error('weight')<p class="mt-3 text-sm text-red-600" role="alert">{{ $message }}</p>@enderror
+                @error('self_service_loads')<p class="mt-3 text-sm text-red-600" role="alert">{{ $message }}</p>@enderror
+                @error('services')<p class="mt-3 text-sm text-red-600" role="alert">{{ $message }}</p>@enderror
+
+                <div class="mt-6 flex justify-end">
+                    <button type="button" data-order-next class="rounded-lg bg-[#168cff] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#0878df]">Continue</button>
+                </div>
+            </section>
+
             {{-- MAIN GRID --}}
+            <section data-order-phase="2" hidden>
             <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
 
                 {{-- LEFT: CUSTOMER INFORMATION --}}
-                <div class="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm">
+                <div class="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm row-start-1 lg:col-start-1 lg:row-start-1">
 
                     <div class="mb-5 flex items-center gap-3">
                         <span class="grid size-9 shrink-0 place-items-center rounded-lg bg-sky-50 text-[#168cff]">
@@ -130,8 +189,8 @@
                 </div>
 
 
-                {{-- MIDDLE: SERVICES --}}
-                <div class="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm">
+                {{-- MIDDLE: SELECTED SERVICES SUMMARY --}}
+                <div class="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm row-start-2 lg:col-start-2 lg:row-start-1">
 
                     <div class="mb-5 flex items-center gap-3">
                         <span class="grid size-9 shrink-0 place-items-center rounded-lg bg-sky-50 text-[#168cff]">
@@ -140,17 +199,28 @@
 
                         <div>
                             <h2 class="text-sm font-bold text-slate-800">
-                                Services
+                                Selected services
                             </h2>
 
-                            <p class="text-xs text-slate-400">
-                                Select laundry services
-                            </p>
+                            <p class="text-xs text-slate-400">Choose services and quantities</p>
                         </div>
                     </div>
 
 
-                    <div class="space-y-3">
+                    <input type="hidden" name="order_type" data-order-selected-type value="{{ old('order_type') }}">
+                    <div data-selected-services-list class="space-y-3">
+                        <p data-selected-services-empty class="rounded-lg bg-sky-50 p-3 text-sm text-slate-600">No services selected yet.</p>
+                    </div>
+                    @error('order_type')<p class="mt-2 text-xs text-red-600" role="alert">{{ $message }}</p>@enderror
+                    @error('weight')<p class="mt-2 text-xs text-red-600" role="alert">{{ $message }}</p>@enderror
+                    @error('self_service_loads')<p class="mt-2 text-xs text-red-600" role="alert">{{ $message }}</p>@enderror
+                    @error('services')<p class="mt-2 text-xs text-red-600" role="alert">{{ $message }}</p>@enderror
+                    <button type="button" data-open-order-service-modal class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#168cff] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0878df]">
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                        Select service
+                    </button>
+
+                    <fieldset disabled hidden class="space-y-3">
 
                         @forelse ($services as $service)
 
@@ -174,16 +244,16 @@
                             <p class="rounded-lg bg-amber-50 p-3 text-xs text-amber-800">No services are available. Ask a manager to add services first.</p>
                         @endforelse
 
-                    </div>
+                    </fieldset>
 
                 </div>
 
 
                 {{-- RIGHT COLUMN --}}
-                <div class="space-y-5">
+                <div class="contents">
 
                     {{-- TOP RIGHT: WEIGHT --}}
-                    <div class="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm">
+                    <div class="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm row-start-4 lg:col-start-1 lg:row-start-2">
 
                         <div class="mb-5 flex items-center gap-3">
                             <span class="grid size-9 shrink-0 place-items-center rounded-lg bg-sky-50 text-[#168cff]">
@@ -191,18 +261,17 @@
                             </span>
 
                             <div>
-                                <h2 class="text-sm font-bold text-slate-800">
-                                    Laundry Weight
-                                </h2>
+                                <h2 class="text-sm font-bold text-slate-800">Total Amount</h2>
 
                                 <p class="text-xs text-slate-400">
-                                    Enter laundry weight
+                                    Based on selected service quantities
                                 </p>
                             </div>
                         </div>
 
+                        <p class="text-2xl font-bold text-slate-900" data-order-total>₱0.00</p>
 
-                        <label class="block space-y-1 text-xs font-semibold text-slate-700">
+                        <label hidden class="block space-y-1 text-xs font-semibold text-slate-700">
                             Weight (kg)
                             <span class="text-rose-500">*</span>
 
@@ -210,9 +279,9 @@
                                 type="number"
                                 step="0.1"
                                 min="0.1"
-                                name="weight"
+                                name="legacy_weight"
                                 placeholder="e.g. 4.5"
-                                required
+                                disabled
                                 class="w-full rounded-lg border border-sky-200 bg-white px-3.5 py-2.5 text-sm font-normal text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300"
                             >
                         </label>
@@ -234,7 +303,7 @@
 
 
                     {{-- BOTTOM RIGHT: PAYMENT --}}
-                    <div class="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm">
+                    <div class="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm row-start-5 lg:col-span-2 lg:col-start-2 lg:row-start-2">
 
                         <div class="mb-5 flex items-center gap-3">
                             <span class="grid size-9 shrink-0 place-items-center rounded-lg bg-sky-50 text-[#168cff]">
@@ -300,8 +369,11 @@
                                 <input
                                     type="number"
                                     step="0.01"
+                                    min="0"
                                     name="amount_paid"
-                                    placeholder="Leave blank if unpaid"
+                                    value="{{ old('amount_paid', '0.00') }}"
+                                    required
+                                    placeholder="0.00 if unpaid"
                                     class="w-full rounded-lg border border-sky-200 bg-white px-3.5 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300"
                                 >
 
@@ -313,11 +385,8 @@
 
                 </div>
 
-            </div>
-
-
             {{-- SPECIAL REQUEST --}}
-            <div class="mt-5 rounded-2xl border border-sky-100 bg-white p-6 shadow-sm">
+            <div class="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm row-start-3 lg:col-start-3 lg:row-start-1">
 
                 <div class="mb-4 flex items-center gap-3">
                     <span class="grid size-9 shrink-0 place-items-center rounded-lg bg-sky-50 text-[#168cff]">
@@ -335,10 +404,11 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_14rem]">
+                <div class="space-y-4">
                     <input
                         type="text"
                         name="special_request"
+                        aria-label="Special request"
                         placeholder="e.g. Separate whites, use specific detergent..."
                         class="w-full rounded-lg border border-sky-200 bg-white px-3.5 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300"
                     >
@@ -359,6 +429,10 @@
 
             </div>
 
+            </div>
+
+
+            <button type="button" data-order-back class="mt-5 w-full rounded-xl border border-slate-200 bg-white py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">Back to services</button>
 
             {{-- CREATE ORDER --}}
             <button
@@ -371,8 +445,48 @@
                     Create Order
                 </span>
             </button>
+            </section>
 
         </form>
+
+        <dialog data-order-service-dialog class="m-auto w-[min(34rem,calc(100vw-2rem))] max-w-none rounded-2xl border border-slate-200 bg-white p-5 text-slate-900 shadow-2xl backdrop:bg-slate-950/60 sm:p-7">
+            <div class="space-y-5">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">Select services</h2>
+                    <p class="mt-1 text-sm text-slate-500">Choose Drop Off or Self Service, then select any additional services.</p>
+                </div>
+
+                <fieldset class="space-y-2">
+                    <legend class="mb-2 text-sm font-semibold text-slate-700">Laundry service</legend>
+                    <div class="grid gap-2 sm:grid-cols-2">
+                        @foreach ($services->whereIn('service_name', ['Drop Off', 'Self Service']) as $service)
+                            <label class="flex cursor-pointer items-center gap-2 rounded-lg border border-sky-200 p-3 text-sm font-semibold text-slate-700 has-[:checked]:border-sky-500 has-[:checked]:bg-sky-50">
+                                <input type="radio" name="dialog_order_type" value="{{ $service->service_name }}" data-dialog-order-type data-service-id="{{ $service->service_id }}" data-service-price="{{ $service->base_price }}" data-service-unit="{{ $service->price_unit }}" @if ($service->service_name === 'Drop Off') data-service-fixed-price="175" data-service-fixed-limit="5" @endif class="text-sky-600 focus:ring-sky-500">
+                                <span>{{ $service->service_name }} <span class="font-normal text-slate-500">(@if ($service->service_name === 'Drop Off') ₱175 up to 5 kg, then ₱{{ number_format((float) $service->base_price, 2) }} {{ $service->price_unit }} @else ₱{{ number_format((float) $service->base_price, 2) }} {{ $service->price_unit }} @endif)</span></span>
+                            </label>
+                        @endforeach
+                    </div>
+                </fieldset>
+
+                <fieldset data-order-modal-addons class="hidden space-y-2">
+                    <legend class="mb-2 text-sm font-semibold text-slate-700">Additional services</legend>
+                    <div class="grid gap-2 sm:grid-cols-2">
+                        @foreach ($services->whereNotIn('service_name', ['Drop Off', 'Self Service']) as $service)
+                            <label data-order-modal-addon="{{ in_array($service->service_name, ['Dry', 'Sabon'], true) ? 'Self Service' : 'Both' }}" class="flex cursor-pointer items-center gap-2 rounded-lg border border-sky-200 p-3 text-sm text-slate-700 has-[:checked]:border-sky-500 has-[:checked]:bg-sky-50">
+                                <input type="checkbox" value="{{ $service->service_id }}" data-order-modal-addon-input data-service-name="{{ $service->service_name }}" data-service-price="{{ $service->base_price }}" data-service-unit="{{ $service->price_unit }}" class="rounded text-sky-600 focus:ring-sky-500">
+                                <span>{{ $service->service_name }} <span class="text-slate-500">(₱{{ number_format((float) $service->base_price, 2) }} {{ $service->price_unit }})</span></span>
+                            </label>
+                        @endforeach
+                    </div>
+                </fieldset>
+
+                <p data-order-modal-error class="hidden text-sm text-red-600" role="alert"></p>
+                <div class="flex justify-end gap-2">
+                    <button type="button" data-order-modal-cancel class="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancel</button>
+                    <button type="button" data-order-modal-done class="rounded-lg bg-[#168cff] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0878df]">Done</button>
+                </div>
+            </div>
+        </dialog>
 
         <x-modal id="customer-picker" title="Choose a customer" class="w-[min(36rem,calc(100vw-2rem))]">
             <div class="space-y-4">

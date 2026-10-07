@@ -53,6 +53,8 @@ class Order extends Model
                 'laundry_orders.order_date',
                 'laundry_orders.order_time',
                 'laundry_orders.laundry_weight as weight',
+                'laundry_orders.order_type',
+                'laundry_orders.self_service_loads',
                 'laundry_orders.total_amount',
                 'laundry_orders.amount_paid',
                 'laundry_orders.balance',

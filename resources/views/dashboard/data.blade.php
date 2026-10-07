@@ -66,7 +66,7 @@
 
                         {{-- Laundry Weight --}}
                         <span class="pointer-events-none relative z-0 text-slate-600">
-                            {{ $order->weight }} kg
+                            {{ $order->order_type === 'Self Service' ? $order->self_service_loads.' loads' : $order->weight.' kg' }}
                         </span>
 
                         {{-- Total Amount --}}

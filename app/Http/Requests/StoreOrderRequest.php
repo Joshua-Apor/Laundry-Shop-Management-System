@@ -30,6 +30,9 @@ class StoreOrderRequest extends FormRequest
             'phone_number' => ['required', 'string', 'max:11'],
             'customer_id' => ['nullable', 'integer', 'exists:customers,customer_id'],
             'address' => ['nullable', 'string', 'max:1000'],
+            'order_type' => ['required', 'string', Rule::in(['Drop Off', 'Self Service'])],
+            'weight' => ['nullable', 'required_if:order_type,Drop Off', 'numeric', 'min:0.1'],
+            'self_service_loads' => ['nullable', 'required_if:order_type,Self Service', 'integer', 'min:1', 'max:100'],
             'services' => ['required', 'array', 'min:1'],
             'services.*' => [
                 'required',
@@ -37,12 +40,12 @@ class StoreOrderRequest extends FormRequest
                 'distinct',
                 Rule::exists('services', 'service_id')->whereNull('deleted_at'),
             ],
-            'weight' => ['required', 'numeric', 'min:0.1'],
-            'laundry_amount' => ['nullable', 'numeric', 'min:0'],
+            'service_quantities' => ['sometimes', 'array'],
+            'service_quantities.*' => ['required', 'integer', 'min:1', 'max:1000'],
             'special_request' => ['nullable', 'string', 'max:1000'],
             'special_request_price' => ['nullable', 'numeric', 'min:0'],
             'payment_method' => ['required', 'string', 'in:Cash,GCash'],
-            'amount_paid' => ['nullable', 'numeric', 'min:0'],
+            'amount_paid' => ['required', 'numeric', 'min:0'],
         ];
     }
 
@@ -52,6 +55,32 @@ class StoreOrderRequest extends FormRequest
     public function after(): array
     {
         return [function (Validator $validator): void {
+            $orderType = $this->input('order_type');
+            $serviceIds = $this->input('services', []);
+
+            if (in_array($orderType, ['Drop Off', 'Self Service'], true) && is_array($serviceIds)) {
+                $selectedNames = DB::table('services')
+                    ->whereIn('service_id', $serviceIds)
+                    ->whereNull('deleted_at')
+                    ->pluck('service_name')
+                    ->all();
+                $allowedNames = DB::table('services')
+                    ->whereNull('deleted_at')
+                    ->when(
+                        $orderType === 'Drop Off',
+                        fn ($query) => $query->whereNotIn('service_name', ['Self Service', 'Dry', 'Sabon']),
+                        fn ($query) => $query->where('service_name', '!=', 'Drop Off'),
+                    )
+                    ->pluck('service_name')
+                    ->all();
+
+                if (! in_array($orderType, $selectedNames, true)) {
+                    $validator->errors()->add('services', 'Please select the laundry service again.');
+                } elseif (array_diff($selectedNames, $allowedNames) !== []) {
+                    $validator->errors()->add('services', 'Some selected services are not available for this laundry type.');
+                }
+            }
+
             if ($validator->errors()->hasAny(['phone_number', 'customer_id'])) {
                 return;
             }
