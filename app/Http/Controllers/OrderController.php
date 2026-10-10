@@ -96,6 +96,13 @@ class OrderController extends Controller
         $specialRequestPrice = (float) ($validated['special_request_price'] ?? 0);
         $total = $serviceFee + $specialRequestPrice;
         $amountPaid = (float) ($validated['amount_paid'] ?? 0);
+
+        if (round($amountPaid * 100) > round($total * 100)) {
+            throw ValidationException::withMessages([
+                'amount_paid' => 'The amount paid cannot exceed the order total.',
+            ]);
+        }
+
         $orderCreatedAt = now();
         $employeeName = $request->user()->name;
 
@@ -175,21 +182,74 @@ class OrderController extends Controller
     {
         abort_unless($request->user()?->role === 'employee', 403);
 
-        $validated = $request->validate([
-            'status' => ['required', 'string', Rule::in(Order::STATUSES)],
-        ]);
+        $currentStatus = $order->order_status;
+        $currentStatusIndex = array_search($currentStatus, Order::STATUSES, true);
 
-        Order::query()
-            ->whereKey($order->getKey())
-            ->update(['order_status' => $validated['status']]);
+        abort_unless($currentStatusIndex !== false && isset(Order::STATUSES[$currentStatusIndex + 1]), 422);
 
-        return back()->with('success', "Order #{$order->order_id} moved to {$validated['status']}.");
+        $nextStatus = Order::STATUSES[$currentStatusIndex + 1];
+        $statusUpdate = DB::table('laundry_orders')
+            ->where('order_id', $order->getKey())
+            ->where('order_status', $currentStatus);
+
+        if ($nextStatus === 'Completed') {
+            $statusUpdate->where('balance', '<=', 0);
+        }
+
+        $updated = $statusUpdate->update(['order_status' => $nextStatus]);
+
+        if ($updated === 0) {
+            throw ValidationException::withMessages([
+                'status' => $nextStatus === 'Completed'
+                    ? 'This order must be fully paid before it can be completed.'
+                    : 'This order status has changed. Refresh the page and try again.',
+            ]);
+        }
+
+        return back()->with('success', "Order #{$order->order_id} moved to {$nextStatus}.");
     }
 
-    public function recordPayment(Order $order): RedirectResponse
+    public function recordPayment(Request $request, Order $order): RedirectResponse
     {
-        $order->update(['amount_paid' => $order->total_amount]);
+        abort_unless(auth()->user()?->role === 'employee', 403);
 
-        return redirect()->route('records.index')->with('success', "Payment recorded for order #{$order->id}.");
+        $validated = $request->validate([
+            'payment_method' => ['required', 'string', Rule::in(['Cash', 'GCash'])],
+        ]);
+
+        DB::transaction(function () use ($order, $validated): void {
+            $lockedOrder = DB::table('laundry_orders')
+                ->where('order_id', $order->getKey())
+                ->lockForUpdate()
+                ->first(['total_amount', 'amount_paid', 'order_status']);
+
+            $balance = max(round((float) $lockedOrder->total_amount - (float) $lockedOrder->amount_paid, 2), 0);
+
+            if ($balance <= 0) {
+                throw ValidationException::withMessages([
+                    'payment_method' => 'This order has no outstanding balance.',
+                ]);
+            }
+
+            DB::table('laundry_orders')
+                ->where('order_id', $order->getKey())
+                ->update([
+                    'amount_paid' => $lockedOrder->total_amount,
+                    'balance' => 0,
+                    'order_status' => $lockedOrder->order_status === 'Ready for Pickup'
+                        ? 'Completed'
+                        : $lockedOrder->order_status,
+                ]);
+
+            DB::table('payments')->insert([
+                'order_id' => $order->getKey(),
+                'payment_date' => now()->toDateString(),
+                'amount' => $balance,
+                'payment_method' => $validated['payment_method'],
+                'payment_status' => 'Paid',
+            ]);
+        });
+
+        return back()->with('success', "Outstanding balance paid for order #{$order->getKey()}.");
     }
 }

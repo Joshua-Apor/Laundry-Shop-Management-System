@@ -315,6 +315,7 @@ if (modalOrderForm) {
     const serviceList = modalOrderForm.querySelector('[data-selected-services-list]');
     const emptyMessage = modalOrderForm.querySelector('[data-selected-services-empty]');
     const totalDisplay = modalOrderForm.querySelector('[data-order-total]');
+    const amountPaidInput = modalOrderForm.querySelector('[name="amount_paid"]');
     const modalTypes = modal.querySelectorAll('[data-dialog-order-type]');
     const modalAddons = modal.querySelector('[data-order-modal-addons]');
     const modalAddonOptions = modal.querySelectorAll('[data-order-modal-addon]');
@@ -322,8 +323,8 @@ if (modalOrderForm) {
     const oldAddonInputs = firstPhase.querySelectorAll('[data-order-addon]:checked');
     const chosenServices = new Map();
     const oldSelectedType = typeInput.value || firstPhase.querySelector('[data-order-type-choice]:checked')?.value || '';
-    const oldWeight = firstPhase.querySelector('[data-order-weight]')?.value || '';
-    const oldLoads = firstPhase.querySelector('[data-order-loads]')?.value || '';
+    const oldWeight = firstPhase.querySelector('[data-order-weight]')?.value || '0';
+    const oldLoads = firstPhase.querySelector('[data-order-loads]')?.value || '0';
     let baseQuantity = oldSelectedType === 'Drop Off' ? oldWeight : oldSelectedType === 'Self Service' ? oldLoads : '';
     const baseQuantities = new Map();
 
@@ -379,7 +380,10 @@ if (modalOrderForm) {
             .reduce((total, line) => total + Number(line.dataset.serviceLineTotal), 0);
         const specialRequestPrice = Number(modalOrderForm.querySelector('[name="special_request_price"]')?.value || 0);
 
-        totalDisplay.textContent = formatMoney(serviceTotal + specialRequestPrice);
+        const orderTotal = serviceTotal + specialRequestPrice;
+
+        totalDisplay.textContent = formatMoney(orderTotal);
+        amountPaidInput.max = orderTotal.toFixed(2);
     };
 
     const createSelectedServiceRow = ({ id, name, price, unit, quantity, quantityName, step = '1', minimum = '1', fixedPrice = null, fixedLimit = null }) => {
@@ -418,7 +422,7 @@ if (modalOrderForm) {
         const quantityInput = document.createElement('input');
         quantityInput.type = 'number';
         quantityInput.name = quantityName;
-        quantityInput.value = quantity || '1';
+        quantityInput.value = quantity || '0';
         quantityInput.min = minimum;
         quantityInput.step = step;
         quantityInput.required = true;

@@ -45,7 +45,7 @@ class StoreOrderRequest extends FormRequest
             'special_request' => ['nullable', 'string', 'max:1000'],
             'special_request_price' => ['nullable', 'numeric', 'min:0'],
             'payment_method' => ['required', 'string', 'in:Cash,GCash'],
-            'amount_paid' => ['required', 'numeric', 'min:0'],
+            'amount_paid' => ['required', 'numeric', 'min:0.01'],
         ];
     }
 

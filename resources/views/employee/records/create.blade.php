@@ -37,13 +37,13 @@
 
                 <div data-order-type-fields="Drop Off" class="mt-5 hidden">
                     <label class="block space-y-1 text-sm font-semibold text-slate-700">Laundry weight (kg)
-                        <input type="number" name="weight" min="0.1" step="0.1" value="{{ old('weight') }}" data-order-weight disabled class="w-full rounded-lg border border-sky-200 px-3.5 py-2.5 text-sm font-normal focus:outline-none focus:ring-2 focus:ring-sky-300">
+                        <input type="number" name="weight" min="0.1" step="0.1" value="{{ old('weight', '0') }}" data-order-weight disabled class="w-full rounded-lg border border-sky-200 px-3.5 py-2.5 text-sm font-normal focus:outline-none focus:ring-2 focus:ring-sky-300">
                     </label>
                 </div>
 
                 <div data-order-type-fields="Self Service" class="mt-5 hidden">
                     <label class="block space-y-1 text-sm font-semibold text-slate-700">Number of loads
-                        <input type="number" name="self_service_loads" min="1" max="100" step="1" value="{{ old('self_service_loads') }}" data-order-loads disabled class="w-full rounded-lg border border-sky-200 px-3.5 py-2.5 text-sm font-normal focus:outline-none focus:ring-2 focus:ring-sky-300">
+                        <input type="number" name="self_service_loads" min="1" max="100" step="1" value="{{ old('self_service_loads', '0') }}" data-order-loads disabled class="w-full rounded-lg border border-sky-200 px-3.5 py-2.5 text-sm font-normal focus:outline-none focus:ring-2 focus:ring-sky-300">
                     </label>
                 </div>
 
@@ -65,10 +65,8 @@
                     </div>
                 </fieldset>
 
-                @error('order_type')<p class="mt-3 text-sm text-red-600" role="alert">{{ $message }}</p>@enderror
                 @error('weight')<p class="mt-3 text-sm text-red-600" role="alert">{{ $message }}</p>@enderror
                 @error('self_service_loads')<p class="mt-3 text-sm text-red-600" role="alert">{{ $message }}</p>@enderror
-                @error('services')<p class="mt-3 text-sm text-red-600" role="alert">{{ $message }}</p>@enderror
 
                 <div class="mt-6 flex justify-end">
                     <button type="button" data-order-next class="rounded-lg bg-[#168cff] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#0878df]">Continue</button>
@@ -211,14 +209,13 @@
                     <div data-selected-services-list class="space-y-3">
                         <p data-selected-services-empty class="rounded-lg bg-sky-50 p-3 text-sm text-slate-600">No services selected yet.</p>
                     </div>
-                    @error('order_type')<p class="mt-2 text-xs text-red-600" role="alert">{{ $message }}</p>@enderror
                     @error('weight')<p class="mt-2 text-xs text-red-600" role="alert">{{ $message }}</p>@enderror
                     @error('self_service_loads')<p class="mt-2 text-xs text-red-600" role="alert">{{ $message }}</p>@enderror
-                    @error('services')<p class="mt-2 text-xs text-red-600" role="alert">{{ $message }}</p>@enderror
                     <button type="button" data-open-order-service-modal class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#168cff] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0878df]">
                         <i class="fa-solid fa-plus" aria-hidden="true"></i>
                         Select service
                     </button>
+                    @error('services')<p class="mt-2 text-xs text-red-600" role="alert">{{ $message }}</p>@enderror
 
                     <fieldset disabled hidden class="space-y-3">
 
@@ -369,13 +366,17 @@
                                 <input
                                     type="number"
                                     step="0.01"
-                                    min="0"
+                                    min="0.01"
                                     name="amount_paid"
-                                    value="{{ old('amount_paid', '0.00') }}"
+                                    value="{{ old('amount_paid') }}"
                                     required
-                                    placeholder="0.00 if unpaid"
+                                    placeholder="Enter payment amount"
                                     class="w-full rounded-lg border border-sky-200 bg-white px-3.5 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300"
                                 >
+
+                                @error('amount_paid')
+                                    <span role="alert" class="block text-xs font-medium text-red-600">{{ $message }}</span>
+                                @enderror
 
                             </label>
 
