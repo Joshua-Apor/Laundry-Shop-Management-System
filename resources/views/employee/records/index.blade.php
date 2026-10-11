@@ -19,7 +19,7 @@
         <div class="hidden grid-cols-[1.1fr_1.4fr_1fr_1.2fr_1fr] gap-4 px-5 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:grid">
             <span>Order Number</span>
             <span>Customer Name</span>
-            <span>Service type</span>
+            <span>Laundry Weight/Loads</span>
             <span>Total Amount</span>
             <span>Status</span>
         </div>

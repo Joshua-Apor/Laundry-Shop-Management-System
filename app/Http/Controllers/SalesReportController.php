@@ -16,21 +16,41 @@ class SalesReportController extends Controller
     {
         abort_unless($request->user()?->role === 'manager', 403);
 
-        $hasReportInput = $request->hasAny(['period', 'date']);
+        $hasReportInput = $request->hasAny(['period', 'date', 'start_date', 'end_date', 'month', 'year']);
         $validator = Validator::make($request->query(), [
-            'period' => [$hasReportInput ? 'required' : 'nullable', 'string', Rule::in(['Daily', 'Weekly', 'Monthly'])],
-            'date' => [$hasReportInput ? 'required' : 'nullable', 'date_format:Y-m-d'],
+            'period' => [$hasReportInput ? 'required' : 'nullable', 'string', Rule::in(['Daily', 'Weekly', 'Monthly', 'Custom'])],
+            'date' => ['required_if:period,Daily', 'nullable', 'date_format:Y-m-d'],
+            'start_date' => ['required_if:period,Weekly,Custom', 'nullable', 'date_format:Y-m-d'],
+            'end_date' => ['required_if:period,Custom', 'nullable', 'date_format:Y-m-d', 'after_or_equal:start_date'],
+            'month' => ['required_if:period,Monthly', 'nullable', 'integer', 'between:1,12'],
+            'year' => ['required_if:period,Monthly', 'nullable', 'integer', 'digits:4', 'between:1900,2100'],
         ]);
         $filters = $validator->passes() ? $validator->validated() : [];
         $period = $filters['period'] ?? 'Daily';
-        $date = $filters['date'] ?? now()->toDateString();
+        $date = match ($period) {
+            'Weekly', 'Custom' => $filters['start_date'] ?? now()->toDateString(),
+            'Monthly' => sprintf('%04d-%02d-01', $filters['year'] ?? now()->year, $filters['month'] ?? now()->month),
+            default => $filters['date'] ?? now()->toDateString(),
+        };
+        $endDate = $filters['end_date'] ?? null;
         $report = $hasReportInput && $validator->passes()
-            ? $salesReportService->generate($period, $date)
+            ? $salesReportService->generate($period, $date, $endDate)
             : null;
+        $exportFilters = match ($period) {
+            'Weekly' => ['period' => $period, 'start_date' => $date],
+            'Monthly' => ['period' => $period, 'month' => $filters['month'] ?? now()->month, 'year' => $filters['year'] ?? now()->year],
+            'Custom' => ['period' => $period, 'start_date' => $date, 'end_date' => $endDate],
+            default => ['period' => 'Daily', 'date' => $date],
+        };
 
         return view('manager.sales-reports', [
             'period' => $period,
             'date' => $date,
+            'month' => $filters['month'] ?? now()->month,
+            'year' => $filters['year'] ?? now()->year,
+            'startDate' => $filters['start_date'] ?? $date,
+            'endDate' => $filters['end_date'] ?? null,
+            'exportFilters' => $exportFilters,
             'report' => $report,
         ])->withErrors($validator);
     }
@@ -41,13 +61,22 @@ class SalesReportController extends Controller
         abort_unless(in_array($format, ['pdf', 'docx', 'xlsx'], true), 404);
 
         $validator = Validator::make($request->query(), [
-            'period' => ['required', 'string', Rule::in(['Daily', 'Weekly', 'Monthly'])],
-            'date' => ['required', 'date_format:Y-m-d'],
+            'period' => ['required', 'string', Rule::in(['Daily', 'Weekly', 'Monthly', 'Custom'])],
+            'date' => ['required_if:period,Daily', 'nullable', 'date_format:Y-m-d'],
+            'start_date' => ['required_if:period,Weekly,Custom', 'nullable', 'date_format:Y-m-d'],
+            'end_date' => ['required_if:period,Custom', 'nullable', 'date_format:Y-m-d', 'after_or_equal:start_date'],
+            'month' => ['required_if:period,Monthly', 'nullable', 'integer', 'between:1,12'],
+            'year' => ['required_if:period,Monthly', 'nullable', 'integer', 'digits:4', 'between:1900,2100'],
         ]);
         abort_if($validator->fails(), 422);
         $validated = $validator->validated();
 
-        $report = $salesReportService->generate($validated['period'], $validated['date']);
+        $date = match ($validated['period']) {
+            'Weekly', 'Custom' => $validated['start_date'],
+            'Monthly' => sprintf('%04d-%02d-01', $validated['year'], $validated['month']),
+            default => $validated['date'],
+        };
+        $report = $salesReportService->generate($validated['period'], $date, $validated['end_date'] ?? null);
         $exportMethod = match ($format) {
             'pdf' => 'toPdf',
             'docx' => 'toDocx',
@@ -58,7 +87,10 @@ class SalesReportController extends Controller
             'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         };
-        $filename = 'sales-report-'.strtolower($validated['period']).'-'.$validated['date'].'.'.$format;
+        $periodSuffix = $validated['period'] === 'Custom'
+            ? $validated['start_date'].'-to-'.$validated['end_date']
+            : $date;
+        $filename = 'sales-report-'.strtolower($validated['period']).'-'.$periodSuffix.'.'.$format;
 
         return response()->streamDownload(function () use ($salesReportExporter, $report, $exportMethod): void {
             echo $salesReportExporter->{$exportMethod}($report);

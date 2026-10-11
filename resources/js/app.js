@@ -37,6 +37,16 @@ async function loadDashboardResults(container) {
 }
 
 document.addEventListener('click', (event) => {
+    const mobileSidebarClose = event.target.closest('[data-mobile-sidebar-close]');
+
+    if (mobileSidebarClose) {
+        const mobileSidebar = mobileSidebarClose.closest('[data-mobile-sidebar]');
+        mobileSidebar.open = false;
+        mobileSidebar.querySelector('summary')?.focus();
+
+        return;
+    }
+
     const retryButton = event.target.closest('[data-dashboard-retry]');
 
     if (retryButton) {
@@ -236,6 +246,17 @@ document.addEventListener('input', (event) => {
 });
 
 document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+        const mobileSidebar = document.querySelector('[data-mobile-sidebar][open]');
+
+        if (mobileSidebar) {
+            mobileSidebar.open = false;
+            mobileSidebar.querySelector('summary')?.focus();
+
+            return;
+        }
+    }
+
     const input = event.target.closest('[data-pin-code-digit]');
 
     if (!input) {

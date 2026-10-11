@@ -107,7 +107,7 @@
     @endauth
 
 
-    <main class="{{ $fullWidth ? '' : 'mx-auto max-w-[1178px] px-4 py-6 sm:px-6' }}">
+    <main class="{{ $fullWidth ? '' : 'mx-auto max-w-[1178px] px-4 py-6 sm:px-6 lg:ml-[17rem]' }}">
         {{ $slot }}
     </main>
 

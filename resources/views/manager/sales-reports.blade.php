@@ -2,16 +2,16 @@
     <div class="mx-auto max-w-7xl space-y-6">
         <div>
             <h1 class="text-2xl font-bold text-slate-900">Sales Reports</h1>
-            <p class="text-sm text-slate-500">Review sales and download daily, weekly, or monthly reports.</p>
+            <p class="text-sm text-slate-500">Choose a day, week, month, or custom date range to review and download sales.</p>
         </div>
 
         <section class="rounded-xl border border-sky-200 bg-white p-5 shadow-sm sm:p-6">
             <h2 class="text-sm font-bold text-slate-800">Report configuration</h2>
-            <form class="mt-5 flex flex-col gap-5 sm:flex-row sm:flex-wrap sm:items-end" method="GET" action="{{ route('manager.sales-reports') }}">
-                <fieldset>
+            <form id="sales-report-filters" class="mt-5 flex flex-col gap-5 sm:flex-row sm:flex-wrap sm:items-end" method="GET" action="{{ route('manager.sales-reports') }}">
+                <fieldset class="w-full">
                     <legend class="text-[11px] font-bold uppercase tracking-wide text-slate-500">Report period</legend>
                     <div class="mt-2 flex flex-wrap gap-2">
-                        @foreach (['Daily' => 'fa-calendar-day', 'Weekly' => 'fa-calendar-week', 'Monthly' => 'fa-calendar'] as $periodOption => $icon)
+                        @foreach (['Daily' => 'fa-calendar-day', 'Weekly' => 'fa-calendar-week', 'Monthly' => 'fa-calendar', 'Custom' => 'fa-calendar-days'] as $periodOption => $icon)
                             <label class="cursor-pointer">
                                 <input type="radio" name="period" value="{{ $periodOption }}" class="peer sr-only" @checked($period === $periodOption)>
                                 <span class="inline-flex items-center gap-1.5 rounded-lg border border-sky-200 px-3 py-2 text-xs font-semibold text-slate-600 transition-colors hover:bg-sky-50 peer-checked:border-[#168cff] peer-checked:bg-[#168cff] peer-checked:text-white">
@@ -26,11 +26,55 @@
                     @enderror
                 </fieldset>
 
-                <div>
-                    <label for="report-date" class="text-[11px] font-bold uppercase tracking-wide text-slate-500">Choose a date in the period</label>
-                    <input id="report-date" type="date" name="date" value="{{ $date }}" required class="mt-2 block rounded-lg border border-sky-200 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-300">
+                <div data-period-fields="Daily" @if ($period !== 'Daily') hidden @endif>
+                    <label for="report-date" class="text-[11px] font-bold uppercase tracking-wide text-slate-500">Report date</label>
+                    <input id="report-date" type="date" name="date" value="{{ $date }}" @if ($period === 'Daily') required @endif class="mt-2 block rounded-lg border border-sky-200 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-300">
                     @error('date')
                         <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div data-period-fields="Weekly" @if ($period !== 'Weekly') hidden @endif>
+                    <label for="report-week-start" class="text-[11px] font-bold uppercase tracking-wide text-slate-500">Week starting</label>
+                    <input id="report-week-start" type="date" name="start_date" value="{{ $startDate }}" @if ($period === 'Weekly') required @endif class="mt-2 block rounded-lg border border-sky-200 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-300">
+                    <p class="mt-2 text-xs text-slate-600">Ends <span id="report-week-end" class="font-semibold text-slate-800">—</span></p>
+                    @error('start_date')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div data-period-fields="Monthly" @if ($period !== 'Monthly') hidden @endif>
+                    <label for="report-month" class="text-[11px] font-bold uppercase tracking-wide text-slate-500">Month and year</label>
+                    <div class="mt-2 flex gap-2">
+                        <select id="report-month" name="month" @if ($period === 'Monthly') required @endif class="rounded-lg border border-sky-200 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-300">
+                            @foreach ([1 => 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] as $monthNumber => $monthName)
+                                <option value="{{ $monthNumber }}" @selected((int) $month === $monthNumber)>{{ $monthName }}</option>
+                            @endforeach
+                        </select>
+                        <input id="report-year" type="number" name="year" min="1900" max="2100" step="1" value="{{ $year }}" required @if ($period !== 'Monthly') disabled @endif aria-label="Report year" class="w-28 rounded-lg border border-sky-200 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-300">
+                    </div>
+                    @error('month')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                    @error('year')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div data-period-fields="Custom" class="flex flex-wrap items-end gap-3" @if ($period !== 'Custom') hidden @endif>
+                    <div>
+                        <label for="report-range-start" class="text-[11px] font-bold uppercase tracking-wide text-slate-500">Start date</label>
+                        <input id="report-range-start" type="date" name="start_date" value="{{ $startDate }}" @if ($period === 'Custom') required @endif class="mt-2 block rounded-lg border border-sky-200 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-300">
+                    </div>
+                    <div>
+                        <label for="report-range-end" class="text-[11px] font-bold uppercase tracking-wide text-slate-500">End date</label>
+                        <input id="report-range-end" type="date" name="end_date" value="{{ $endDate }}" @if ($period === 'Custom') required @endif class="mt-2 block rounded-lg border border-sky-200 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-300">
+                    </div>
+                    @error('start_date')
+                        <p class="basis-full text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                    @error('end_date')
+                        <p class="basis-full text-xs text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -39,6 +83,56 @@
                     Generate report
                 </button>
             </form>
+            <script>
+                (() => {
+                    const form = document.getElementById('sales-report-filters');
+
+                    if (!form) {
+                        return;
+                    }
+
+                    const updateFields = () => {
+                        const selectedPeriod = form.querySelector('input[name="period"]:checked')?.value;
+
+                        form.querySelectorAll('[data-period-fields]').forEach((group) => {
+                            const isActive = group.dataset.periodFields === selectedPeriod;
+
+                            group.hidden = !isActive;
+                            group.querySelectorAll('input, select').forEach((field) => {
+                                field.disabled = !isActive;
+                                field.required = isActive;
+                            });
+                        });
+
+                        updateWeeklyEndDate();
+                    };
+
+                    const updateWeeklyEndDate = () => {
+                        const startDate = form.querySelector('#report-week-start').value;
+                        const endDate = form.querySelector('#report-week-end');
+
+                        if (!startDate) {
+                            endDate.textContent = 'Choose a start date';
+                            return;
+                        }
+
+                        const date = new Date(`${startDate}T00:00:00Z`);
+                        date.setUTCDate(date.getUTCDate() + 6);
+                        endDate.textContent = date.toLocaleDateString(undefined, {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            timeZone: 'UTC',
+                        });
+                    };
+
+                    form.querySelectorAll('input[name="period"]').forEach((input) => {
+                        input.addEventListener('change', updateFields);
+                    });
+                    form.querySelector('#report-week-start').addEventListener('input', updateWeeklyEndDate);
+                    updateFields();
+                })();
+            </script>
         </section>
 
         @if ($errors->any())
@@ -62,7 +156,7 @@
                             'docx' => ['Word (.docx)', 'fa-file-word'],
                             'xlsx' => ['Excel (.xlsx)', 'fa-file-excel'],
                         ] as $format => [$label, $icon])
-                            <a href="{{ route('manager.sales-reports.export', ['format' => $format, 'period' => $report['period'], 'date' => $report['selected_date']]) }}" class="inline-flex items-center gap-2 rounded-lg border border-sky-200 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:border-sky-300 hover:bg-sky-50">
+                            <a href="{{ route('manager.sales-reports.export', ['format' => $format] + $exportFilters) }}" class="inline-flex items-center gap-2 rounded-lg border border-sky-200 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:border-sky-300 hover:bg-sky-50">
                                 <i class="fa-solid {{ $icon }} text-[#168cff]" aria-hidden="true"></i>
                                 Download {{ $label }}
                             </a>

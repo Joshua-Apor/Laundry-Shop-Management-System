@@ -126,7 +126,7 @@
         <div class="hidden grid-cols-[1.1fr_1.4fr_1fr_1.2fr_1fr] gap-4 px-5 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:grid">
             <span>Order Number</span>
             <span>Customer Name</span>
-            <span>Laundry Weight</span>
+            <span>Laundry Weights/Loads</span>
             <span>Total Amount</span>
 
             {{-- Center Status Header --}}
@@ -169,9 +169,13 @@
                         </span>
                     </span>
 
-                    {{-- Laundry Weight --}}
+                    {{-- Laundry Weights/Loads --}}
                     <span class="pointer-events-none relative z-0 text-slate-600">
-                        {{ $order->weight }} kg
+                        @if ($order->order_type === 'Self Service')
+                            {{ $order->self_service_loads }} {{ (int) $order->self_service_loads === 1 ? 'load' : 'loads' }}
+                        @else
+                            {{ $order->weight }} kg
+                        @endif
                     </span>
 
                     {{-- Total Amount --}}

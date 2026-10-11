@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Order;
-use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
@@ -25,14 +24,15 @@ class SalesReportService
      *     orders: list<array{order_id: int, order_date: string, customer: string, employee: string, status: string, total: float, paid: float, balance: float}>
      * }
      */
-    public function generate(string $period, string $date): array
+    public function generate(string $period, string $date, ?string $endDate = null): array
     {
         $selectedDate = CarbonImmutable::createFromFormat('!Y-m-d', $date);
 
         [$startDate, $endDate] = match ($period) {
             'Daily' => [$selectedDate, $selectedDate],
-            'Weekly' => [$selectedDate->startOfWeek(Carbon::MONDAY), $selectedDate->endOfWeek(Carbon::SUNDAY)],
+            'Weekly' => [$selectedDate, $selectedDate->addDays(6)],
             'Monthly' => [$selectedDate->startOfMonth(), $selectedDate->endOfMonth()],
+            'Custom' => [$selectedDate, CarbonImmutable::createFromFormat('!Y-m-d', $endDate)],
         };
 
         $orders = Order::query()
