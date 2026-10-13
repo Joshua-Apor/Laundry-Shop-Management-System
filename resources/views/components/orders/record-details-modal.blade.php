@@ -1,6 +1,6 @@
-@props(['order'])
+@props(['order', 'backModalId' => null])
 
-<x-modal :id="'record-details-'.$order->order_id" :title="'Order #'.$order->order_id">
+<x-modal :id="'record-details-'.$order->order_id" :title="'Order #'.$order->order_id" :data-history-detail-modal="$backModalId">
     <div class="space-y-5">
         <section>
             <h3 class="mb-3 flex items-center gap-2 text-sm font-bold text-slate-800">
@@ -56,7 +56,13 @@
                 </div>
             </div>
         </details>
+
+        @if ($backModalId)
+            <div class="flex justify-start border-t border-slate-100 pt-4">
+                <button type="button" data-modal-back-target="{{ $backModalId }}" class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Back</button>
+            </div>
+        @endif
+
     </div>
 </x-modal>
-
 

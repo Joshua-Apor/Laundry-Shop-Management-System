@@ -7,13 +7,12 @@
 
             {{-- Logo / Brand --}}
             <a href="{{ route('employee.dashboard') }}"
-               class="flex min-w-0 shrink-0 items-center gap-1.5 sm:gap-2">
+                class="flex min-w-0 shrink-0 items-center gap-1.5 sm:gap-2">
 
                 <img
                     src="{{ asset('images/logo.png') }}"
                     alt="Laba U logo"
-                    class="size-11 shrink-0 rounded-xl object-cover"
-                >
+                    class="size-11 shrink-0 rounded-xl object-cover">
 
                 <span class="min-w-0 leading-none">
                     <span class="block text-[15px] font-extrabold tracking-tight">
@@ -34,41 +33,33 @@
                 aria-label="Employee navigation">
 
                 <a href="{{ route('employee.dashboard') }}"
-                   @class([
-                       'flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] transition-colors',
-                       'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('employee.dashboard'),
-                       'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('employee.dashboard'),
-                   ])>
+                    @class([ 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] transition-colors' , 'bg-[#2f7dcc] font-bold text-white shadow-sm'=> request()->routeIs('employee.dashboard'),
+                    'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('employee.dashboard'),
+                    ])>
                     <i class="fa-solid fa-chart-line w-5 text-center" aria-hidden="true"></i>
                     Dashboard
                 </a>
 
                 <a href="{{ route('customers.index') }}"
-                   @class([
-                       'flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] transition-colors',
-                       'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('customers.index'),
-                       'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('customers.index'),
-                   ])>
+                    @class([ 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] transition-colors' , 'bg-[#2f7dcc] font-bold text-white shadow-sm'=> request()->routeIs('customers.index'),
+                    'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('customers.index'),
+                    ])>
                     <i class="fa-solid fa-users w-5 text-center" aria-hidden="true"></i>
                     Customers
                 </a>
 
                 <a href="{{ route('orders.create') }}"
-                   @class([
-                       'flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] transition-colors',
-                       'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('orders.create'),
-                       'text-[#5d2943] hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('orders.create'),
-                   ])>
+                    @class([ 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] transition-colors' , 'bg-[#2f7dcc] font-bold text-white shadow-sm'=> request()->routeIs('orders.create'),
+                    'text-[#5d2943] hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('orders.create'),
+                    ])>
                     <i class="fa-solid fa-plus w-5 text-center" aria-hidden="true"></i>
                     New Order
                 </a>
 
                 <a href="{{ route('records.index') }}"
-                   @class([
-                       'flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] transition-colors',
-                       'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('records.*'),
-                       'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('records.*'),
-                   ])>
+                    @class([ 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] transition-colors' , 'bg-[#2f7dcc] font-bold text-white shadow-sm'=> request()->routeIs('records.*'),
+                    'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('records.*'),
+                    ])>
                     <i class="fa-solid fa-box w-5 text-center" aria-hidden="true"></i>
                     Records
                 </a>
@@ -80,9 +71,9 @@
                 <span class="min-w-0 truncate text-sm font-semibold text-[#5d2943]">{{ auth()->user()->name }}</span>
                 <a href="{{ route('profile.edit') }}" aria-label="My profile" title="My profile" class="grid size-12 shrink-0 place-items-center overflow-hidden rounded-full bg-[#168cff] text-xs font-bold text-white">
                     @if (auth()->user()->profile_picture_path)
-                        <img src="{{ asset('storage/'.auth()->user()->profile_picture_path) }}" alt="" class="size-full object-cover">
+                    <img src="{{ asset('storage/'.auth()->user()->profile_picture_path) }}" alt="" class="size-full object-cover">
                     @else
-                        {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                    {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
                     @endif
                 </a>
             </div>
@@ -119,16 +110,16 @@
                         </a>
 
                     </div>
-                    <a href="{{ route('employee.dashboard') }}" @class(['flex items-center gap-3 rounded-lg px-3.5 py-3 text-[15px] transition-colors', 'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('employee.dashboard'), 'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('employee.dashboard')])>
+                    <a href="{{ route('employee.dashboard') }}" @class(['flex items-center gap-3 rounded-lg px-3.5 py-3 text-[15px] transition-colors', 'bg-[#2f7dcc] font-bold text-white shadow-sm'=> request()->routeIs('employee.dashboard'), 'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('employee.dashboard')])>
                         <i class="fa-solid fa-chart-line w-5 text-center" aria-hidden="true"></i> Dashboard
                     </a>
-                    <a href="{{ route('customers.index') }}" @class(['flex items-center gap-3 rounded-lg px-3.5 py-3 text-[15px] transition-colors', 'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('customers.index'), 'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('customers.index')])>
-                        <i class="fa-solid fa-users w-5 text-center" aria-hidden="true"></i> Customers
+                    <a href="{{ route('customers.index') }}" @class(['flex items-center gap-3 rounded-lg px-3.5 py-3 text-[15px] transition-colors', 'bg-[#2f7dcc] font-bold text-white shadow-sm'=> request()->routeIs('customers.index'), 'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('customers.index')])>
+                        <i class="fa-solid fa-users w-5 text-center" aria-hidden="true"></i> Customer Records
                     </a>
-                    <a href="{{ route('orders.create') }}" @class(['flex items-center gap-3 rounded-lg px-3.5 py-3 text-[15px] transition-colors', 'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('orders.create'), 'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('orders.create')])>
+                    <a href="{{ route('orders.create') }}" @class(['flex items-center gap-3 rounded-lg px-3.5 py-3 text-[15px] transition-colors', 'bg-[#2f7dcc] font-bold text-white shadow-sm'=> request()->routeIs('orders.create'), 'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('orders.create')])>
                         <i class="fa-solid fa-plus w-5 text-center" aria-hidden="true"></i> New Order
                     </a>
-                    <a href="{{ route('records.index') }}" @class(['flex items-center gap-3 rounded-lg px-3.5 py-3 text-[15px] transition-colors', 'bg-[#2f7dcc] font-bold text-white shadow-sm' => request()->routeIs('records.*'), 'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('records.*')])>
+                    <a href="{{ route('records.index') }}" @class(['flex items-center gap-3 rounded-lg px-3.5 py-3 text-[15px] transition-colors', 'bg-[#2f7dcc] font-bold text-white shadow-sm'=> request()->routeIs('records.*'), 'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('records.*')])>
                         <i class="fa-solid fa-box w-5 text-center" aria-hidden="true"></i> Records
                     </a>
                     <div class="mt-auto border-t border-[#ead4dd] pt-4">
@@ -136,9 +127,9 @@
                             <span class="min-w-0 truncate text-sm font-semibold text-[#5d2943]">{{ auth()->user()->name }}</span>
                             <a href="{{ route('profile.edit') }}" aria-label="My profile" title="My profile" class="grid size-12 shrink-0 place-items-center overflow-hidden rounded-full bg-[#168cff] text-xs font-bold text-white">
                                 @if (auth()->user()->profile_picture_path)
-                                    <img src="{{ asset('storage/'.auth()->user()->profile_picture_path) }}" alt="" class="size-full object-cover">
+                                <img src="{{ asset('storage/'.auth()->user()->profile_picture_path) }}" alt="" class="size-full object-cover">
                                 @else
-                                    {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                                {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
                                 @endif
                             </a>
                         </div>

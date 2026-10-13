@@ -3,7 +3,7 @@
         <div class="flex items-center justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-bold text-slate-900">
-                    Order Records &amp; Payments
+                    {{ $view === 'history' ? 'Order History & Payments' : 'Active Orders & Payments' }}
                 </h1>
                 <p class="text-sm text-slate-500">
                     {{ $orders->total() }} matching orders
@@ -23,7 +23,13 @@
         ]));
         @endphp
 
+        <nav class="flex gap-2 border-b border-sky-100" aria-label="Order views">
+            <a href="{{ route('manager.orders-payments', ['view' => 'active']) }}" @class(['border-b-2 px-3 py-2 text-sm font-semibold', 'border-[#168cff] text-[#168cff]' => $view === 'active', 'border-transparent text-slate-500 hover:text-slate-800' => $view !== 'active'])>Active orders</a>
+            <a href="{{ route('manager.orders-payments', ['view' => 'history']) }}" @class(['border-b-2 px-3 py-2 text-sm font-semibold', 'border-[#168cff] text-[#168cff]' => $view === 'history', 'border-transparent text-slate-500 hover:text-slate-800' => $view !== 'history'])>Order history</a>
+        </nav>
+
         <form method="GET" action="{{ route('manager.orders-payments') }}" class="card-entry-animation space-y-4 rounded-2xl border border-sky-200 bg-white p-4 shadow-sm">
+            <input type="hidden" name="view" value="{{ $view }}">
             {{-- Search Bar & Filter Toggle Row --}}
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div class="grow">
@@ -67,7 +73,7 @@
                         <label for="order-status" class="mb-1 block text-xs font-semibold text-slate-700">Order status</label>
                         <select id="order-status" name="status" class="w-full rounded-lg border border-sky-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
                             <option value="">All statuses</option>
-                            @foreach (\App\Models\Order::STATUSES as $statusOption)
+                            @foreach ($view === 'history' ? \App\Models\Order::HISTORY_STATUSES : array_slice(\App\Models\Order::STATUSES, 0, 2) as $statusOption)
                             <option value="{{ $statusOption }}" @selected(($filters['status'] ?? '' )===$statusOption)>{{ $statusOption }}</option>
                             @endforeach
                         </select>

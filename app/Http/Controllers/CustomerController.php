@@ -6,6 +6,7 @@ use App\Models\Order;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class CustomerController extends Controller
@@ -52,6 +53,25 @@ class CustomerController extends Controller
         ]);
     }
 
+    public function history(Request $request, int $customer): View
+    {
+        abort_unless(in_array($request->user()?->role, ['manager', 'employee'], true), 403);
+        abort_unless(DB::table('customers')->where('customer_id', $customer)->exists(), 404);
+
+        $orders = Order::query()
+            ->withRecordDetails()
+            ->where('laundry_orders.customer_id', $customer)
+            ->orderByDesc('laundry_orders.order_date')
+            ->orderByDesc('laundry_orders.order_time')
+            ->orderByDesc('laundry_orders.order_id')
+            ->get();
+
+        return view('components.customers.order-history', [
+            'orders' => $orders,
+            'backModalId' => 'customer-history-'.$customer,
+        ]);
+    }
+
     public function update(Request $request, int $customer): RedirectResponse
     {
         abort_unless(in_array($request->user()?->role, ['manager', 'employee'], true), 403);
@@ -71,6 +91,15 @@ class CustomerController extends Controller
     public function destroy(Request $request, int $customer): RedirectResponse
     {
         abort_unless(in_array($request->user()?->role, ['manager', 'employee'], true), 403);
+
+        $customerRecord = DB::table('customers')->where('customer_id', $customer)->first(['name']);
+        abort_if($customerRecord === null, 404);
+        $expectedName = trim($customerRecord->name);
+
+        $request->merge(['confirmation_name' => $request->string('confirmation_name')->trim()->toString()]);
+        $request->validate([
+            'confirmation_name' => ['required', 'string', Rule::in([$expectedName])],
+        ]);
 
         $deleted = DB::table('customers')->where('customer_id', $customer)->delete();
         abort_if($deleted === 0, 404);

@@ -35,9 +35,15 @@ class OrderController extends Controller
     {
         $search = $request->string('search')->trim()->toString();
         $status = $request->string('status')->trim()->toString();
+        $view = $request->string('view')->toString() === 'history' ? 'history' : 'active';
 
         $orders = Order::query()
             ->withRecordDetails()
+            ->when($view === 'history', function ($query): void {
+                $query->whereIn('laundry_orders.order_status', Order::HISTORY_STATUSES);
+            }, function ($query): void {
+                $query->whereNotIn('laundry_orders.order_status', Order::HISTORY_STATUSES);
+            })
             ->when($search !== '', function ($query) use ($search): void {
                 $query->where(function ($query) use ($search): void {
                     $query->where('customers.name', 'like', "%{$search}%")
@@ -48,10 +54,12 @@ class OrderController extends Controller
                     }
                 });
             })
-            ->when(in_array($status, Order::STATUSES, true), function ($query) use ($status): void {
+            ->when(in_array($status, Order::ALL_STATUSES, true), function ($query) use ($status): void {
                 $query->where('laundry_orders.order_status', $status);
             })
-            ->latest('laundry_orders.order_date')
+            ->orderByDesc('laundry_orders.order_date')
+            ->orderByDesc('laundry_orders.order_time')
+            ->orderByDesc('laundry_orders.order_id')
             ->paginate(15)
             ->withQueryString();
 
@@ -59,6 +67,7 @@ class OrderController extends Controller
             'orders' => $orders,
             'search' => $search,
             'status' => $status,
+            'view' => $view,
         ]);
     }
 

@@ -68,7 +68,7 @@ class ManagerController extends Controller
             'search' => ['nullable', 'string', 'max:255'],
             'min_total' => ['nullable', 'numeric', 'min:0'],
             'max_total' => ['nullable', 'numeric', 'min:0', Rule::when($request->filled('min_total'), ['gte:min_total'])],
-            'status' => ['nullable', Rule::in(Order::STATUSES)],
+            'status' => ['nullable', Rule::in(Order::ALL_STATUSES)],
             'payment_status' => ['nullable', Rule::in(['Paid', 'Partial'])],
             'payment_method' => ['nullable', Rule::in(['Cash', 'GCash'])],
             'date_from' => ['nullable', 'date_format:Y-m-d'],
@@ -80,9 +80,15 @@ class ManagerController extends Controller
             ->all();
         $searchQuery = is_string($filters['search'] ?? null) ? trim($filters['search']) : '';
         $search = is_scalar($formFilters['search'] ?? null) ? trim((string) $formFilters['search']) : '';
+        $view = ($filterInput['view'] ?? 'active') === 'history' ? 'history' : 'active';
 
         $orders = Order::query()
             ->withRecordDetails()
+            ->when($view === 'history', function ($query): void {
+                $query->whereIn('laundry_orders.order_status', Order::HISTORY_STATUSES);
+            }, function ($query): void {
+                $query->whereNotIn('laundry_orders.order_status', Order::HISTORY_STATUSES);
+            })
             ->when($searchQuery !== '', function ($query) use ($searchQuery): void {
                 $query->where(function ($query) use ($searchQuery): void {
                     $query->where('customers.name', 'like', "%{$searchQuery}%")
@@ -116,7 +122,8 @@ class ManagerController extends Controller
                         ->when(isset($filters['payment_method']), fn ($paymentQuery) => $paymentQuery->where('payments.payment_method', $filters['payment_method']));
                 });
             })
-            ->latest('laundry_orders.order_date')
+            ->orderByDesc('laundry_orders.order_date')
+            ->orderByDesc('laundry_orders.order_time')
             ->orderByDesc('laundry_orders.order_id')
             ->paginate(15)
             ->withQueryString();
@@ -125,6 +132,7 @@ class ManagerController extends Controller
             'orders' => $orders,
             'search' => $search,
             'filters' => $formFilters,
+            'view' => $view,
         ])->withErrors($validator);
     }
 
@@ -160,7 +168,7 @@ class ManagerController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
         ]);
 
-        $password = Str::password(16);
+        $password = Str::random(12);
         $employee = User::query()->create([
             'name' => $validated['name'],
             'username' => $validated['username'],
@@ -178,20 +186,29 @@ class ManagerController extends Controller
             ));
         } catch (Throwable $exception) {
             report($exception);
-            $employee->delete();
 
             return back()->withInput()->withErrors([
-                'email' => 'The employee account was not created because the welcome email could not be sent. Check the mail settings and try again.',
+                'email' => 'The employee account was created, but the welcome email could not be sent. Check the mail configuration and application logs.',
             ]);
         }
 
-        return redirect()->route('manager.employees')->with('success', 'Employee account created and email sent.');
+        $successMessage = config('mail.default') === 'log'
+            ? 'Employee account created. The welcome email was written to the application log.'
+            : 'Employee account created and welcome email sent.';
+
+        return redirect()->route('manager.employees')->with('success', $successMessage);
     }
 
     public function destroyEmployee(Request $request, User $employee): RedirectResponse
     {
         abort_unless($request->user()?->role === 'manager', 403);
         abort_unless($employee->role === 'employee', 404);
+        $expectedName = trim($employee->name);
+
+        $request->merge(['confirmation_name' => $request->string('confirmation_name')->trim()->toString()]);
+        $request->validate([
+            'confirmation_name' => ['required', 'string', Rule::in([$expectedName])],
+        ]);
 
         DB::table(config('session.table', 'sessions'))->where('user_id', $employee->getKey())->delete();
         $employee->forceDelete();

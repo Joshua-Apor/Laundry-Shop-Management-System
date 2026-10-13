@@ -156,7 +156,7 @@
                             'docx' => ['Word (.docx)', 'fa-file-word'],
                             'xlsx' => ['Excel (.xlsx)', 'fa-file-excel'],
                         ] as $format => [$label, $icon])
-                            <a href="{{ route('manager.sales-reports.export', ['format' => $format] + $exportFilters) }}" class="inline-flex items-center gap-2 rounded-lg border border-sky-200 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:border-sky-300 hover:bg-sky-50">
+                            <a href="{{ route('manager.sales-reports.export', ['format' => $format] + $exportFilters) }}" hx-boost="false" class="inline-flex items-center gap-2 rounded-lg border border-sky-200 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:border-sky-300 hover:bg-sky-50">
                                 <i class="fa-solid {{ $icon }} text-[#168cff]" aria-hidden="true"></i>
                                 Download {{ $label }}
                             </a>

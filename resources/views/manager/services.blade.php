@@ -180,12 +180,17 @@
                     </button>
                 </div>
                 <x-modal :id="'service-delete-'.$service->service_id" title="Delete service?">
-                    <p class="text-sm leading-6 text-slate-600">Remove {{ $service->service_name }} from available services? Existing order records will be preserved.</p>
-                    <form method="POST" action="{{ route('manager.services.destroy', $service->service_id) }}" class="mt-5 flex justify-end gap-2">
+                    <p class="text-sm leading-6 text-slate-600">This action is irreversible. To confirm deletion, please type the full name <strong>{{ $service->service_name }}</strong> below. Existing order records will be preserved.</p>
+                    <form method="POST" action="{{ route('manager.services.destroy', $service->service_id) }}" data-name-confirmation-form data-confirmation-name="{{ $service->service_name }}" class="mt-4 space-y-4">
                         @csrf
                         @method('DELETE')
-                        <button type="button" data-modal-close class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Cancel</button>
-                        <button type="submit" class="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-700">Delete service</button>
+                        <label for="service-delete-name-{{ $service->service_id }}" class="block text-xs font-semibold text-slate-700">Service name</label>
+                        <input id="service-delete-name-{{ $service->service_id }}" name="confirmation_name" type="text" autocomplete="off" data-name-confirmation-input aria-describedby="service-delete-help-{{ $service->service_id }}" class="-mt-3 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:ring-2 focus:ring-sky-200">
+                        <p id="service-delete-help-{{ $service->service_id }}" class="-mt-3 text-xs text-slate-500">Enter the name exactly as shown above.</p>
+                        <div class="flex justify-end gap-2">
+                            <button type="button" data-modal-close class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Cancel</button>
+                            <button type="submit" disabled data-name-confirmation-submit class="cursor-not-allowed rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white opacity-50 transition-opacity">Delete Permanently</button>
+                        </div>
                     </form>
                 </x-modal>
             @empty

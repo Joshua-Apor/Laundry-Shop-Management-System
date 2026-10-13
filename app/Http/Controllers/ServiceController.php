@@ -52,6 +52,12 @@ class ServiceController extends Controller
             ->first(['service_id', 'service_name']);
 
         abort_if($serviceRecord === null, 404);
+        $expectedName = trim($serviceRecord->service_name);
+
+        $request->merge(['confirmation_name' => $request->string('confirmation_name')->trim()->toString()]);
+        $request->validate([
+            'confirmation_name' => ['required', 'string', Rule::in([$expectedName])],
+        ]);
 
         DB::table('services')
             ->where('service_id', $serviceRecord->service_id)

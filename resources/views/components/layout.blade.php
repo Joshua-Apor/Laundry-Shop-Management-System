@@ -28,12 +28,14 @@
         href="{{ asset('images/logo.png') }}"
     >
 
+    <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
+
     <title>{{ $title ?? 'I Laba U' }}</title>
 
 </head>
 
 
-<body class="min-h-screen bg-[#F0F8FF] font-sans text-slate-900 antialiased">
+<body hx-boost="true" class="min-h-screen bg-[#F0F8FF] font-sans text-slate-900 antialiased">
 
     @if (session('success'))
 

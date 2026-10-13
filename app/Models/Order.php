@@ -2,13 +2,18 @@
 
 namespace App\Models;
 
+use Database\Factories\OrderFactory;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class Order extends Model
 {
+    /** @use HasFactory<OrderFactory> */
+    use HasFactory;
+
     protected $table = 'laundry_orders';
 
     protected $primaryKey = 'order_id';
@@ -19,6 +24,16 @@ class Order extends Model
         'Processing',
         'Ready for Pickup',
         'Completed',
+    ];
+
+    public const HISTORY_STATUSES = [
+        'Completed',
+        'Cancelled',
+    ];
+
+    public const ALL_STATUSES = [
+        ...self::STATUSES,
+        'Cancelled',
     ];
 
     protected $fillable = [
@@ -43,6 +58,13 @@ class Order extends Model
     #[Scope]
     protected function withRecordDetails(Builder $query): void
     {
+        $serviceNamesAggregation = DB::connection()->getDriverName() === 'sqlite'
+            ? 'GROUP_CONCAT(DISTINCT services.service_name)'
+            : "GROUP_CONCAT(DISTINCT services.service_name ORDER BY services.service_name SEPARATOR ', ')";
+        $serviceDetailsAggregation = DB::connection()->getDriverName() === 'sqlite'
+            ? "GROUP_CONCAT(services.service_name || ' × ' || order_services.quantity, ', ')"
+            : "GROUP_CONCAT(CONCAT(services.service_name, ' × ', order_services.quantity) ORDER BY services.service_name SEPARATOR ', ')";
+
         $query
             ->leftJoin('customers', 'customers.customer_id', '=', 'laundry_orders.customer_id')
             ->select([
@@ -71,8 +93,15 @@ class Order extends Model
                 DB::table('order_services')
                     ->join('services', 'services.service_id', '=', 'order_services.service_id')
                     ->whereColumn('order_services.order_id', 'laundry_orders.order_id')
-                    ->selectRaw("GROUP_CONCAT(DISTINCT services.service_name ORDER BY services.service_name SEPARATOR ', ')"),
+                    ->selectRaw($serviceNamesAggregation),
                 'services',
+            )
+            ->selectSub(
+                DB::table('order_services')
+                    ->join('services', 'services.service_id', '=', 'order_services.service_id')
+                    ->whereColumn('order_services.order_id', 'laundry_orders.order_id')
+                    ->selectRaw($serviceDetailsAggregation),
+                'itemDetails',
             )
             ->selectSub(
                 DB::table('payments')

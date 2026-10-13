@@ -1,16 +1,22 @@
 <x-layout>
     <div class="mx-auto max-w-6xl space-y-6 p-6">
         <div class="flex items-center justify-between gap-4">
-            <h1 class="text-2xl font-bold text-slate-900">Orders Records</h1>
+            <h1 class="text-2xl font-bold text-slate-900">{{ $view === 'history' ? 'Order History' : 'Orders Records' }}</h1>
             <a href="{{ route('orders.create') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-[#168cff] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0878df]">
                 <i class="fa-solid fa-plus" aria-hidden="true"></i> New Order
             </a>
         </div>
 
+        <nav class="flex gap-2 border-b border-sky-100" aria-label="Order views">
+            <a href="{{ route('records.index', ['view' => 'active']) }}" @class(['border-b-2 px-3 py-2 text-sm font-semibold', 'border-[#168cff] text-[#168cff]' => $view === 'active', 'border-transparent text-slate-500 hover:text-slate-800' => $view !== 'active'])>Active orders</a>
+            <a href="{{ route('records.index', ['view' => 'history']) }}" @class(['border-b-2 px-3 py-2 text-sm font-semibold', 'border-[#168cff] text-[#168cff]' => $view === 'history', 'border-transparent text-slate-500 hover:text-slate-800' => $view !== 'history'])>Order history</a>
+        </nav>
+
         <form action="{{ route('records.index') }}" method="GET" class="flex flex-col items-center justify-between gap-3 md:flex-row">
+            <input type="hidden" name="view" value="{{ $view }}">
             <input type="text" name="search" value="{{ $search }}" placeholder="Search by name, claim #, or phone..." class="w-full rounded-lg border border-sky-200 bg-white px-4 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300 md:flex-1">
             <div class="flex w-full items-center gap-2 overflow-x-auto pb-1 md:w-auto md:pb-0">
-                @foreach (['' => 'All', 'Processing' => 'Processing', 'Ready for Pickup' => 'Ready for Pickup', 'Completed' => 'Completed'] as $filterStatus => $label)
+                @foreach (['' => 'All'] + ($view === 'history' ? ['Completed' => 'Completed', 'Cancelled' => 'Cancelled'] : ['Processing' => 'Processing', 'Ready for Pickup' => 'Ready for Pickup']) as $filterStatus => $label)
                 <button type="submit" name="status" value="{{ $filterStatus }}" @class(['whitespace-nowrap rounded-lg px-3.5 py-2 text-xs font-medium', 'bg-[#168cff] text-white'=> $status === $filterStatus, 'border border-sky-200 bg-white text-slate-600 hover:bg-sky-50' => $status !== $filterStatus])>{{ $label }}</button>
                 @endforeach
             </div>

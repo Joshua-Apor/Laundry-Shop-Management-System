@@ -8,6 +8,7 @@
 'priceTotal' => '0.00',
 'firstOrderDate',
 'modalId',
+'historyUrl',
 ])
 
 <button
@@ -64,6 +65,12 @@
         </div>
     </dl>
     <div class="mt-5 border-t border-sky-100 pt-5">
+        <button type="button" data-modal-trigger data-modal-target="customer-history-{{ $customerId }}" data-customer-history-trigger class="inline-flex items-center gap-2 rounded-lg border border-sky-200 px-4 py-2 text-xs font-bold text-sky-700 transition-colors hover:bg-sky-50">
+            <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+            View Order History
+        </button>
+    </div>
+    <div class="mt-5 border-t border-sky-100 pt-5">
         <div class="flex items-center justify-between gap-2">
             <details class="group relative">
                 <summary class="inline-flex cursor-pointer list-none items-center justify-center gap-2 rounded-lg bg-[#168cff] px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-[#0878df] [&::-webkit-details-marker]:hidden">
@@ -96,12 +103,26 @@
     </div>
 </x-modal>
 
+<x-modal :id="'customer-history-'.$customerId" :title="$name.' — order history'">
+    <div data-customer-order-history data-history-url="{{ $historyUrl }}" data-history-loaded="false" aria-live="polite">
+        <p class="text-sm text-slate-500">Order history loads when you open this view.</p>
+    </div>
+    <div class="mt-5 flex justify-start border-t border-sky-100 pt-4">
+        <button type="button" data-modal-back-target="{{ $modalId }}" class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Back</button>
+    </div>
+</x-modal>
+
 <x-modal :id="'customer-delete-'.$customerId" title="Delete customer?">
-    <p class="text-sm leading-6 text-slate-600">This permanently deletes {{ $name }} and all of their associated order and payment history.</p>
-    <form method="POST" action="{{ route('customers.destroy', $customerId) }}" class="mt-5 flex justify-end gap-2">
+    <p class="text-sm leading-6 text-slate-600">This action is irreversible. To confirm deletion, please type the full name <strong>{{ $name }}</strong> below:</p>
+    <form method="POST" action="{{ route('customers.destroy', $customerId) }}" data-name-confirmation-form data-confirmation-name="{{ $name }}" class="mt-4 space-y-4">
         @csrf
         @method('DELETE')
-        <button type="button" data-modal-close class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Cancel</button>
-        <button type="submit" class="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-700">Delete customer</button>
+        <label for="customer-delete-name-{{ $customerId }}" class="block text-xs font-semibold text-slate-700">Customer name</label>
+        <input id="customer-delete-name-{{ $customerId }}" name="confirmation_name" type="text" autocomplete="off" data-name-confirmation-input aria-describedby="customer-delete-help-{{ $customerId }}" class="-mt-3 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:ring-2 focus:ring-sky-200">
+        <p id="customer-delete-help-{{ $customerId }}" class="-mt-3 text-xs text-slate-500">Enter the name exactly as shown above.</p>
+        <div class="flex justify-end gap-2">
+            <button type="button" data-modal-close class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Cancel</button>
+            <button type="submit" disabled data-name-confirmation-submit class="cursor-not-allowed rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white opacity-50 transition-opacity">Delete Permanently</button>
+        </div>
     </form>
 </x-modal>

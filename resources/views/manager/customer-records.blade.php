@@ -34,7 +34,8 @@
                     :order-total="$customer->orders_count"
                     :price-total="number_format($customer->total_spent, 2)"
                     :first-order-date="$customer->first_order_date"
-                    :modal-id="'manager-customer-details-'.$loop->index" />
+                    :modal-id="'manager-customer-details-'.$loop->index"
+                    :history-url="route('customers.orders', $customer->customer_id)" />
                 @empty
                     <p class="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500 sm:col-span-2 xl:col-span-3">No customers with orders yet.</p>
                 @endforelse

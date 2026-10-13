@@ -42,6 +42,50 @@ async function loadDashboardResults(container) {
     }
 }
 
+async function loadCustomerOrderHistory(container) {
+    if (container.dataset.historyLoaded === 'loading') {
+        return;
+    }
+
+    container.dataset.historyLoaded = 'loading';
+    container.setAttribute('aria-busy', 'true');
+    container.textContent = 'Loading order history...';
+
+    try {
+        const response = await fetch(container.dataset.historyUrl, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                Accept: 'text/html',
+            },
+            credentials: 'same-origin',
+        });
+
+        if (!response.ok || response.redirected) {
+            throw new Error('Customer order history request failed.');
+        }
+
+        const historyDocument = new DOMParser().parseFromString(await response.text(), 'text/html');
+
+        historyDocument.querySelectorAll('[data-history-detail-modal]').forEach((historyModal) => {
+            document.getElementById(historyModal.id)?.remove();
+            document.body.append(historyModal);
+        });
+
+        container.innerHTML = historyDocument.body.innerHTML;
+        container.dataset.historyLoaded = 'true';
+    } catch {
+        container.dataset.historyLoaded = 'false';
+        container.innerHTML = `
+            <div class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700" role="alert">
+                <p>Order history could not be loaded.</p>
+                <button type="button" data-customer-history-retry class="mt-2 font-semibold underline">Try again</button>
+            </div>
+        `;
+    } finally {
+        container.removeAttribute('aria-busy');
+    }
+}
+
 let customerSearchTimer;
 let customerSearchController;
 
@@ -104,6 +148,22 @@ async function refreshCustomerResults(form, url = null, addHistoryEntry = false)
 }
 
 document.addEventListener('input', (event) => {
+    const nameConfirmationInput = event.target.closest('[data-name-confirmation-input]');
+
+    if (nameConfirmationInput) {
+        const form = nameConfirmationInput.closest('[data-name-confirmation-form]');
+        const submitButton = form.querySelector('[data-name-confirmation-submit]');
+        const matchesName = nameConfirmationInput.value.trim() === form.dataset.confirmationName.trim();
+        const hasInput = nameConfirmationInput.value.length > 0;
+
+        submitButton.disabled = !matchesName;
+        submitButton.classList.toggle('cursor-not-allowed', !matchesName);
+        submitButton.classList.toggle('opacity-50', !matchesName);
+        nameConfirmationInput.classList.toggle('border-rose-500', hasInput && !matchesName);
+        nameConfirmationInput.classList.toggle('border-emerald-500', matchesName);
+        nameConfirmationInput.classList.toggle('border-slate-300', !hasInput);
+    }
+
     if (!event.target.matches('[data-customer-search-input]')) {
         return;
     }
@@ -160,6 +220,18 @@ window.addEventListener('popstate', () => {
     refreshCustomerResults(form, url.href);
 });
 document.addEventListener('click', (event) => {
+    const historyRetryButton = event.target.closest('[data-customer-history-retry]');
+
+    if (historyRetryButton) {
+        const historyContainer = historyRetryButton.closest('[data-customer-order-history]');
+
+        if (historyContainer) {
+            loadCustomerOrderHistory(historyContainer);
+        }
+
+        return;
+    }
+
     const mobileSidebarClose = event.target.closest('[data-mobile-sidebar-close]');
 
     if (mobileSidebarClose) {
@@ -204,6 +276,21 @@ document.addEventListener('click', (event) => {
 
     const closeButton = event.target.closest('[data-close-record-modal], [data-modal-close]');
 
+    const backButton = event.target.closest('[data-modal-back-target]');
+
+    if (backButton) {
+        const previousModal = document.getElementById(backButton.dataset.modalBackTarget);
+
+        backButton.closest('dialog')?.close();
+
+        if (previousModal instanceof HTMLDialogElement) {
+            previousModal.showModal();
+            previousModal.querySelector('[data-modal-close], [data-modal-back-target]')?.focus();
+        }
+
+        return;
+    }
+
     if (closeButton) {
         closeButton.closest('dialog')?.close();
 
@@ -228,6 +315,12 @@ document.addEventListener('click', (event) => {
         return;
     }
 
+    document.querySelectorAll('dialog[open]').forEach((openModal) => {
+        if (openModal !== modal) {
+            openModal.close();
+        }
+    });
+
     if (button.matches('[data-modal-loading-trigger]')) {
         const spinner = button.querySelector('[data-loading-spinner]');
 
@@ -243,11 +336,16 @@ document.addEventListener('click', (event) => {
     }
 
     modal.showModal();
-    (modal.querySelector('[data-pin-code-digit]') ?? modal.querySelector('[data-close-record-modal], [data-modal-close]'))?.focus();
-});
 
-document.querySelectorAll('[data-dashboard-results]').forEach((container) => {
-    loadDashboardResults(container);
+    if (button.matches('[data-customer-history-trigger]')) {
+        const historyContainer = modal.querySelector('[data-customer-order-history]');
+
+        if (historyContainer) {
+            loadCustomerOrderHistory(historyContainer);
+        }
+    }
+
+    (modal.querySelector('[data-pin-code-digit]') ?? modal.querySelector('[data-close-record-modal], [data-modal-close]'))?.focus();
 });
 
 document.addEventListener('input', (event) => {
@@ -439,14 +537,26 @@ document.addEventListener('paste', (event) => {
     inputs[Math.min(inputIndex + characters.length, inputs.length) - 1]?.focus();
 });
 
-document.querySelectorAll('[data-modal-open-on-load]').forEach((dialog) => {
+let profilePictureResizeHandler = null;
+
+function initializePage() {
+    if (profilePictureResizeHandler) {
+        window.removeEventListener('resize', profilePictureResizeHandler);
+        profilePictureResizeHandler = null;
+    }
+
+    document.querySelectorAll('[data-dashboard-results]').forEach((container) => {
+        loadDashboardResults(container);
+    });
+
+    document.querySelectorAll('[data-modal-open-on-load]').forEach((dialog) => {
     if (dialog instanceof HTMLDialogElement && !dialog.open) {
         dialog.showModal();
         dialog.querySelector('[data-pin-code-digit]')?.focus();
     }
 });
 
-const profilePictureInput = document.querySelector('[data-profile-picture-input]');
+    const profilePictureInput = document.querySelector('[data-profile-picture-input]');
 
 const modalOrderForm = document.querySelector('[data-order-form]');
 
@@ -1165,10 +1275,16 @@ if (profilePictureInput) {
         }
     });
 
-    window.addEventListener('resize', () => {
+    profilePictureResizeHandler = () => {
         if (cropper.open && cropImage.complete) {
             cropDiameter = Math.min(cropFrame.clientWidth, cropFrame.clientHeight) * 0.92;
             updateCropScale(true);
         }
-    });
+    };
+    window.addEventListener('resize', profilePictureResizeHandler);
 }
+
+}
+
+initializePage();
+document.addEventListener('htmx:afterSwap', initializePage);

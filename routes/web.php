@@ -49,6 +49,7 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/manager/employees', [ManagerController::class, 'storeEmployee'])->name('manager.employees.store');
     Route::delete('/manager/employees/{employee}', [ManagerController::class, 'destroyEmployee'])->name('manager.employees.destroy');
     Route::patch('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
+    Route::get('/customers/{customer}/orders', [CustomerController::class, 'history'])->name('customers.orders');
     Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
 
     Route::prefix('employee')->group(function (): void {
