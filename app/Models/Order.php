@@ -56,6 +56,8 @@ class Order extends Model
                 'laundry_orders.order_type',
                 'laundry_orders.self_service_loads',
                 'laundry_orders.total_amount',
+                'laundry_orders.storage_fee',
+                'laundry_orders.ready_for_pickup_at',
                 'laundry_orders.amount_paid',
                 'laundry_orders.balance',
                 'laundry_orders.order_status as status',

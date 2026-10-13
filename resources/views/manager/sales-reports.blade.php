@@ -5,7 +5,7 @@
             <p class="text-sm text-slate-500">Choose a day, week, month, or custom date range to review and download sales.</p>
         </div>
 
-        <section class="rounded-xl border border-sky-200 bg-white p-5 shadow-sm sm:p-6">
+        <section class="card-entry-animation rounded-xl border border-sky-200 bg-white p-5 shadow-sm sm:p-6">
             <h2 class="text-sm font-bold text-slate-800">Report configuration</h2>
             <form id="sales-report-filters" class="mt-5 flex flex-col gap-5 sm:flex-row sm:flex-wrap sm:items-end" method="GET" action="{{ route('manager.sales-reports') }}">
                 <fieldset class="w-full">
@@ -144,7 +144,7 @@
         @endif
 
         @if ($report)
-            <section class="space-y-5 rounded-xl border border-sky-200 bg-white p-5 shadow-sm sm:p-6">
+            <section class="card-entry-animation space-y-5 rounded-xl border border-sky-200 bg-white p-5 shadow-sm sm:p-6">
                 <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                     <div>
                         <h2 class="text-lg font-bold text-slate-900">{{ $report['period'] }} sales report</h2>
@@ -241,7 +241,7 @@
                 </div>
             </section>
         @else
-            <div class="rounded-xl border border-dashed border-sky-200 bg-white p-8 text-center text-sm text-slate-500">
+            <div class="card-entry-animation rounded-xl border border-dashed border-sky-200 bg-white p-8 text-center text-sm text-slate-500">
                 Choose a period and date, then generate a report to see the sales summary and export options.
             </div>
         @endif

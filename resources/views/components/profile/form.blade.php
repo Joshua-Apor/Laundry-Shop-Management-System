@@ -39,7 +39,7 @@
         </div>
     </section>
 
-    <dialog data-profile-picture-cropper class="m-auto w-[min(32rem,calc(100vw-2rem))] max-w-none rounded-2xl border border-slate-200 bg-white p-5 text-slate-900 shadow-2xl backdrop:bg-slate-950/60 sm:p-7">
+    <dialog data-profile-picture-cropper class="m-auto w-[min(32rem,calc(100vw-2rem))] max-w-none rounded-xl border border-slate-200 bg-white p-5 text-slate-900 shadow-xl backdrop:bg-slate-900/40 sm:p-7">
         <div class="space-y-5">
             <div>
                 <h2 class="text-lg font-bold text-slate-900">Crop profile picture</h2>
@@ -64,7 +64,7 @@
     </dialog>
 
     @if ($user->profile_picture_path)
-        <dialog id="remove-profile-picture-confirmation" data-modal-dialog class="m-auto w-[min(26rem,calc(100vw-2rem))] max-w-none rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-2xl backdrop:bg-slate-950/50">
+        <dialog id="remove-profile-picture-confirmation" data-modal-dialog class="m-auto w-[min(26rem,calc(100vw-2rem))] max-w-none rounded-xl border border-slate-200 bg-white p-5 text-slate-900 shadow-xl backdrop:bg-slate-900/40">
             <div class="space-y-4">
                 <div>
                     <h2 class="text-lg font-bold text-slate-900">Remove profile picture?</h2>

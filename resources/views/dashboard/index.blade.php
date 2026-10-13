@@ -18,9 +18,10 @@
                     <div class="h-6 w-40 animate-pulse rounded bg-sky-100"></div>
                     <div class="h-4 w-28 animate-pulse rounded bg-sky-100"></div>
                 </div>
-                <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    @foreach (range(1, 4) as $metric)
-                        <div class="h-24 animate-pulse rounded-xl border border-sky-100 bg-white"></div>
+                <div class="grid grid-cols-[1.35fr_1fr] gap-1.5 sm:gap-2">
+                    <div class="row-span-3 min-h-52 animate-pulse rounded-xl border border-sky-100 bg-white sm:min-h-64"></div>
+                    @foreach (range(1, 3) as $metric)
+                        <div class="h-16 animate-pulse rounded-xl border border-sky-100 bg-white sm:h-20"></div>
                     @endforeach
                 </div>
             </section>
@@ -34,3 +35,7 @@
         </div>
     </div>
 </x-layout>
+
+
+
+

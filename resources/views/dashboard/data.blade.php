@@ -4,11 +4,11 @@
         <span class="text-sm font-medium">{{ now()->format('F d, Y') }}</span>
     </div>
 
-    <div class="mx-auto mb-6 grid w-full max-w-5xl grid-cols-2 gap-2 sm:grid-cols-4">
-        <x-dashboard.metric-card title="Total Orders" :value="$totalOrders" />
-        <x-dashboard.metric-card title="Completed" :value="$completedOrders" />
-        <x-dashboard.metric-card title="Ready for Pickup" :value="$readyForPickupOrders" />
-        <x-dashboard.metric-card title="Total Revenue" :value="'₱'.number_format($totalRevenue, 2)" />
+    <div class="mx-auto mb-6 grid w-full max-w-5xl grid-cols-[1.35fr_1fr] gap-1.5 sm:gap-2">
+        <x-dashboard.metric-card title="Total Revenue" :value="'₱'.number_format($totalRevenue, 2)" :featured="true" :entry-animation="true" :comparison="$totalRevenueComparison" :trend-points="$revenueTrendPoints" />
+        <x-dashboard.metric-card title="Total Orders" :value="$totalOrders" :compact="true" :entry-animation="true" :comparison="$totalOrdersComparison" />
+        <x-dashboard.metric-card title="Completed" :value="$completedOrders" :compact="true" :entry-animation="true" :comparison="$completedOrdersComparison" />
+        <x-dashboard.metric-card title="Ready for Pickup" :value="$readyForPickupOrders" :compact="true" :entry-animation="true" :comparison="$readyForPickupOrdersComparison" />
     </div>
 
     <div>
@@ -35,7 +35,7 @@
             @forelse ($recentOrders as $order)
                 <li class="relative">
                     <div
-                        class="relative grid min-h-20 grid-cols-2 items-center gap-x-4 gap-y-3 rounded-2xl border border-sky-200 bg-white px-4 py-4 text-sm transition-colors hover:bg-sky-50/40 sm:grid-cols-[1.1fr_1.4fr_1fr_1.2fr_1fr] sm:gap-4 sm:px-5"
+                        class="relative grid min-h-20 grid-cols-2 items-center gap-x-4 gap-y-3 rounded-2xl border border-sky-200 bg-white px-4 py-4 text-sm transition-colors hover:bg-sky-50/40 card-entry-animation sm:grid-cols-[1.1fr_1.4fr_1fr_1.2fr_1fr] sm:gap-4 sm:px-5"
                     >
                         <button
                             type="button"
@@ -112,7 +112,7 @@
         <ul class="space-y-2">
             @forelse ($unclaimedOrders as $order)
                 <li class="relative">
-                    <div class="relative grid min-h-20 grid-cols-2 items-center gap-x-4 gap-y-3 rounded-2xl border border-sky-200 bg-white px-4 py-4 text-sm transition-colors hover:bg-sky-50/40 sm:grid-cols-[1.1fr_1.4fr_1fr_1.2fr_1fr] sm:gap-4 sm:px-5">
+                    <div class="relative grid min-h-20 grid-cols-2 items-center gap-x-4 gap-y-3 rounded-2xl border border-sky-200 bg-white px-4 py-4 text-sm transition-colors hover:bg-sky-50/40 card-entry-animation sm:grid-cols-[1.1fr_1.4fr_1fr_1.2fr_1fr] sm:gap-4 sm:px-5">
                         <button
                             type="button"
                             data-modal-trigger
@@ -161,3 +161,10 @@
         </ul>
     </section>
 </div>
+
+
+
+
+
+
+

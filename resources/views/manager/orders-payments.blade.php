@@ -23,7 +23,7 @@
         ]));
         @endphp
 
-        <form method="GET" action="{{ route('manager.orders-payments') }}" class="space-y-4 rounded-2xl border border-sky-200 bg-white p-4 shadow-sm">
+        <form method="GET" action="{{ route('manager.orders-payments') }}" class="card-entry-animation space-y-4 rounded-2xl border border-sky-200 bg-white p-4 shadow-sm">
             {{-- Search Bar & Filter Toggle Row --}}
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div class="grow">
@@ -135,11 +135,11 @@
             </span>
         </div>
 
-        <div class="space-y-2">
+        <div class="space-y-2" data-manager-order-list>
             @forelse ($orders as $order)
             <div class="relative">
                 <div
-                    class="relative grid min-h-20 grid-cols-2 items-center gap-x-4 gap-y-3 rounded-2xl border border-sky-200 bg-white px-4 py-4 text-sm shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50/40 sm:grid-cols-[1.1fr_1.4fr_1fr_1.2fr_1fr] sm:gap-4 sm:px-5">
+                    class="card-entry-animation relative grid min-h-20 grid-cols-2 items-center gap-x-4 gap-y-3 rounded-2xl border border-sky-200 bg-white px-4 py-4 text-sm shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50/40 sm:grid-cols-[1.1fr_1.4fr_1fr_1.2fr_1fr] sm:gap-4 sm:px-5">
                     {{-- Full row clickable area --}}
                     <button
                         type="button"

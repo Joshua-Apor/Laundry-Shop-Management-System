@@ -43,6 +43,9 @@
             </summary>
             <div class="grid grid-cols-1 gap-3 border-t border-sky-100 p-4 sm:grid-cols-2">
                 <x-orders.info-item label="Total amount" icon="fa-receipt">₱{{ number_format((float) $order->total_amount, 2) }}</x-orders.info-item>
+                @if ((float) $order->storage_fee > 0)
+                    <x-orders.info-item label="Storage fee" icon="fa-box">PHP {{ number_format((float) $order->storage_fee, 2) }}</x-orders.info-item>
+                @endif
                 <x-orders.info-item label="Amount paid" icon="fa-money-bill-wave">₱{{ number_format((float) $order->amount_paid, 2) }}</x-orders.info-item>
                 <x-orders.info-item label="Balance" icon="fa-wallet">₱{{ number_format((float) $order->balance, 2) }}</x-orders.info-item>
                 <x-orders.info-item label="Payment method" icon="fa-credit-card">{{ $order->paymentMethod }}</x-orders.info-item>
@@ -55,3 +58,5 @@
         </details>
     </div>
 </x-modal>
+
+

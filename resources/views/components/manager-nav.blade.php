@@ -1,4 +1,4 @@
-<header class="border-b border-[#ead4dd] bg-[#f8eef2] text-[#5d2943] shadow-sm lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:w-[17rem] lg:flex-col lg:border-b-0 lg:border-r">
+<header class="border-b border-[#ead4dd] bg-[#f8eef2] text-[#5d2943] shadow-sm lg:fixed lg:inset-y-4 lg:left-4 lg:z-40 lg:flex lg:w-[17rem] lg:flex-col lg:rounded-3xl lg:border-b-0 lg:border-r-0 lg:shadow-xl">
 
     <div class="mx-auto max-w-[1536px] px-4 lg:flex lg:h-full lg:w-full lg:max-w-none lg:flex-col lg:px-4 lg:py-6">
 

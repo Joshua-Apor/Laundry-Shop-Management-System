@@ -35,8 +35,8 @@
                 <h1
                     class="max-w-md text-4xl font-extrabold leading-[1.08] tracking-[-0.04em] sm:text-5xl"
                 >
-                    Manage your shop,<br>
-                    effortlessly.
+                    Laundry Today<br>
+                    or Naked Tomorrow
                 </h1>
 
                 <p class="mt-5 max-w-xl text-sm leading-6 text-white/80">
@@ -106,7 +106,7 @@
             class="flex items-center justify-center px-6 py-12 sm:px-12 lg:px-16 xl:px-24"
         >
 
-            <div class="w-full max-w-[390px]">
+            <div class="card-entry-animation w-full max-w-[390px]">
 
                 {{-- Heading --}}
                 <h2 class="text-2xl font-extrabold tracking-[-0.03em]">

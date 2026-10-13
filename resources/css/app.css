@@ -13,49 +13,159 @@
     }
 }
 
-
-@view-transition {
-    navigation: auto;
+.card-entry-animation {
+    animation: dashboard-card-pop 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
-::view-transition-old(page-content) {
-    animation: 180ms cubic-bezier(0.4, 0, 1, 1) both page-swipe-out;
+.card-entry-animation:nth-child(2) {
+    animation-delay: 55ms;
 }
 
-::view-transition-new(page-content) {
-    animation: 240ms cubic-bezier(0, 0.2, 0.2, 1) both page-swipe-in;
+.card-entry-animation:nth-child(3) {
+    animation-delay: 110ms;
 }
 
-@keyframes page-swipe-out {
-    to {
+.space-y-2 > li:nth-child(1) .card-entry-animation {
+    animation-delay: 220ms;
+}
+
+.space-y-2 > li:nth-child(2) .card-entry-animation {
+    animation-delay: 275ms;
+}
+
+.space-y-2 > li:nth-child(3) .card-entry-animation {
+    animation-delay: 330ms;
+}
+
+.space-y-2 > li:nth-child(4) .card-entry-animation {
+    animation-delay: 385ms;
+}
+
+.space-y-2 > li:nth-child(5) .card-entry-animation {
+    animation-delay: 440ms;
+}
+
+.card-entry-animation:nth-child(4) {
+    animation-delay: 165ms;
+}
+
+.space-y-3[data-customer-list] > button.card-entry-animation:nth-of-type(2) {
+    animation-delay: 55ms;
+}
+
+.space-y-3[data-customer-list] > button.card-entry-animation:nth-of-type(3) {
+    animation-delay: 110ms;
+}
+
+.space-y-3[data-customer-list] > button.card-entry-animation:nth-of-type(4) {
+    animation-delay: 165ms;
+}
+
+.space-y-3[data-customer-list] > button.card-entry-animation:nth-of-type(5) {
+    animation-delay: 220ms;
+}
+
+.space-y-3[data-customer-list] > button.card-entry-animation:nth-of-type(6) {
+    animation-delay: 275ms;
+}
+
+.space-y-3[data-customer-list] > button.card-entry-animation:nth-of-type(7) {
+    animation-delay: 330ms;
+}
+
+.space-y-3[data-customer-list] > button.card-entry-animation:nth-of-type(8) {
+    animation-delay: 385ms;
+}
+
+.space-y-2[data-record-card-list] > div:nth-child(2) .card-entry-animation {
+    animation-delay: 55ms;
+}
+
+.space-y-2[data-record-card-list] > div:nth-child(3) .card-entry-animation {
+    animation-delay: 110ms;
+}
+
+.space-y-2[data-record-card-list] > div:nth-child(4) .card-entry-animation {
+    animation-delay: 165ms;
+}
+
+.space-y-2[data-record-card-list] > div:nth-child(5) .card-entry-animation {
+    animation-delay: 220ms;
+}
+
+.space-y-2[data-record-card-list] > div:nth-child(6) .card-entry-animation {
+    animation-delay: 275ms;
+}
+
+.space-y-2[data-record-card-list] > div:nth-child(7) .card-entry-animation {
+    animation-delay: 330ms;
+}
+
+.space-y-2[data-record-card-list] > div:nth-child(8) .card-entry-animation {
+    animation-delay: 385ms;
+}
+
+[data-manager-employee-list] > article.card-entry-animation:nth-of-type(2),
+[data-manager-service-list] > div.card-entry-animation:nth-of-type(2),
+[data-manager-order-list] > div:nth-child(2) .card-entry-animation {
+    animation-delay: 55ms;
+}
+
+[data-manager-employee-list] > article.card-entry-animation:nth-of-type(3),
+[data-manager-service-list] > div.card-entry-animation:nth-of-type(3),
+[data-manager-order-list] > div:nth-child(3) .card-entry-animation {
+    animation-delay: 110ms;
+}
+
+[data-manager-employee-list] > article.card-entry-animation:nth-of-type(4),
+[data-manager-service-list] > div.card-entry-animation:nth-of-type(4),
+[data-manager-order-list] > div:nth-child(4) .card-entry-animation {
+    animation-delay: 165ms;
+}
+
+[data-manager-employee-list] > article.card-entry-animation:nth-of-type(5),
+[data-manager-service-list] > div.card-entry-animation:nth-of-type(5),
+[data-manager-order-list] > div:nth-child(5) .card-entry-animation {
+    animation-delay: 220ms;
+}
+
+[data-manager-employee-list] > article.card-entry-animation:nth-of-type(6),
+[data-manager-service-list] > div.card-entry-animation:nth-of-type(6),
+[data-manager-order-list] > div:nth-child(6) .card-entry-animation {
+    animation-delay: 275ms;
+}
+
+[data-manager-employee-list] > article.card-entry-animation:nth-of-type(7),
+[data-manager-service-list] > div.card-entry-animation:nth-of-type(7),
+[data-manager-order-list] > div:nth-child(7) .card-entry-animation {
+    animation-delay: 330ms;
+}
+
+[data-manager-employee-list] > article.card-entry-animation:nth-of-type(8),
+[data-manager-service-list] > div.card-entry-animation:nth-of-type(8),
+[data-manager-order-list] > div:nth-child(8) .card-entry-animation {
+    animation-delay: 385ms;
+}
+
+@keyframes dashboard-card-pop {
+    0% {
         opacity: 0;
-        transform: translateX(-12%);
-    }
-}
-
-@keyframes page-swipe-in {
-    from {
-        opacity: 0.75;
-        transform: translateX(12%);
+        transform: translateY(6px) scale(0.97);
     }
 
-    to {
+    65% {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateY(-2px) scale(1.015);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    ::view-transition-old(page-content),
-    ::view-transition-new(page-content) {
-        animation-duration: 1ms;
+    .card-entry-animation {
+        animation: none;
     }
-}
-
-:root {
-    view-transition-name: none;
-}
-
-main {
-    view-transition-name: page-content;
 }

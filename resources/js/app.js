@@ -21,6 +21,12 @@ async function loadDashboardResults(container) {
             throw new Error('Dashboard response was incomplete.');
         }
 
+        if (container.dataset.dashboardCardsAnimated === 'true') {
+            fragment.querySelectorAll('.card-entry-animation').forEach((card) => card.classList.remove('card-entry-animation'));
+        } else {
+            container.dataset.dashboardCardsAnimated = 'true';
+        }
+
         container.innerHTML = fragment.innerHTML;
         container.removeAttribute('aria-busy');
     } catch {
@@ -36,6 +42,123 @@ async function loadDashboardResults(container) {
     }
 }
 
+let customerSearchTimer;
+let customerSearchController;
+
+async function refreshCustomerResults(form, url = null, addHistoryEntry = false) {
+    customerSearchController?.abort();
+
+    const controller = new AbortController();
+    customerSearchController = controller;
+    const requestUrl = new URL(url ?? form.action, window.location.origin);
+
+    if (!url) {
+        requestUrl.search = new URLSearchParams(new FormData(form)).toString();
+    }
+
+    const results = document.querySelector('[data-customer-results]');
+    const status = document.querySelector('[data-customer-search-status]');
+
+    form.setAttribute('aria-busy', 'true');
+    results?.setAttribute('aria-busy', 'true');
+
+    try {
+        const response = await fetch(requestUrl, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                Accept: 'text/html',
+            },
+            credentials: 'same-origin',
+            signal: controller.signal,
+        });
+
+        if (!response.ok || response.redirected) {
+            throw new Error('Customer search request failed.');
+        }
+
+        const documentContent = new DOMParser().parseFromString(await response.text(), 'text/html');
+        const updatedResults = documentContent.querySelector('[data-customer-results]');
+        const updatedCount = documentContent.querySelector('[data-customer-count]');
+        const currentCount = document.querySelector('[data-customer-count]');
+
+        if (!results || !updatedResults || !updatedCount || !currentCount || !status) {
+            throw new Error('Customer results were incomplete.');
+        }
+
+        updatedResults.querySelectorAll('.card-entry-animation').forEach((card) => card.classList.remove('card-entry-animation'));
+        results.innerHTML = updatedResults.innerHTML;
+        currentCount.textContent = updatedCount.textContent;
+        status.textContent = `${updatedCount.textContent.replace('total', '').trim()} customers loaded.`;
+        window.history[addHistoryEntry ? 'pushState' : 'replaceState']({}, '', requestUrl);
+    } catch (error) {
+        if (error.name !== 'AbortError' && status) {
+            status.textContent = 'Customer results could not be updated. Please try again.';
+        }
+    } finally {
+        if (customerSearchController === controller) {
+            customerSearchController = null;
+            form.removeAttribute('aria-busy');
+            results?.removeAttribute('aria-busy');
+        }
+    }
+}
+
+document.addEventListener('input', (event) => {
+    if (!event.target.matches('[data-customer-search-input]')) {
+        return;
+    }
+
+    window.clearTimeout(customerSearchTimer);
+    customerSearchTimer = window.setTimeout(() => refreshCustomerResults(event.target.form), 250);
+});
+
+document.addEventListener('change', (event) => {
+    if (event.target.matches('[data-customer-sort]')) {
+        window.clearTimeout(customerSearchTimer);
+        refreshCustomerResults(event.target.form);
+    }
+});
+
+document.addEventListener('submit', (event) => {
+    if (!event.target.matches('[data-customer-search-form]')) {
+        return;
+    }
+
+    event.preventDefault();
+    window.clearTimeout(customerSearchTimer);
+    refreshCustomerResults(event.target);
+});
+
+document.addEventListener('click', (event) => {
+    const paginationLink = event.target.closest('[data-customer-results] a[href]');
+
+    if (!paginationLink || paginationLink.origin !== window.location.origin) {
+        return;
+    }
+
+    const form = document.querySelector('[data-customer-search-form]');
+
+    if (!form) {
+        return;
+    }
+
+    event.preventDefault();
+    window.clearTimeout(customerSearchTimer);
+    refreshCustomerResults(form, paginationLink.href, true);
+});
+
+window.addEventListener('popstate', () => {
+    const form = document.querySelector('[data-customer-search-form]');
+
+    if (!form) {
+        return;
+    }
+
+    const url = new URL(window.location.href);
+    form.querySelector('[name="search"]').value = url.searchParams.get('search') ?? '';
+    form.querySelector('[name="sort"]').value = url.searchParams.get('sort') ?? 'newest';
+    refreshCustomerResults(form, url.href);
+});
 document.addEventListener('click', (event) => {
     const mobileSidebarClose = event.target.closest('[data-mobile-sidebar-close]');
 
@@ -654,6 +777,14 @@ if (orderForm && !document.querySelector('[data-order-service-dialog]')) {
 
         phaseOne.hidden = !isFirstPhase;
         phaseTwo.hidden = isFirstPhase;
+
+        const visiblePhase = isFirstPhase ? phaseOne : phaseTwo;
+
+        visiblePhase.querySelectorAll('.card-entry-animation').forEach((card, index) => {
+            card.classList.remove('card-entry-animation');
+            card.style.animationDelay = `${index * 55}ms`;
+            window.requestAnimationFrame(() => card.classList.add('card-entry-animation'));
+        });
         stepIndicators.forEach((indicator) => {
             const isCurrent = indicator.dataset.orderStepIndicator === String(phase);
 

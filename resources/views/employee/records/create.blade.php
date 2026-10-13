@@ -17,7 +17,7 @@
             @csrf
             <input type="hidden" name="customer_id" id="customer-id" value="{{ old('customer_id') }}">
 
-            <section data-order-phase="1" class="mb-5 rounded-2xl border border-sky-100 bg-white p-6 shadow-sm">
+            <section data-order-phase="1" class="card-entry-animation mb-5 rounded-2xl border border-sky-100 bg-white p-6 shadow-sm">
                 <h2 class="text-lg font-bold text-slate-900">Choose a laundry service</h2>
                 <p class="mt-1 text-sm text-slate-500">Choose Drop Off or Self Service first. Prices and quantities follow each service’s price unit.</p>
 
@@ -78,7 +78,7 @@
             <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
 
                 {{-- LEFT: CUSTOMER INFORMATION --}}
-                <div class="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm row-start-1 lg:col-start-1 lg:row-start-1">
+                <div class="card-entry-animation rounded-2xl border border-sky-100 bg-white p-6 shadow-sm row-start-1 lg:col-start-1 lg:row-start-1">
 
                     <div class="mb-5 flex items-center gap-3">
                         <span class="grid size-9 shrink-0 place-items-center rounded-lg bg-sky-50 text-[#168cff]">
@@ -188,7 +188,7 @@
 
 
                 {{-- MIDDLE: SELECTED SERVICES SUMMARY --}}
-                <div class="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm row-start-2 lg:col-start-2 lg:row-start-1">
+                <div class="card-entry-animation rounded-2xl border border-sky-100 bg-white p-6 shadow-sm row-start-2 lg:col-start-2 lg:row-start-1">
 
                     <div class="mb-5 flex items-center gap-3">
                         <span class="grid size-9 shrink-0 place-items-center rounded-lg bg-sky-50 text-[#168cff]">
@@ -250,7 +250,7 @@
                 <div class="contents">
 
                     {{-- TOP RIGHT: WEIGHT --}}
-                    <div class="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm row-start-4 lg:col-start-1 lg:row-start-2">
+                    <div class="card-entry-animation rounded-2xl border border-sky-100 bg-white p-6 shadow-sm row-start-4 lg:col-start-1 lg:row-start-2">
 
                         <div class="mb-5 flex items-center gap-3">
                             <span class="grid size-9 shrink-0 place-items-center rounded-lg bg-sky-50 text-[#168cff]">
@@ -300,7 +300,7 @@
 
 
                     {{-- BOTTOM RIGHT: PAYMENT --}}
-                    <div class="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm row-start-5 lg:col-span-2 lg:col-start-2 lg:row-start-2">
+                    <div class="card-entry-animation rounded-2xl border border-sky-100 bg-white p-6 shadow-sm row-start-5 lg:col-span-2 lg:col-start-2 lg:row-start-2">
 
                         <div class="mb-5 flex items-center gap-3">
                             <span class="grid size-9 shrink-0 place-items-center rounded-lg bg-sky-50 text-[#168cff]">
@@ -387,7 +387,7 @@
                 </div>
 
             {{-- SPECIAL REQUEST --}}
-            <div class="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm row-start-3 lg:col-start-3 lg:row-start-1">
+            <div class="card-entry-animation rounded-2xl border border-sky-100 bg-white p-6 shadow-sm row-start-3 lg:col-start-3 lg:row-start-1">
 
                 <div class="mb-4 flex items-center gap-3">
                     <span class="grid size-9 shrink-0 place-items-center rounded-lg bg-sky-50 text-[#168cff]">
@@ -450,7 +450,7 @@
 
         </form>
 
-        <dialog data-order-service-dialog class="m-auto w-[min(34rem,calc(100vw-2rem))] max-w-none rounded-2xl border border-slate-200 bg-white p-5 text-slate-900 shadow-2xl backdrop:bg-slate-950/60 sm:p-7">
+        <dialog data-order-service-dialog class="m-auto w-[min(34rem,calc(100vw-2rem))] max-w-none rounded-xl border border-slate-200 bg-white p-5 text-slate-900 shadow-xl backdrop:bg-slate-900/40 sm:p-6">
             <div class="space-y-5">
                 <div>
                     <h2 class="text-lg font-bold text-slate-900">Select services</h2>

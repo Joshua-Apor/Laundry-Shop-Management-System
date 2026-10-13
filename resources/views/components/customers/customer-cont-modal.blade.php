@@ -15,20 +15,20 @@
     data-modal-trigger
     data-modal-target="{{ $modalId }}"
     aria-label="View details for {{ $name }}"
-    class="group flex w-full items-center justify-between gap-4 rounded-2xl border border-sky-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-sky-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 disabled:cursor-wait">
+    class="card-entry-animation group relative flex min-h-32 w-full flex-col items-stretch gap-3 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-[border-color,box-shadow] hover:border-[#168cff]/40 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#168cff] disabled:cursor-wait">
     <span class="flex min-w-0 items-center gap-3.5">
-        <span class="grid size-10 shrink-0 place-items-center rounded-full bg-[#168cff] text-sm font-bold text-white">{{ $initial }}</span>
+        <span class="grid size-10 shrink-0 place-items-center rounded-full bg-[#168cff] text-sm font-bold text-white ring-4 ring-sky-50">{{ $initial }}</span>
         <span class="min-w-0">
             <span class="block text-sm font-bold leading-tight text-slate-900">{{ $name }}</span>
             <span class="mt-0.5 flex items-center gap-1 text-xs text-slate-400"><i class="fa-solid fa-phone text-[#168cff]" aria-hidden="true"></i>{{ $phone }}</span>
         </span>
     </span>
-    <span class="flex shrink-0 items-center gap-3">
-        <span class="text-right">
+    <span class="flex w-full items-center justify-between gap-3 border-t border-slate-100 pt-3">
+        <span class="flex flex-1 items-center justify-between gap-3">
             <span class="block text-sm font-bold text-slate-800">{{ $orderTotal }} order{{ $orderTotal == 1 ? '' : 's' }}</span>
             <span class="block text-xs text-slate-400">₱{{ $priceTotal }} total</span>
         </span>
-        <span data-loading-spinner class="hidden size-4 animate-spin rounded-full border-2 border-sky-200 border-t-sky-600" aria-hidden="true"></span>
+        <span data-loading-spinner class="absolute right-3 top-3 hidden size-4 animate-spin rounded-full border-2 border-sky-200 border-t-[#168cff]" aria-hidden="true"></span>
         <span data-loading-text class="sr-only">View Details</span>
     </span>
 </button>
@@ -39,26 +39,26 @@
         <p class="mt-1 text-sm font-semibold text-slate-900">{{ \Illuminate\Support\Carbon::parse($firstOrderDate)->format('F j, Y') }}</p>
     </div>
     <dl class="grid grid-cols-2 gap-3">
-        <div class="col-span-2 rounded-xl bg-sky-50 p-4">
+        <div class="col-span-2 rounded-lg bg-slate-50 p-3">
             <dt class="text-xs font-medium text-slate-500">Customer name</dt>
             <dd class="mt-1 flex items-center gap-2.5 text-sm font-semibold text-slate-900">
                 <span class="grid size-9 shrink-0 place-items-center rounded-full bg-[#168cff] text-xs font-bold text-white">{{ $initial }}</span>
                 {{ $name }}
             </dd>
         </div>
-        <div class="col-span-2 rounded-xl bg-sky-50 p-4">
+        <div class="col-span-2 rounded-lg bg-slate-50 p-3">
             <dt class="text-xs font-medium text-slate-500">Phone number</dt>
             <dd class="mt-1 flex items-center gap-1.5 text-sm font-semibold text-slate-900"><i class="fa-solid fa-phone text-[#168cff]" aria-hidden="true"></i>{{ $phone }}</dd>
         </div>
-        <div class="col-span-2 rounded-xl bg-sky-50 p-4">
+        <div class="col-span-2 rounded-lg bg-slate-50 p-3">
             <dt class="text-xs font-medium text-slate-500">Address</dt>
             <dd class="mt-1 break-words text-sm font-semibold text-slate-900"><i class="fa-solid fa-map-marker-alt text-[#168cff]" aria-hidden="true"></i> {{ $address ?: 'Not provided' }}</dd>
         </div>
-        <div class="rounded-xl bg-sky-50 p-4">
+        <div class="rounded-lg bg-slate-50 p-3">
             <dt class="text-xs font-medium text-slate-500">Total orders</dt>
             <dd class="mt-1 text-lg font-bold text-slate-900">{{ $orderTotal }}</dd>
         </div>
-        <div class="rounded-xl bg-sky-50 p-4">
+        <div class="rounded-lg bg-slate-50 p-3">
             <dt class="text-xs font-medium text-slate-500">Total spent</dt>
             <dd class="mt-1 text-lg font-bold text-slate-900">₱{{ $priceTotal }}</dd>
         </div>

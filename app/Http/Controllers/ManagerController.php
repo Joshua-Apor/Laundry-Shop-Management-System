@@ -22,6 +22,14 @@ class ManagerController extends Controller
         abort_unless(in_array($request->user()?->role, ['manager', 'employee'], true), 403);
 
         $search = $request->string('search')->trim()->toString();
+        $sort = $request->string('sort')->toString();
+        $sort = in_array($sort, ['alphabetical', 'newest', 'oldest'], true) ? $sort : 'newest';
+
+        [$sortColumn, $sortDirection] = match ($sort) {
+            'alphabetical' => ['customers.name', 'asc'],
+            'oldest' => ['first_order_date', 'asc'],
+            default => ['first_order_date', 'desc'],
+        };
 
         $customers = Order::query()
             ->leftJoin('customers', 'customers.customer_id', '=', 'laundry_orders.customer_id')
@@ -39,13 +47,15 @@ class ManagerController extends Controller
                 });
             })
             ->groupBy('customers.customer_id', 'customers.name', 'customers.contact_number', 'customers.address')
-            ->orderByDesc('total_spent')
+            ->orderBy($sortColumn, $sortDirection)
+            ->orderBy('customers.name')
             ->paginate(15)
             ->withQueryString();
 
         return view('manager.customer-records', [
             'customers' => $customers,
             'search' => $search,
+            'sort' => $sort,
         ]);
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreOrderRequest;
 use App\Models\Order;
+use App\Services\OrderStorageFeeService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -178,9 +179,14 @@ class OrderController extends Controller
         return redirect()->route('records.index')->with('success', 'Order created successfully.');
     }
 
-    public function updateStatus(Request $request, Order $order): RedirectResponse
+    public function updateStatus(Request $request, Order $order, OrderStorageFeeService $storageFeeService): RedirectResponse
     {
         abort_unless($request->user()?->role === 'employee', 403);
+
+        if ($order->order_status === 'Ready for Pickup') {
+            $storageFeeService->accrueForOrder((int) $order->getKey());
+            $order->refresh();
+        }
 
         $currentStatus = $order->order_status;
         $currentStatusIndex = array_search($currentStatus, Order::STATUSES, true);
@@ -196,7 +202,14 @@ class OrderController extends Controller
             $statusUpdate->where('balance', '<=', 0);
         }
 
-        $updated = $statusUpdate->update(['order_status' => $nextStatus]);
+        $statusValues = ['order_status' => $nextStatus];
+
+        if ($nextStatus === 'Ready for Pickup') {
+            $statusValues['ready_for_pickup_at'] = now();
+            $statusValues['storage_fee'] = 0;
+        }
+
+        $updated = $statusUpdate->update($statusValues);
 
         if ($updated === 0) {
             throw ValidationException::withMessages([
@@ -209,13 +222,15 @@ class OrderController extends Controller
         return back()->with('success', "Order #{$order->order_id} moved to {$nextStatus}.");
     }
 
-    public function recordPayment(Request $request, Order $order): RedirectResponse
+    public function recordPayment(Request $request, Order $order, OrderStorageFeeService $storageFeeService): RedirectResponse
     {
         abort_unless(auth()->user()?->role === 'employee', 403);
 
         $validated = $request->validate([
             'payment_method' => ['required', 'string', Rule::in(['Cash', 'GCash'])],
         ]);
+
+        $storageFeeService->accrueForOrder((int) $order->getKey());
 
         DB::transaction(function () use ($order, $validated): void {
             $lockedOrder = DB::table('laundry_orders')

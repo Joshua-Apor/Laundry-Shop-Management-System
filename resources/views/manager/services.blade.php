@@ -7,7 +7,7 @@
             </p>
         </div>
 
-    <section class="rounded-xl border border-sky-200 bg-white p-4 shadow-sm sm:p-5">
+    <section class="card-entry-animation rounded-xl border border-sky-200 bg-white p-4 shadow-sm sm:p-5">
         {{-- Add Service Header --}}
         <div class="flex items-center justify-between gap-4">
             <h2 class="text-base font-bold text-slate-800">
@@ -144,7 +144,7 @@
     </section>
 
     {{-- Services List --}}
-    <section class="overflow-hidden rounded-xl border border-sky-200 bg-white shadow-sm">
+    <section class="card-entry-animation overflow-hidden rounded-xl border border-sky-200 bg-white shadow-sm">
         <div class="border-b border-slate-100 px-4 py-3 sm:px-5">
             <h2 class="font-bold text-slate-800">
                 Services added
@@ -155,9 +155,9 @@
             </h2>
         </div>
 
-        <div class="divide-y divide-slate-100">
+        <div class="divide-y divide-slate-100" data-manager-service-list>
             @forelse ($services as $service)
-                <div class="grid grid-cols-[minmax(0,1fr)_minmax(7rem,12rem)_auto] items-center gap-3 px-4 py-3 sm:gap-5 sm:px-5">
+                <div class="card-entry-animation grid grid-cols-[minmax(0,1fr)_minmax(7rem,12rem)_auto] items-center gap-3 px-4 py-3 sm:gap-5 sm:px-5">
                     <div class="min-w-0">
                         <p class="truncate text-sm font-semibold text-slate-800">
                             {{ $service->service_name }}

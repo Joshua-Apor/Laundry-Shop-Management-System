@@ -64,29 +64,29 @@
 
         <div class="grid grid-cols-3 gap-2">
             <x-dashboard.metric-card
-                title="Total Staff"
+                title="Total Staff" :entry-animation="true"
                 :value="$employees->count()"
             />
 
             <x-dashboard.metric-card
-                title="Active"
+                title="Active" :entry-animation="true"
                 :value="$employees->where('is_logged_in', true)->count()"
             />
 
             <x-dashboard.metric-card
-                title="Inactive"
+                title="Inactive" :entry-animation="true"
                 :value="$employees->where('is_logged_in', false)->count()"
             />
         </div>
 
         {{-- Employee List --}}
-        <div class="grid gap-3 md:grid-cols-2">
+        <div class="grid gap-3 md:grid-cols-2" data-manager-employee-list>
 
             @forelse ($employees as $employee)
 
                 @php($isActive = (bool) $employee->is_logged_in)
 
-                <article class="rounded-xl border border-sky-200 bg-white p-4 shadow-sm">
+                <article class="card-entry-animation rounded-xl border border-sky-200 bg-white p-4 shadow-sm">
 
                     <div class="flex items-start gap-3">
 
