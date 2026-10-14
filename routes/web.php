@@ -10,7 +10,13 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilePasswordResetController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\ServiceController;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/health', function () {
+    DB::select('select 1');
+    return response('ok');
+});
 
 Route::get('/login', [LoginController::class, 'create'])->name('login');
 Route::post('/login', [LoginController::class, 'store'])->name('login.store');
