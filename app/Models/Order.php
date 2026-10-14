@@ -58,12 +58,19 @@ class Order extends Model
     #[Scope]
     protected function withRecordDetails(Builder $query): void
     {
-        $serviceNamesAggregation = DB::connection()->getDriverName() === 'sqlite'
-            ? 'GROUP_CONCAT(DISTINCT services.service_name)'
-            : "GROUP_CONCAT(DISTINCT services.service_name ORDER BY services.service_name SEPARATOR ', ')";
-        $serviceDetailsAggregation = DB::connection()->getDriverName() === 'sqlite'
-            ? "GROUP_CONCAT(services.service_name || ' × ' || order_services.quantity, ', ')"
-            : "GROUP_CONCAT(CONCAT(services.service_name, ' × ', order_services.quantity) ORDER BY services.service_name SEPARATOR ', ')";
+        $driver = DB::connection()->getDriverName();
+
+        $serviceNamesAggregation = match ($driver) {
+            'sqlite' => 'GROUP_CONCAT(DISTINCT services.service_name)',
+            'pgsql' => "string_agg(DISTINCT services.service_name, ', ' ORDER BY services.service_name)",
+            default => "GROUP_CONCAT(DISTINCT services.service_name ORDER BY services.service_name SEPARATOR ', ')",
+        };
+
+        $serviceDetailsAggregation = match ($driver) {
+            'sqlite' => "GROUP_CONCAT(services.service_name || ' × ' || order_services.quantity, ', ')",
+            'pgsql' => "string_agg(CONCAT(services.service_name, ' × ', order_services.quantity), ', ' ORDER BY services.service_name)",
+            default => "GROUP_CONCAT(CONCAT(services.service_name, ' × ', order_services.quantity) ORDER BY services.service_name SEPARATOR ', ')",
+        };
 
         $query
             ->leftJoin('customers', 'customers.customer_id', '=', 'laundry_orders.customer_id')
