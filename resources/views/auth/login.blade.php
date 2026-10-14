@@ -282,38 +282,6 @@
 
                 </form>
 
-
-                {{-- Demo Credentials --}}
-                <div
-                    class="mt-5 rounded-xl bg-[#e5f3fa] px-3.5 py-3 text-xs leading-5 text-[#66809b]"
-                >
-
-                    <strong class="block text-[#56829e]">
-                        Demo credentials
-                    </strong>
-
-                    <span>
-                        <i
-                            class="fa-solid fa-user mr-1"
-                            aria-hidden="true"
-                        ></i>
-
-                        Employee — josh / employee123
-                    </span>
-
-                    <br>
-
-                    <span>
-                        <i
-                            class="fa-solid fa-tag mr-1"
-                            aria-hidden="true"
-                        ></i>
-
-                        Manager — manager / manager123
-                    </span>
-
-                </div>
-
             </div>
 
         </section>
