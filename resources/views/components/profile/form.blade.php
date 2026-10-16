@@ -114,19 +114,28 @@
         <div class="grid gap-4 sm:grid-cols-2">
             <div class="sm:col-span-2">
                 <label for="profile-current-password" class="mb-1 block text-xs font-semibold text-slate-700">Current password</label>
-                <input id="profile-current-password" name="current_password" type="password" autocomplete="current-password" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100">
+                <span class="relative mt-1.5 block">
+                    <input id="profile-current-password" name="current_password" type="password" data-password-input autocomplete="current-password" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 pr-11">
+                    <button type="button" data-password-toggle aria-label="Show password" class="absolute inset-y-0 right-0 px-3 text-sm text-slate-500 transition hover:text-[#168cff]"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
+                </span>
                 @error('current_password')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
             </div>
 
             <div>
                 <label for="profile-password" class="mb-1 block text-xs font-semibold text-slate-700">New password</label>
-                <input id="profile-password" name="password" type="password" minlength="8" autocomplete="new-password" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100">
+                <span class="relative mt-1.5 block">
+                    <input id="profile-password" name="password" type="password" data-password-input minlength="8" autocomplete="new-password" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 pr-11">
+                    <button type="button" data-password-toggle aria-label="Show password" class="absolute inset-y-0 right-0 px-3 text-sm text-slate-500 transition hover:text-[#168cff]"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
+                </span>
                 @error('password')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
             </div>
 
             <div>
                 <label for="profile-password-confirmation" class="mb-1 block text-xs font-semibold text-slate-700">Confirm new password</label>
-                <input id="profile-password-confirmation" name="password_confirmation" type="password" minlength="8" autocomplete="new-password" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100">
+                <span class="relative mt-1.5 block">
+                    <input id="profile-password-confirmation" name="password_confirmation" type="password" data-password-input minlength="8" autocomplete="new-password" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 pr-11">
+                    <button type="button" data-password-toggle aria-label="Show password" class="absolute inset-y-0 right-0 px-3 text-sm text-slate-500 transition hover:text-[#168cff]"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
+                </span>
             </div>
         </div>
     </section>

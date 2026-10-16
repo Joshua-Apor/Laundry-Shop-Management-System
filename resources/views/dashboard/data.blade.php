@@ -18,7 +18,7 @@
                 <span class="block text-xs font-medium text-slate-500">Orders placed today</span>
             </span>
             <a href="{{ auth()->user()->role === 'manager' ? route('manager.orders-payments') : route('records.index') }}" class="cursor-pointer text-sm font-medium">
-                View all →
+                View all â†’
             </a>
         </div>
 
@@ -80,7 +80,7 @@
                         >
                             <x-orders.status-control
                                 :order="$order"
-                                :editable="auth()->user()->role !== 'manager'"
+                                :editable="false"
                             />
                         </div>
                     </div>
@@ -146,7 +146,7 @@
                         <div class="relative z-20 col-start-2 row-start-1 flex justify-start sm:col-start-5 sm:row-start-1 sm:justify-start">
                             <x-orders.status-control
                                 :order="$order"
-                                :editable="auth()->user()->role !== 'manager'"
+                                :editable="false"
                             />
                         </div>
                     </div>
@@ -161,10 +161,3 @@
         </ul>
     </section>
 </div>
-
-
-
-
-
-
-

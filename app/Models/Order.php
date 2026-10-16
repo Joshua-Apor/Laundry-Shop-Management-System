@@ -111,6 +111,14 @@ class Order extends Model
                 'itemDetails',
             )
             ->selectSub(
+                DB::table('special_requests')
+                    ->whereColumn('special_requests.order_id', 'laundry_orders.order_id')
+                    ->orderBy('special_requests.request_id')
+                    ->limit(1)
+                    ->select('request_details'),
+                'specialRequest',
+            )
+            ->selectSub(
                 DB::table('payments')
                     ->whereColumn('payments.order_id', 'laundry_orders.order_id')
                     ->orderByDesc('payments.payment_date')

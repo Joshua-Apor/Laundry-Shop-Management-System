@@ -30,6 +30,11 @@
                 <div class="sm:col-span-2">
                     <x-orders.info-item label="Services" icon="fa-soap">{{ $order->services }}</x-orders.info-item>
                 </div>
+                @if (filled($order->specialRequest))
+                    <div class="sm:col-span-2">
+                        <x-orders.info-item label="Special request" icon="fa-note-sticky">{{ $order->specialRequest }}</x-orders.info-item>
+                    </div>
+                @endif
                 <div class="sm:col-span-2">
                     <x-orders.info-item label="Recorded by" icon="fa-user-gear">{{ $order->employeeName }}</x-orders.info-item>
                 </div>
@@ -42,12 +47,12 @@
                 <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform group-open:rotate-180" aria-hidden="true"></i>
             </summary>
             <div class="grid grid-cols-1 gap-3 border-t border-sky-100 p-4 sm:grid-cols-2">
-                <x-orders.info-item label="Total amount" icon="fa-receipt">₱{{ number_format((float) $order->total_amount, 2) }}</x-orders.info-item>
+                <x-orders.info-item label="Total amount" icon="fa-receipt">â‚±{{ number_format((float) $order->total_amount, 2) }}</x-orders.info-item>
                 @if ((float) $order->storage_fee > 0)
                     <x-orders.info-item label="Storage fee" icon="fa-box">PHP {{ number_format((float) $order->storage_fee, 2) }}</x-orders.info-item>
                 @endif
-                <x-orders.info-item label="Amount paid" icon="fa-money-bill-wave">₱{{ number_format((float) $order->amount_paid, 2) }}</x-orders.info-item>
-                <x-orders.info-item label="Balance" icon="fa-wallet">₱{{ number_format((float) $order->balance, 2) }}</x-orders.info-item>
+                <x-orders.info-item label="Amount paid" icon="fa-money-bill-wave">â‚±{{ number_format((float) $order->amount_paid, 2) }}</x-orders.info-item>
+                <x-orders.info-item label="Balance" icon="fa-wallet">â‚±{{ number_format((float) $order->balance, 2) }}</x-orders.info-item>
                 <x-orders.info-item label="Payment method" icon="fa-credit-card">{{ $order->paymentMethod }}</x-orders.info-item>
                 <x-orders.info-item label="Payment status" icon="fa-circle-info">{{ $order->paymentStatus }}</x-orders.info-item>
                 <x-orders.info-item label="Payment date" icon="fa-calendar-day">{{ $order->paymentDate }}</x-orders.info-item>
@@ -65,4 +70,3 @@
 
     </div>
 </x-modal>
-

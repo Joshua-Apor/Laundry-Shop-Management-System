@@ -5,7 +5,10 @@
         @csrf
         <div>
             <label for="initial-password" class="mb-1 block text-xs font-semibold text-slate-700">Password</label>
-            <input id="initial-password" name="password" type="password" required minlength="8" autocomplete="new-password" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[#168cff] focus:ring-2 focus:ring-sky-100">
+            <span class="relative mt-1.5 block">
+                <input id="initial-password" name="password" type="password" data-password-input required minlength="8" autocomplete="new-password" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[#168cff] focus:ring-2 focus:ring-sky-100 pr-11">
+                <button type="button" data-password-toggle aria-label="Show password" class="absolute inset-y-0 right-0 px-3 text-sm text-slate-500 transition hover:text-[#168cff]"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
+            </span>
             @error('password')
                 <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
             @enderror
@@ -13,7 +16,10 @@
 
         <div>
             <label for="initial-password-confirmation" class="mb-1 block text-xs font-semibold text-slate-700">Confirm password</label>
-            <input id="initial-password-confirmation" name="password_confirmation" type="password" required minlength="8" autocomplete="new-password" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[#168cff] focus:ring-2 focus:ring-sky-100">
+            <span class="relative mt-1.5 block">
+                <input id="initial-password-confirmation" name="password_confirmation" type="password" data-password-input required minlength="8" autocomplete="new-password" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[#168cff] focus:ring-2 focus:ring-sky-100 pr-11">
+                <button type="button" data-password-toggle aria-label="Show password" class="absolute inset-y-0 right-0 px-3 text-sm text-slate-500 transition hover:text-[#168cff]"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
+            </span>
         </div>
 
         <button type="submit" data-loading-button data-loading-message="Updating password..." class="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#168cff] px-4 text-sm font-bold text-white transition-colors hover:bg-[#0878df] disabled:cursor-not-allowed disabled:opacity-70">

@@ -58,7 +58,7 @@
                                 </label>
                                 <label class="mt-2 hidden space-y-1 text-xs font-medium text-slate-600" data-order-addon-quantity-label>
                                     Quantity ({{ ltrim($service->price_unit, '/') }})
-                                    <input type="number" name="service_quantities[{{ $service->service_id }}]" value="{{ old('service_quantities.'.$service->service_id, 1) }}" min="1" step="1" data-order-addon-quantity disabled class="w-full rounded-lg border border-sky-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+                                    <input type="number" name="service_quantities[{{ $service->service_id }}]" value="{{ old('service_quantities.'.$service->service_id, 1) }}" min="1" max="999" step="1" data-order-addon-quantity disabled class="w-full rounded-lg border border-sky-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
                                 </label>
                             </div>
                         @endforeach
@@ -178,7 +178,7 @@
                                 id="customer-address"
                                 rows="2"
                                 placeholder="Street, barangay, city"
-                                class="w-full resize-y rounded-lg border border-sky-200 bg-white px-3.5 py-2.5 text-sm font-normal text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300"
+                                class="w-full resize-none rounded-lg border border-sky-200 bg-white px-3.5 py-2.5 text-sm font-normal text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300"
                             >{{ old('address') }}</textarea>
                         </label>
 
@@ -206,7 +206,7 @@
 
 
                     <input type="hidden" name="order_type" data-order-selected-type value="{{ old('order_type') }}">
-                    <div data-selected-services-list class="space-y-3">
+                    <div data-selected-services-list class="max-h-80 space-y-3 overflow-y-auto">
                         <p data-selected-services-empty class="rounded-lg bg-sky-50 p-3 text-sm text-slate-600">No services selected yet.</p>
                     </div>
                     @error('weight')<p class="mt-2 text-xs text-red-600" role="alert">{{ $message }}</p>@enderror

@@ -94,7 +94,7 @@ class ManagerController extends Controller
                     $query->where('customers.name', 'like', "%{$searchQuery}%")
                         ->orWhere('customers.contact_number', 'like', "%{$searchQuery}%")
                         ->orWhere('laundry_orders.order_id', 'like', "%{$searchQuery}%")
-                        ->orWhere('users.name', 'like', "%{$searchQuery}%")
+                        ->orWhere('laundry_orders.employee_name', 'like', "%{$searchQuery}%")
                         ->orWhereExists(function ($paymentQuery) use ($searchQuery): void {
                             $paymentQuery->selectRaw('1')
                                 ->from('payments')
@@ -168,7 +168,7 @@ class ManagerController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
         ]);
 
-        $password = Str::random(12);
+        $password = Str::random(random_int(8, 10));
         $employee = User::query()->create([
             'name' => $validated['name'],
             'username' => $validated['username'],

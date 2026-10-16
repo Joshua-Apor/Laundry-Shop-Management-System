@@ -8,6 +8,7 @@ use App\Services\OrderStorageFeeService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -31,11 +32,53 @@ class OrderController extends Controller
         return view('employee.records.create', ['customers' => $customers, 'services' => $services]);
     }
 
+    public function statusQueue(Request $request): View
+    {
+        abort_unless($request->user()?->role === 'employee', 403);
+
+        $search = $request->string('search')->trim()->toString();
+        $orders = Order::query()
+            ->withRecordDetails()
+            ->whereIn('laundry_orders.order_status', ['Processing', 'Ready for Pickup'])
+            ->when($search !== '', function ($query) use ($search): void {
+                $query->where(function ($query) use ($search): void {
+                    $query->where('customers.name', 'like', "%{$search}%")
+                        ->orWhere('customers.contact_number', 'like', "%{$search}%")
+                        ->orWhere('laundry_orders.order_id', 'like', "%{$search}%");
+                });
+            })
+            ->orderByDesc('laundry_orders.order_date')
+            ->orderByDesc('laundry_orders.order_time')
+            ->orderByDesc('laundry_orders.order_id')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('employee.orders.status', [
+            'orders' => $orders,
+            'search' => $search,
+        ]);
+    }
+
     public function index(Request $request): View
     {
-        $search = $request->string('search')->trim()->toString();
-        $status = $request->string('status')->trim()->toString();
-        $view = $request->string('view')->toString() === 'history' ? 'history' : 'active';
+        $filterInput = $request->query();
+        $validator = Validator::make($filterInput, [
+            'search' => ['nullable', 'string', 'max:255'],
+            'min_total' => ['nullable', 'numeric', 'min:0'],
+            'max_total' => ['nullable', 'numeric', 'min:0', Rule::when($request->filled('min_total'), ['gte:min_total'])],
+            'status' => ['nullable', Rule::in(Order::ALL_STATUSES)],
+            'payment_status' => ['nullable', Rule::in(['Paid', 'Partial'])],
+            'payment_method' => ['nullable', Rule::in(['Cash', 'GCash'])],
+            'date_from' => ['nullable', 'date_format:Y-m-d'],
+            'date_to' => ['nullable', 'date_format:Y-m-d', Rule::when($request->filled('date_from'), ['after_or_equal:date_from'])],
+        ]);
+        $filters = $validator->passes() ? $validator->validated() : [];
+        $formFilters = collect($filterInput)
+            ->map(fn ($value) => is_scalar($value) ? $value : '')
+            ->all();
+        $searchQuery = is_string($filters['search'] ?? null) ? trim($filters['search']) : '';
+        $search = is_scalar($formFilters['search'] ?? null) ? trim((string) $formFilters['search']) : '';
+        $view = ($filterInput['view'] ?? 'active') === 'history' ? 'history' : 'active';
 
         $orders = Order::query()
             ->withRecordDetails()
@@ -44,18 +87,38 @@ class OrderController extends Controller
             }, function ($query): void {
                 $query->whereNotIn('laundry_orders.order_status', Order::HISTORY_STATUSES);
             })
-            ->when($search !== '', function ($query) use ($search): void {
-                $query->where(function ($query) use ($search): void {
-                    $query->where('customers.name', 'like', "%{$search}%")
-                        ->orWhere('customers.contact_number', 'like', "%{$search}%");
-
-                    if (is_numeric($search)) {
-                        $query->orWhere('laundry_orders.order_id', (int) $search);
-                    }
+            ->when($searchQuery !== '', function ($query) use ($searchQuery): void {
+                $query->where(function ($query) use ($searchQuery): void {
+                    $query->where('customers.name', 'like', "%{$searchQuery}%")
+                        ->orWhere('customers.contact_number', 'like', "%{$searchQuery}%")
+                        ->orWhere('laundry_orders.order_id', 'like', "%{$searchQuery}%")
+                        ->orWhere('laundry_orders.employee_name', 'like', "%{$searchQuery}%")
+                        ->orWhereExists(function ($paymentQuery) use ($searchQuery): void {
+                            $paymentQuery->selectRaw('1')
+                                ->from('payments')
+                                ->whereColumn('payments.order_id', 'laundry_orders.order_id')
+                                ->where('payments.reference_number', 'like', "%{$searchQuery}%");
+                        });
                 });
             })
-            ->when(in_array($status, Order::ALL_STATUSES, true), function ($query) use ($status): void {
-                $query->where('laundry_orders.order_status', $status);
+            ->when(isset($filters['min_total']), fn ($query) => $query->where('laundry_orders.total_amount', '>=', $filters['min_total']))
+            ->when(isset($filters['max_total']), fn ($query) => $query->where('laundry_orders.total_amount', '<=', $filters['max_total']))
+            ->when(isset($filters['status']), fn ($query) => $query->where('laundry_orders.order_status', $filters['status']))
+            ->when(isset($filters['date_from']), fn ($query) => $query->where('laundry_orders.order_date', '>=', $filters['date_from']))
+            ->when(isset($filters['date_to']), fn ($query) => $query->where('laundry_orders.order_date', '<=', $filters['date_to']))
+            ->when(isset($filters['payment_status']) || isset($filters['payment_method']), function ($query) use ($filters): void {
+                $query->whereExists(function ($paymentQuery) use ($filters): void {
+                    $paymentQuery->selectRaw('1')
+                        ->from('payments')
+                        ->whereColumn('payments.order_id', 'laundry_orders.order_id')
+                        ->whereIn('payments.payment_id', function ($latestPaymentQuery): void {
+                            $latestPaymentQuery->selectRaw('MAX(latest_payments.payment_id)')
+                                ->from('payments as latest_payments')
+                                ->whereColumn('latest_payments.order_id', 'payments.order_id');
+                        })
+                        ->when(isset($filters['payment_status']), fn ($paymentQuery) => $paymentQuery->where('payments.payment_status', $filters['payment_status']))
+                        ->when(isset($filters['payment_method']), fn ($paymentQuery) => $paymentQuery->where('payments.payment_method', $filters['payment_method']));
+                });
             })
             ->orderByDesc('laundry_orders.order_date')
             ->orderByDesc('laundry_orders.order_time')
@@ -66,9 +129,9 @@ class OrderController extends Controller
         return view('employee.records.index', [
             'orders' => $orders,
             'search' => $search,
-            'status' => $status,
+            'filters' => $formFilters,
             'view' => $view,
-        ]);
+        ])->withErrors($validator);
     }
 
     public function show(Order $order): View
@@ -103,6 +166,7 @@ class OrderController extends Controller
             return [$service->service_id => $fee];
         });
         $serviceFee = (float) $serviceFees->sum();
+        $specialRequest = trim((string) ($validated['special_request'] ?? ''));
         $specialRequestPrice = (float) ($validated['special_request_price'] ?? 0);
         $total = $serviceFee + $specialRequestPrice;
         $amountPaid = (float) ($validated['amount_paid'] ?? 0);
@@ -116,7 +180,7 @@ class OrderController extends Controller
         $orderCreatedAt = now();
         $employeeName = $request->user()->name;
 
-        DB::transaction(function () use ($validated, $weight, $selfServiceLoads, $serviceUnits, $serviceFees, $total, $amountPaid, $orderCreatedAt, $employeeName, $selectedServices): void {
+        DB::transaction(function () use ($validated, $weight, $selfServiceLoads, $serviceUnits, $serviceFees, $total, $amountPaid, $orderCreatedAt, $employeeName, $selectedServices, $specialRequest, $specialRequestPrice): void {
             if (isset($validated['customer_id'])) {
                 $customer = DB::table('customers')
                     ->where('customer_id', $validated['customer_id'])
@@ -163,6 +227,14 @@ class OrderController extends Controller
                 'order_status' => 'Processing',
                 'pickup_date' => null,
             ]);
+
+            if ($specialRequest !== '' || $specialRequestPrice > 0) {
+                DB::table('special_requests')->insert([
+                    'order_id' => $orderId,
+                    'request_details' => $specialRequest,
+                    'additional_fee' => $specialRequestPrice,
+                ]);
+            }
 
             foreach ($selectedServices as $service) {
                 DB::table('order_services')->insert([

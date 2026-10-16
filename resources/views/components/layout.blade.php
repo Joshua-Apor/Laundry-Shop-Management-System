@@ -114,7 +114,6 @@
     </main>
 
     <script src="{{ asset('js/loadinganimation.js') }}"></script>
-    <script src="{{ asset('js/passwordtoggle.js') }}"></script>
     <script src="{{ asset('js/dropdownmessage.js') }}"></script>
 
 </body>

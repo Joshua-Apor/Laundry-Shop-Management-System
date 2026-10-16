@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/health', function () {
     DB::select('select 1');
+
     return response('ok');
 });
 
@@ -62,6 +63,7 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/records', [OrderController::class, 'index'])->name('records.index');
         Route::redirect('/orders', '/employee/records');
         Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
+        Route::get('/orders/status', [OrderController::class, 'statusQueue'])->name('employee.orders.status');
         Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
         Route::get('/records/{order}', [OrderController::class, 'show'])->name('records.show');
         Route::patch('/records/{order}/status', [OrderController::class, 'updateStatus'])->name('records.status.update');

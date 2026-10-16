@@ -55,6 +55,13 @@
                     <i class="fa-solid fa-plus w-5 text-center" aria-hidden="true"></i>
                     New Order
                 </a>
+                <a href="{{ route('employee.orders.status') }}"
+                    @class([ 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] transition-colors' , 'bg-[#2f7dcc] font-bold text-white shadow-sm'=> request()->routeIs('employee.orders.status'),
+                    'text-[#5d2943] hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('employee.orders.status'),
+                    ])>
+                    <i class="fa-solid fa-arrows-rotate w-5 text-center" aria-hidden="true"></i>
+                    Update Order Status
+                </a>
 
                 <a href="{{ route('records.index') }}"
                     @class([ 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] transition-colors' , 'bg-[#2f7dcc] font-bold text-white shadow-sm'=> request()->routeIs('records.*'),
@@ -118,6 +125,9 @@
                     </a>
                     <a href="{{ route('orders.create') }}" @class(['flex items-center gap-3 rounded-lg px-3.5 py-3 text-[15px] transition-colors', 'bg-[#2f7dcc] font-bold text-white shadow-sm'=> request()->routeIs('orders.create'), 'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('orders.create')])>
                         <i class="fa-solid fa-plus w-5 text-center" aria-hidden="true"></i> New Order
+                    </a>
+                    <a href="{{ route('employee.orders.status') }}" @class(['flex items-center gap-3 rounded-lg px-3.5 py-3 text-[15px] transition-colors', 'bg-[#2f7dcc] font-bold text-white shadow-sm'=> request()->routeIs('employee.orders.status'), 'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('employee.orders.status')])>
+                        <i class="fa-solid fa-arrows-rotate w-5 text-center" aria-hidden="true"></i> Update Order Status
                     </a>
                     <a href="{{ route('records.index') }}" @class(['flex items-center gap-3 rounded-lg px-3.5 py-3 text-[15px] transition-colors', 'bg-[#2f7dcc] font-bold text-white shadow-sm'=> request()->routeIs('records.*'), 'hover:bg-[#2f7dcc] hover:text-white' => !request()->routeIs('records.*')])>
                         <i class="fa-solid fa-box w-5 text-center" aria-hidden="true"></i> Records

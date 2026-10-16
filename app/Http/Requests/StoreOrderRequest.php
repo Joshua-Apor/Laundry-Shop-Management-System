@@ -31,7 +31,7 @@ class StoreOrderRequest extends FormRequest
             'customer_id' => ['nullable', 'integer', 'exists:customers,customer_id'],
             'address' => ['nullable', 'string', 'max:1000'],
             'order_type' => ['required', 'string', Rule::in(['Drop Off', 'Self Service'])],
-            'weight' => ['nullable', 'required_if:order_type,Drop Off', 'numeric', 'min:0.1'],
+            'weight' => ['nullable', 'required_if:order_type,Drop Off', 'numeric', 'min:0.1', 'max:999'],
             'self_service_loads' => ['nullable', 'required_if:order_type,Self Service', 'integer', 'min:1', 'max:100'],
             'services' => ['required', 'array', 'min:1'],
             'services.*' => [
@@ -41,7 +41,7 @@ class StoreOrderRequest extends FormRequest
                 Rule::exists('services', 'service_id')->whereNull('deleted_at'),
             ],
             'service_quantities' => ['sometimes', 'array'],
-            'service_quantities.*' => ['required', 'integer', 'min:1', 'max:1000'],
+            'service_quantities.*' => ['required', 'integer', 'min:1', 'max:999'],
             'special_request' => ['nullable', 'string', 'max:1000'],
             'special_request_price' => ['nullable', 'numeric', 'min:0'],
             'payment_method' => ['required', 'string', 'in:Cash,GCash'],

@@ -180,6 +180,68 @@ document.addEventListener('change', (event) => {
 });
 
 document.addEventListener('submit', (event) => {
+    const form = event.target;
+    const button = event.submitter?.matches('[data-loading-button]')
+        ? event.submitter
+        : form.querySelector('[data-loading-button]');
+
+    if (!button) {
+        return;
+    }
+
+    const spinner = button.querySelector('[data-loading-spinner]');
+    const text = button.querySelector('[data-loading-text]');
+
+    button.disabled = true;
+    button.dataset.loadingActive = 'true';
+    button.setAttribute('aria-busy', 'true');
+    spinner?.classList.remove('hidden');
+
+    if (text) {
+        button.dataset.loadingOriginalText ??= text.textContent;
+        text.textContent = button.dataset.loadingMessage ?? text.textContent;
+    }
+});
+
+document.addEventListener('click', (event) => {
+    const toggle = event.target.closest('[data-password-toggle]');
+
+    if (!toggle) {
+        return;
+    }
+
+    const input = toggle.closest('.relative')?.querySelector('[data-password-input]');
+
+    if (!input) {
+        return;
+    }
+
+    const shouldShowPassword = input.type === 'password';
+    const icon = toggle.querySelector('i');
+
+    input.type = shouldShowPassword ? 'text' : 'password';
+    toggle.setAttribute('aria-label', shouldShowPassword ? 'Hide password' : 'Show password');
+    icon?.classList.toggle('fa-eye', !shouldShowPassword);
+    icon?.classList.toggle('fa-eye-slash', shouldShowPassword);
+});
+
+window.addEventListener('pageshow', () => {
+    document.querySelectorAll('[data-loading-button]').forEach((button) => {
+        if (button.dataset.loadingActive !== 'true') {
+            return;
+        }
+        button.disabled = false;
+        button.removeAttribute('aria-busy');
+        button.querySelector('[data-loading-spinner]')?.classList.add('hidden');
+
+        const text = button.querySelector('[data-loading-text]');
+
+        if (text && button.dataset.loadingOriginalText !== undefined) {
+            text.textContent = button.dataset.loadingOriginalText;
+        }
+    });
+});
+document.addEventListener('submit', (event) => {
     if (!event.target.matches('[data-customer-search-form]')) {
         return;
     }
@@ -325,6 +387,7 @@ document.addEventListener('click', (event) => {
         const spinner = button.querySelector('[data-loading-spinner]');
 
         button.disabled = true;
+    button.dataset.loadingActive = 'true';
         button.setAttribute('aria-busy', 'true');
         spinner?.classList.remove('hidden');
 
@@ -640,7 +703,7 @@ if (modalOrderForm) {
         amountPaidInput.max = orderTotal.toFixed(2);
     };
 
-    const createSelectedServiceRow = ({ id, name, price, unit, quantity, quantityName, step = '1', minimum = '1', fixedPrice = null, fixedLimit = null }) => {
+    const createSelectedServiceRow = ({ id, name, price, unit, quantity, quantityName, step = '1', minimum = '1', maximum = 999, fixedPrice = null, fixedLimit = null }) => {
         const row = document.createElement('div');
         row.className = 'rounded-lg border border-sky-100 p-3';
         row.dataset.selectedServiceId = id;
@@ -674,10 +737,14 @@ if (modalOrderForm) {
         quantityLabel.textContent = `Quantity (${unit.replace(/^\//, '')})`;
 
         const quantityInput = document.createElement('input');
-        quantityInput.type = 'number';
+        quantityInput.type = 'text';
+        quantityInput.inputMode = step === '1' ? 'numeric' : 'decimal';
+        quantityInput.maxLength = step === '1' ? String(maximum).length : String(maximum).length + 2;
+        quantityInput.pattern = step === '1' ? '[0-9]*' : '[0-9]*\\.?[0-9]*';
         quantityInput.name = quantityName;
         quantityInput.value = quantity || '0';
         quantityInput.min = minimum;
+        quantityInput.max = maximum;
         quantityInput.step = step;
         quantityInput.required = true;
         quantityInput.className = 'w-24 rounded-lg border border-sky-200 px-2.5 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-300';
@@ -690,6 +757,14 @@ if (modalOrderForm) {
         row.append(quantityArea);
 
         const updateLineTotal = () => {
+            const sanitizedValue = step === '1'
+                ? quantityInput.value.replace(/\D/g, '').slice(0, String(maximum).length)
+                : quantityInput.value.replace(/[^\d.]/g, '').replace(/(\..*)\./g, '$1').slice(0, String(maximum).length + 2);
+            const numericValue = Number(sanitizedValue);
+            quantityInput.value = sanitizedValue !== '' && Number.isFinite(numericValue) && numericValue > maximum
+                ? String(maximum)
+                : sanitizedValue;
+
             const quantity = Math.max(0, Number(quantityInput.value) || 0);
             const lineAmount = fixedPrice !== null && quantity > 0 && quantity <= fixedLimit
                 ? fixedPrice
@@ -747,6 +822,7 @@ if (modalOrderForm) {
                 unit: option.dataset.serviceUnit,
                 quantity,
                 quantityName: `service_quantities[${serviceId}]`,
+                maximum: 999,
             }));
         });
 
@@ -1288,3 +1364,4 @@ if (profilePictureInput) {
 
 initializePage();
 document.addEventListener('htmx:afterSwap', initializePage);
+

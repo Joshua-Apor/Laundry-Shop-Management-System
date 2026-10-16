@@ -71,7 +71,7 @@ class DashboardController extends Controller
             ->implode(' ');
 
         $formatComparison = static function (float|int $current, float|int $previous): array {
-            if ($previous === 0) {
+            if ((float) $previous === 0.0) {
                 return [
                     'value' => $current === 0 ? '0%' : 'New',
                     'direction' => $current === 0 ? 'flat' : 'up',

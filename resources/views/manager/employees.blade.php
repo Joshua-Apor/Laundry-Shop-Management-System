@@ -5,7 +5,7 @@
             <div>
                 <h1 class="text-2xl font-bold text-slate-900">Employee Management</h1>
                 <p class="text-sm text-slate-500">
-                    {{ $employees->where('is_logged_in', true)->count() }} active ·
+                    {{ $employees->where('is_logged_in', true)->count() }} active Â·
                     {{ $employees->where('is_logged_in', false)->count() }} inactive
                 </p>
             </div>
@@ -90,8 +90,12 @@
 
                     <div class="flex items-start gap-3">
 
-                        <span class="grid size-10 shrink-0 place-items-center rounded-lg bg-[#168cff] text-xs font-bold text-white">
-                            {{ strtoupper(substr($employee->name, 0, 2)) }}
+                        <span class="grid size-10 shrink-0 place-items-center overflow-hidden rounded-full bg-[#168cff] text-xs font-bold text-white">
+                            @if ($employee->profile_picture_path)
+                                <img src="{{ asset('storage/'.$employee->profile_picture_path) }}" alt="{{ $employee->name }}" class="size-full object-cover">
+                            @else
+                                {{ strtoupper(substr($employee->name, 0, 2)) }}
+                            @endif
                         </span>
 
                         <div class="min-w-0 flex-1">
