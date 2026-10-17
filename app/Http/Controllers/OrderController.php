@@ -48,9 +48,9 @@ class OrderController extends Controller
                         ->orWhere('laundry_orders.order_id', 'like', "%{$search}%");
                 });
             })
-            ->orderByDesc('laundry_orders.order_date')
-            ->orderByDesc('laundry_orders.order_time')
-            ->orderByDesc('laundry_orders.order_id')
+            ->orderBy('laundry_orders.order_date')
+            ->orderBy('laundry_orders.order_time')
+            ->orderBy('laundry_orders.order_id')
             ->paginate(15)
             ->withQueryString();
 
@@ -160,8 +160,8 @@ class OrderController extends Controller
             return [$service->service_id => $quantity];
         });
         $serviceFees = $selectedServices->mapWithKeys(function (object $service) use ($weight, $serviceUnits): array {
-            $fee = $service->service_name === 'Drop Off' && $weight !== null && $weight <= 5
-                ? 175
+            $fee = $service->service_name === 'Drop Off' && $weight !== null
+                ? 175 + max((int) floor($weight) - 5, 0) * (float) $service->base_price
                 : (float) $service->base_price * $serviceUnits[$service->service_id];
 
             return [$service->service_id => $fee];

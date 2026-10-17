@@ -76,10 +76,16 @@ class CustomerController extends Controller
     {
         abort_unless(in_array($request->user()?->role, ['manager', 'employee'], true), 403);
 
+        $request->merge([
+            'contact_number' => preg_replace('/\\D+/', '', (string) $request->input('contact_number', '')),
+        ]);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'contact_number' => ['required', 'string', 'max:255'],
+            'contact_number' => ['required', 'string', 'regex:/^09\\d{9}$/'],
             'address' => ['required', 'string'],
+        ], [
+            'contact_number.regex' => 'Phone number must use the format 09XX XXX XXXX.',
         ]);
 
         $updated = DB::table('customers')->where('customer_id', $customer)->update($validated);

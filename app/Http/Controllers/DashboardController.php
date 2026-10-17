@@ -121,8 +121,9 @@ class DashboardController extends Controller
             ->whereDate('laundry_orders.order_date', $today)
             ->where('laundry_orders.order_status', '!=', 'Completed')
             ->addSelect('laundry_orders.order_id as id')
-            ->orderByDesc('laundry_orders.order_date')
-            ->orderByDesc('laundry_orders.order_id')
+            ->orderBy('laundry_orders.order_date')
+            ->orderBy('laundry_orders.order_time')
+            ->orderBy('laundry_orders.order_id')
             ->take(4)
             ->get();
 
@@ -131,9 +132,9 @@ class DashboardController extends Controller
             ->whereDate('laundry_orders.order_date', '<', $today)
             ->where('laundry_orders.order_status', '!=', 'Completed')
             ->addSelect('laundry_orders.order_id as id')
-            ->orderByDesc('laundry_orders.order_date')
-            ->orderByDesc('laundry_orders.order_time')
-            ->orderByDesc('laundry_orders.order_id')
+            ->orderBy('laundry_orders.order_date')
+            ->orderBy('laundry_orders.order_time')
+            ->orderBy('laundry_orders.order_id')
             ->take(4)
             ->get();
 

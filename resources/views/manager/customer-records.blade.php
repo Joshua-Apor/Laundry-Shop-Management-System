@@ -23,10 +23,9 @@
             </div>
         </form>
         <div data-customer-results>
-            <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" data-customer-list>
+            <div class="grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-3" data-customer-list>
                 @forelse ($customers as $customer)
                 <x-customers.customer-cont-modal
-                    :initial="strtoupper(substr($customer->fullname, 0, 2))"
                     :customer-id="$customer->customer_id"
                     :name="$customer->fullname"
                     :phone="$customer->phoneNumber"
@@ -37,7 +36,7 @@
                     :modal-id="'manager-customer-details-'.$loop->index"
                     :history-url="route('customers.orders', $customer->customer_id)" />
                 @empty
-                    <p class="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500 sm:col-span-2 xl:col-span-3">No customers with orders yet.</p>
+                    <p class="col-span-full rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">No customers with orders yet.</p>
                 @endforelse
             </div>
             {{ $customers->links() }}

@@ -1,5 +1,4 @@
 @props([
-'initial' => '',
 'customerId',
 'name' => '',
 'phone' => '',
@@ -16,22 +15,17 @@
     data-modal-trigger
     data-modal-target="{{ $modalId }}"
     aria-label="View details for {{ $name }}"
-    class="card-entry-animation group relative flex min-h-32 w-full flex-col items-stretch gap-3 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-[border-color,box-shadow] hover:border-[#168cff]/40 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#168cff] disabled:cursor-wait">
-    <span class="flex min-w-0 items-center gap-3.5">
-        <span class="grid size-10 shrink-0 place-items-center rounded-full bg-[#168cff] text-sm font-bold text-white ring-4 ring-sky-50">{{ $initial }}</span>
-        <span class="min-w-0">
-            <span class="block text-sm font-bold leading-tight text-slate-900">{{ $name }}</span>
-            <span class="mt-0.5 flex items-center gap-1 text-xs text-slate-400"><i class="fa-solid fa-phone text-[#168cff]" aria-hidden="true"></i>{{ $phone }}</span>
-        </span>
+    class="card-entry-animation group relative grid min-h-24 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl border border-slate-200 bg-white p-3 text-left shadow-sm transition-[border-color,box-shadow] hover:border-[#168cff]/40 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#168cff] disabled:cursor-wait sm:min-h-28 sm:gap-3 sm:p-4">
+    <span class="min-w-0">
+        <span class="block truncate text-lg font-bold leading-tight text-slate-900 sm:text-xl">{{ $name }}</span>
+        <span class="mt-1 flex min-w-0 items-center gap-1 text-[10px] text-slate-400 sm:text-xs"><i class="fa-solid fa-phone shrink-0 text-[#168cff]" aria-hidden="true"></i><span class="truncate">{{ $phone }}</span></span>
     </span>
-    <span class="flex w-full items-center justify-between gap-3 border-t border-slate-100 pt-3">
-        <span class="flex flex-1 items-center justify-between gap-3">
-            <span class="block text-sm font-bold text-slate-800">{{ $orderTotal }} order{{ $orderTotal == 1 ? '' : 's' }}</span>
-            <span class="block text-xs text-slate-400">₱{{ $priceTotal }} total</span>
-        </span>
-        <span data-loading-spinner class="absolute right-3 top-3 hidden size-4 animate-spin rounded-full border-2 border-sky-200 border-t-[#168cff]" aria-hidden="true"></span>
-        <span data-loading-text class="sr-only">View Details</span>
+    <span class="flex min-w-0 flex-col items-end gap-1 border-l border-slate-100 pl-2 text-right sm:pl-3">
+        <span class="whitespace-nowrap text-[10px] font-bold text-slate-800 sm:text-xs">{{ $orderTotal }} order{{ $orderTotal == 1 ? '' : 's' }}</span>
+        <span class="whitespace-nowrap text-[9px] text-slate-500 sm:text-[10px]">₱{{ $priceTotal }} spent</span>
     </span>
+    <span data-loading-spinner class="absolute right-2 top-2 hidden size-4 animate-spin rounded-full border-2 border-sky-200 border-t-[#168cff]" aria-hidden="true"></span>
+    <span data-loading-text class="sr-only">View Details</span>
 </button>
 
 <x-modal :id="$modalId" title="Customer details">
@@ -42,8 +36,7 @@
     <dl class="grid grid-cols-2 gap-3">
         <div class="col-span-2 rounded-lg bg-slate-50 p-3">
             <dt class="text-xs font-medium text-slate-500">Customer name</dt>
-            <dd class="mt-1 flex items-center gap-2.5 text-sm font-semibold text-slate-900">
-                <span class="grid size-9 shrink-0 place-items-center rounded-full bg-[#168cff] text-xs font-bold text-white">{{ $initial }}</span>
+            <dd class="mt-1 text-lg font-normal text-slate-900">
                 {{ $name }}
             </dd>
         </div>
@@ -86,7 +79,7 @@
                     </div>
                     <div>
                         <label for="customer-phone-{{ $customerId }}" class="mb-1 block text-xs font-semibold text-slate-700">Phone number</label>
-                        <input id="customer-phone-{{ $customerId }}" name="contact_number" value="{{ $phone }}" required maxlength="255" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none">
+                        <input id="customer-phone-{{ $customerId }}" name="contact_number" type="tel" inputmode="numeric" autocomplete="tel" value="{{ $phone }}" required maxlength="13" data-phone-format class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none">
                     </div>
                     <div>
                         <label for="customer-address-{{ $customerId }}" class="mb-1 block text-xs font-semibold text-slate-700">Address</label>

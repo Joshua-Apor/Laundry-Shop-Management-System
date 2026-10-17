@@ -149,11 +149,15 @@
                                 </span>
 
                                 <input
-                                    type="text"
+                                    type="tel"
                                     name="phone_number"
                                     id="customer-phone"
                                     value="{{ old('phone_number') }}"
                                     placeholder="09XX XXX XXXX"
+                                    inputmode="numeric"
+                                    autocomplete="tel"
+                                    maxlength="13"
+                                    data-phone-format
                                     required
                                     class="w-full px-3.5 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none"
                                 >
@@ -463,7 +467,7 @@
                         @foreach ($services->whereIn('service_name', ['Drop Off', 'Self Service']) as $service)
                             <label class="flex cursor-pointer items-center gap-2 rounded-lg border border-sky-200 p-3 text-sm font-semibold text-slate-700 has-[:checked]:border-sky-500 has-[:checked]:bg-sky-50">
                                 <input type="radio" name="dialog_order_type" value="{{ $service->service_name }}" data-dialog-order-type data-service-id="{{ $service->service_id }}" data-service-price="{{ $service->base_price }}" data-service-unit="{{ $service->price_unit }}" @if ($service->service_name === 'Drop Off') data-service-fixed-price="175" data-service-fixed-limit="5" @endif class="text-sky-600 focus:ring-sky-500">
-                                <span>{{ $service->service_name }} <span class="font-normal text-slate-500">(@if ($service->service_name === 'Drop Off') ₱175 up to 5 kg, then ₱{{ number_format((float) $service->base_price, 2) }} {{ $service->price_unit }} @else ₱{{ number_format((float) $service->base_price, 2) }} {{ $service->price_unit }} @endif)</span></span>
+                                <span>{{ $service->service_name }} <span class="font-normal text-slate-500">(@if ($service->service_name === 'Drop Off') ₱{{ number_format((float) $service->base_price, 2) }}/kilo, ₱175 up to 5 kg @else ₱{{ number_format((float) $service->base_price, 2) }} {{ $service->price_unit }} @endif)</span></span>
                             </label>
                         @endforeach
                     </div>

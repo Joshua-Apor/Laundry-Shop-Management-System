@@ -10,6 +10,13 @@ use Illuminate\Validation\Validator;
 
 class StoreOrderRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'phone_number' => preg_replace('/\\D+/', '', (string) $this->input('phone_number', '')),
+        ]);
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -27,7 +34,7 @@ class StoreOrderRequest extends FormRequest
     {
         return [
             'full_name' => ['required', 'string', 'max:255'],
-            'phone_number' => ['required', 'string', 'max:11'],
+            'phone_number' => ['required', 'string', 'regex:/^09\\d{9}$/'],
             'customer_id' => ['nullable', 'integer', 'exists:customers,customer_id'],
             'address' => ['nullable', 'string', 'max:1000'],
             'order_type' => ['required', 'string', Rule::in(['Drop Off', 'Self Service'])],
@@ -110,5 +117,15 @@ class StoreOrderRequest extends FormRequest
                 );
             }
         }];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'phone_number.regex' => 'Phone number must use the format 09XX XXX XXXX.',
+        ];
     }
 }

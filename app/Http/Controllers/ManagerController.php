@@ -140,8 +140,17 @@ class ManagerController extends Controller
     {
         abort_unless($request->user()?->role === 'manager', 403);
 
+        $search = trim((string) $request->query('search', ''));
+
         $employees = User::query()
             ->where('role', 'employee')
+            ->when($search !== '', function ($query) use ($search): void {
+                $query->where(function ($query) use ($search): void {
+                    $query->where('name', 'like', "%{$search}%")
+                        ->orWhere('username', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
             ->orderBy('name')
             ->get();
 
@@ -155,7 +164,10 @@ class ManagerController extends Controller
             $employee->setAttribute('is_logged_in', $activeEmployeeIds->contains($employee->getKey()));
         });
 
-        return view('manager.employees', ['employees' => $employees]);
+        return view('manager.employees', [
+            'employees' => $employees,
+            'search' => $search,
+        ]);
     }
 
     public function storeEmployee(Request $request): RedirectResponse

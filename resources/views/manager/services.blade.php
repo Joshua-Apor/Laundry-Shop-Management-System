@@ -157,7 +157,7 @@
 
         <div class="divide-y divide-slate-100" data-manager-service-list>
             @forelse ($services as $service)
-                <div class="card-entry-animation grid grid-cols-[minmax(0,1fr)_minmax(7rem,12rem)_auto] items-center gap-3 px-4 py-3 sm:gap-5 sm:px-5">
+                <div class="card-entry-animation grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(7rem,12rem)_auto] sm:gap-5 sm:px-5">
                     <div class="min-w-0">
                         <p class="truncate text-sm font-semibold text-slate-800">
                             {{ $service->service_name }}
@@ -170,7 +170,7 @@
                         @endif
                     </div>
 
-                    <p class="w-full whitespace-nowrap text-right text-sm font-bold text-slate-800">
+                    <p class="w-fit whitespace-nowrap text-right text-sm font-bold text-slate-800 sm:w-full">
                         ₱{{ number_format((float) $service->base_price, 2) }}
                         {{ $service->price_unit }}
                     </p>

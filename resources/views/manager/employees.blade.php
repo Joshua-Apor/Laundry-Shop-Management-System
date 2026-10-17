@@ -137,6 +137,29 @@
             />
         </div>
 
+        <form method="GET" action="{{ route('manager.employees') }}" role="search">
+            <label for="employee-search" class="sr-only">Search employees</label>
+            <div class="flex gap-2">
+                <div class="relative min-w-0 flex-1">
+                    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400"
+                        aria-hidden="true"></i>
+                    <input id="employee-search" name="search" type="search"
+                        value="{{ $search }}" placeholder="Search by name, username, or email"
+                        class="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-[#168cff] focus:ring-2 focus:ring-sky-100">
+                </div>
+                <button type="submit"
+                    class="shrink-0 rounded-lg bg-[#168cff] px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-[#0878df]">
+                    Search
+                </button>
+                @if ($search !== '')
+                    <a href="{{ route('manager.employees') }}"
+                        class="inline-flex shrink-0 items-center rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50">
+                        Clear
+                    </a>
+                @endif
+            </div>
+        </form>
+
         {{-- Employee List --}}
         <div class="grid grid-cols-1 gap-3" data-manager-employee-list>
 

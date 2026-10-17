@@ -1,3 +1,35 @@
+const formatPhoneInput = (input) => {
+    const cursorPosition = input.selectionStart ?? input.value.length;
+    const digitsBeforeCursor = input.value.slice(0, cursorPosition).replace(/\D/g, '').length;
+    const digits = input.value.replace(/\D/g, '').slice(0, 11);
+    let formatted = digits;
+
+    if (digits.length > 4) {
+        formatted = `${digits.slice(0, 4)} ${digits.slice(4, 7)}`;
+    }
+
+    if (digits.length > 7) {
+        formatted += ` ${digits.slice(7)}`;
+    }
+
+    input.value = formatted;
+
+    let nextCursorPosition = 0;
+    let digitsSeen = 0;
+
+    while (nextCursorPosition < formatted.length && digitsSeen < digitsBeforeCursor) {
+        if (/\d/.test(formatted[nextCursorPosition])) {
+            digitsSeen++;
+        }
+
+        nextCursorPosition++;
+    }
+
+    input.setSelectionRange(nextCursorPosition, nextCursorPosition);
+};
+
+document.querySelectorAll('[data-phone-format]').forEach(formatPhoneInput);
+
 async function loadDashboardResults(container) {
     container.setAttribute('aria-busy', 'true');
 
@@ -129,7 +161,6 @@ async function refreshCustomerResults(form, url = null, addHistoryEntry = false)
             throw new Error('Customer results were incomplete.');
         }
 
-        updatedResults.querySelectorAll('.card-entry-animation').forEach((card) => card.classList.remove('card-entry-animation'));
         results.innerHTML = updatedResults.innerHTML;
         currentCount.textContent = updatedCount.textContent;
         status.textContent = `${updatedCount.textContent.replace('total', '').trim()} customers loaded.`;
@@ -322,6 +353,7 @@ document.addEventListener('click', (event) => {
     if (customerOption) {
         document.getElementById('customer-name').value = customerOption.dataset.name;
         document.getElementById('customer-phone').value = customerOption.dataset.phone;
+        formatPhoneInput(document.getElementById('customer-phone'));
         document.getElementById('customer-address').value = customerOption.dataset.address;
         document.getElementById('customer-id').value = customerOption.dataset.customerId;
         customerOption.closest('dialog')?.close();
@@ -412,6 +444,10 @@ document.addEventListener('click', (event) => {
 });
 
 document.addEventListener('input', (event) => {
+    if (event.target.matches('[data-phone-format]')) {
+        formatPhoneInput(event.target);
+    }
+
     if (event.target.matches('#customer-name, #customer-phone')) {
         document.getElementById('customer-id').value = '';
     }
@@ -725,7 +761,7 @@ if (modalOrderForm) {
         pricePerUnit.className = 'shrink-0 text-xs text-slate-500';
         pricePerUnit.textContent = fixedPrice === null
             ? `${formatMoney(price)} ${unit}`
-            : `${formatMoney(fixedPrice)} up to ${fixedLimit} kg, then ${formatMoney(price)} ${unit}`;
+            : `${formatMoney(price)}/kilo, ${formatMoney(fixedPrice)} up to ${fixedLimit} kg`;
         heading.append(serviceName, pricePerUnit);
         row.append(heading);
 
@@ -766,8 +802,8 @@ if (modalOrderForm) {
                 : sanitizedValue;
 
             const quantity = Math.max(0, Number(quantityInput.value) || 0);
-            const lineAmount = fixedPrice !== null && quantity > 0 && quantity <= fixedLimit
-                ? fixedPrice
+            const lineAmount = fixedPrice !== null && quantity > 0
+                ? fixedPrice + Math.max(Math.floor(quantity) - fixedLimit, 0) * price
                 : quantity * price;
 
             lineTotal.dataset.serviceLineTotal = String(lineAmount);
