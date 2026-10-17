@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreOrderRequest;
 use App\Models\Order;
 use App\Services\OrderStorageFeeService;
+use App\Services\TextBeeSmsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -260,8 +261,12 @@ class OrderController extends Controller
         return redirect()->route('records.index')->with('success', 'Order created successfully.');
     }
 
-    public function updateStatus(Request $request, Order $order, OrderStorageFeeService $storageFeeService): RedirectResponse
-    {
+    public function updateStatus(
+        Request $request,
+        Order $order,
+        OrderStorageFeeService $storageFeeService,
+        TextBeeSmsService $textBeeSmsService,
+    ): RedirectResponse {
         abort_unless($request->user()?->role === 'employee', 403);
 
         if ($order->order_status === 'Ready for Pickup') {
@@ -298,6 +303,24 @@ class OrderController extends Controller
                     ? 'This order must be fully paid before it can be completed.'
                     : 'This order status has changed. Refresh the page and try again.',
             ]);
+        }
+
+        if ($nextStatus === 'Ready for Pickup') {
+            $customer = DB::table('customers')
+                ->where('customer_id', $order->customer_id)
+                ->first(['name', 'contact_number']);
+
+            if ($customer !== null) {
+                $customerPhoneNumber = (string) $customer->contact_number;
+                $customerName = (string) $customer->name;
+                $orderId = (int) $order->getKey();
+
+                defer(fn () => $textBeeSmsService->sendReadyForPickupNotification(
+                    $customerPhoneNumber,
+                    $customerName,
+                    $orderId,
+                ));
+            }
         }
 
         return back()->with('success', "Order #{$order->order_id} moved to {$nextStatus}.");

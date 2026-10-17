@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class LoginController extends Controller
@@ -26,6 +29,7 @@ class LoginController extends Controller
         $loginCredentials = [
             'password' => $credentials['password'],
             'role' => $credentials['role'],
+            'account_status' => true,
         ];
         $identifier = $credentials['identifier'];
 
@@ -45,8 +49,28 @@ class LoginController extends Controller
         }
 
         if (! $authenticated) {
+            $revokedEmployee = User::query()
+                ->where('role', 'employee')
+                ->where('account_status', false)
+                ->where(function (Builder $query) use ($identifier): void {
+                    if (filter_var($identifier, FILTER_VALIDATE_EMAIL) !== false) {
+                        $query->where('email', $identifier);
+
+                        return;
+                    }
+
+                    $query->where('username', $identifier)
+                        ->orWhere('name', $identifier);
+                })
+                ->first();
+
+            $errorMessage = $revokedEmployee !== null
+                && Hash::check($credentials['password'], $revokedEmployee->password)
+                ? 'Account revoked. Please contact your manager.'
+                : 'Those credentials do not match our records.';
+
             return back()
-                ->withErrors(['identifier' => 'Those credentials do not match our records.'])
+                ->withErrors(['identifier' => $errorMessage])
                 ->onlyInput('identifier', 'role');
         }
 

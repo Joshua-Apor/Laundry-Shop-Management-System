@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilePasswordResetController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Middleware\EnsureAccountIsActive;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
@@ -32,7 +33,7 @@ Route::middleware(['guest', 'throttle:10,1'])->group(function (): void {
     Route::post('/forgot-password/cancel', [PasswordResetController::class, 'cancel'])->name('password.reset.cancel');
 });
 
-Route::middleware('auth')->group(function (): void {
+Route::middleware(['auth', EnsureAccountIsActive::class])->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/data', [DashboardController::class, 'data'])->name('dashboard.data');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -54,6 +55,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/manager/sales-reports/export/{format}', [SalesReportController::class, 'export'])->name('manager.sales-reports.export');
     Route::get('/manager/employees', [ManagerController::class, 'employees'])->name('manager.employees');
     Route::post('/manager/employees', [ManagerController::class, 'storeEmployee'])->name('manager.employees.store');
+    Route::patch('/manager/employees/{employee}/access', [ManagerController::class, 'updateEmployeeAccess'])->name('manager.employees.access.update');
     Route::delete('/manager/employees/{employee}', [ManagerController::class, 'destroyEmployee'])->name('manager.employees.destroy');
     Route::patch('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
     Route::get('/customers/{customer}/orders', [CustomerController::class, 'history'])->name('customers.orders');

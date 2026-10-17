@@ -215,4 +215,29 @@ class ManagerController extends Controller
 
         return redirect()->route('manager.employees')->with('success', 'Employee permanently deleted.');
     }
+
+    public function updateEmployeeAccess(Request $request, User $employee): RedirectResponse
+    {
+        abort_unless($request->user()?->role === 'manager', 403);
+        abort_unless($employee->role === 'employee', 404);
+
+        $validated = $request->validate([
+            'account_status' => ['required', 'boolean'],
+        ]);
+
+        $employee->account_status = (bool) $validated['account_status'];
+        $employee->save();
+
+        if (! $employee->account_status) {
+            DB::table(config('session.table', 'sessions'))
+                ->where('user_id', $employee->getKey())
+                ->delete();
+        }
+
+        $message = $employee->account_status
+            ? 'Employee access restored.'
+            : 'Employee access revoked and active sessions signed out.';
+
+        return redirect()->route('manager.employees')->with('success', $message);
+    }
 }
