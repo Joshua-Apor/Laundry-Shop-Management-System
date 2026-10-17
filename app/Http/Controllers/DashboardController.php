@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Throwable;
 
 class DashboardController extends Controller
 {
@@ -14,6 +16,34 @@ class DashboardController extends Controller
     }
 
     public function data(): View
+    {
+        try {
+            return $this->dashboardData();
+        } catch (Throwable $exception) {
+            Log::error('Failed to load employee dashboard data.', [
+                'exception' => $exception,
+            ]);
+
+            $emptyComparison = ['value' => '0%', 'direction' => 'flat'];
+
+            return view('dashboard.data', [
+                'totalOrders' => 0,
+                'completedOrders' => 0,
+                'readyForPickupOrders' => 0,
+                'needNotificationOrders' => 0,
+                'totalRevenue' => 0,
+                'revenueTrendPoints' => '',
+                'totalRevenueComparison' => $emptyComparison,
+                'totalOrdersComparison' => $emptyComparison,
+                'completedOrdersComparison' => $emptyComparison,
+                'readyForPickupOrdersComparison' => $emptyComparison,
+                'recentOrders' => collect(),
+                'unclaimedOrders' => collect(),
+            ]);
+        }
+    }
+
+    private function dashboardData(): View
     {
         $today = now()->toDateString();
         $yesterday = now()->subDay()->toDateString();
