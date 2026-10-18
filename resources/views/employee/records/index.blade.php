@@ -212,4 +212,8 @@
 
         {{ $orders->links() }}
     </div>
+
+    @if ($receipt)
+        <x-orders.payment-receipt-modal :order="$receipt['order']" :payment="$receipt['payment']" />
+    @endif
 </x-layout>

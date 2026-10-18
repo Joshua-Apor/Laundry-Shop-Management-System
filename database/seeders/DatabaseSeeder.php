@@ -40,10 +40,10 @@ class DatabaseSeeder extends Seeder
         $employeeId = User::query()->where('username', 'josh')->value('user_id');
 
         $sampleCustomers = [
-            ['name' => 'Maria Santos', 'contact_number' => '09990000001', 'address' => 'Mabini Street'],
-            ['name' => 'Daniel Reyes', 'contact_number' => '09990000002', 'address' => 'Rizal Avenue'],
-            ['name' => 'Angela Cruz', 'contact_number' => '09990000003', 'address' => 'Bonifacio Road'],
-            ['name' => 'Miguel Garcia', 'contact_number' => '09990000004', 'address' => 'Luna Street'],
+            ['name' => 'Maria Santos', 'contact_number' => '09990000001', 'email' => 'maria.santos@example.com'],
+            ['name' => 'Daniel Reyes', 'contact_number' => '09990000002', 'email' => 'daniel.reyes@example.com'],
+            ['name' => 'Angela Cruz', 'contact_number' => '09990000003', 'email' => 'angela.cruz@example.com'],
+            ['name' => 'Miguel Garcia', 'contact_number' => '09990000004', 'email' => 'miguel.garcia@example.com'],
         ];
 
         $customerIds = [];
@@ -51,7 +51,7 @@ class DatabaseSeeder extends Seeder
         foreach ($sampleCustomers as $customer) {
             DB::table('customers')->updateOrInsert(
                 ['contact_number' => $customer['contact_number']],
-                ['name' => $customer['name'], 'address' => $customer['address']],
+                ['name' => $customer['name'], 'email' => $customer['email']],
             );
 
             $customerIds[] = DB::table('customers')

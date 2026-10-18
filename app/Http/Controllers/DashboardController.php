@@ -28,13 +28,13 @@ class DashboardController extends Controller
 
             return view('dashboard.data', [
                 'totalOrders' => 0,
-                'completedOrders' => 0,
-                'readyForPickupOrders' => 0,
+                'averageOrderValue' => 0,
                 'needNotificationOrders' => 0,
                 'totalRevenue' => 0,
                 'revenueTrendPoints' => '',
                 'totalRevenueComparison' => $emptyComparison,
                 'totalOrdersComparison' => $emptyComparison,
+                'averageOrderValueComparison' => $emptyComparison,
                 'completedOrdersComparison' => $emptyComparison,
                 'readyForPickupOrdersComparison' => $emptyComparison,
                 'recentOrders' => collect(),
@@ -55,6 +55,8 @@ class DashboardController extends Controller
                 COALESCE(SUM(CASE WHEN order_date = ? AND order_status = ? THEN 1 ELSE 0 END), 0) as completed_orders,
                 COALESCE(SUM(CASE WHEN order_date = ? AND order_status = ? THEN 1 ELSE 0 END), 0) as ready_for_pickup_orders,
                 COALESCE(SUM(CASE WHEN order_date = ? THEN amount_paid ELSE 0 END), 0) as total_revenue,
+                COALESCE(SUM(CASE WHEN order_date = ? THEN total_amount ELSE 0 END), 0) as total_order_amount,
+                COALESCE(SUM(CASE WHEN order_date = ? THEN total_amount ELSE 0 END), 0) as yesterday_total_order_amount,
                 COALESCE(SUM(CASE WHEN order_date = ? THEN amount_paid ELSE 0 END), 0) as yesterday_total_revenue,
                 COALESCE(SUM(CASE WHEN order_date = ? THEN 1 ELSE 0 END), 0) as yesterday_total_orders,
                 COALESCE(SUM(CASE WHEN order_date = ? AND order_status = ? THEN 1 ELSE 0 END), 0) as yesterday_completed_orders,
@@ -64,6 +66,8 @@ class DashboardController extends Controller
                     $today, 'Completed',
                     $today, 'Ready for Pickup',
                     $today,
+                    $today,
+                    $yesterday,
                     $yesterday,
                     $yesterday,
                     $yesterday, 'Completed',
@@ -103,8 +107,8 @@ class DashboardController extends Controller
         $formatComparison = static function (float|int $current, float|int $previous): array {
             if ((float) $previous === 0.0) {
                 return [
-                    'value' => $current === 0 ? '0%' : 'New',
-                    'direction' => $current === 0 ? 'flat' : 'up',
+                    'value' => (float) $current === 0.0 ? '0%' : 'New',
+                    'direction' => (float) $current === 0.0 ? 'flat' : 'up',
                 ];
             }
 
@@ -140,8 +144,17 @@ class DashboardController extends Controller
 
         return view('dashboard.data', [
             'totalOrders' => (int) $summary->total_orders,
-            'completedOrders' => (int) $summary->completed_orders,
-            'readyForPickupOrders' => (int) $summary->ready_for_pickup_orders,
+            'averageOrderValue' => (int) $summary->total_orders > 0
+                ? (float) $summary->total_order_amount / (int) $summary->total_orders
+                : 0,
+            'averageOrderValueComparison' => $formatComparison(
+                (int) $summary->total_orders > 0
+                    ? (float) $summary->total_order_amount / (int) $summary->total_orders
+                    : 0,
+                (int) $summary->yesterday_total_orders > 0
+                    ? (float) $summary->yesterday_total_order_amount / (int) $summary->yesterday_total_orders
+                    : 0,
+            ),
             'needNotificationOrders' => (int) $summary->ready_for_pickup_orders,
             'totalRevenue' => $summary->total_revenue,
             'revenueTrendPoints' => $revenueTrendPoints,

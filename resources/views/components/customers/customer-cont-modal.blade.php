@@ -2,13 +2,17 @@
 'customerId',
 'name' => '',
 'phone' => '',
-'address' => '',
+'email' => null,
 'orderTotal' => 0,
 'priceTotal' => '0.00',
 'firstOrderDate',
 'modalId',
 'historyUrl',
 ])
+
+@php
+    $formattedPhone = preg_replace('/^(09\d{2})(\d{3})(\d{4})$/', '$1-$2-$3', preg_replace('/\D+/', '', (string) $phone));
+@endphp
 
 <button
     type="button"
@@ -18,7 +22,7 @@
     class="card-entry-animation group relative grid min-h-24 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl border border-slate-200 bg-white p-3 text-left shadow-sm transition-[border-color,box-shadow] hover:border-[#168cff]/40 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#168cff] disabled:cursor-wait sm:min-h-28 sm:gap-3 sm:p-4">
     <span class="min-w-0">
         <span class="block truncate text-lg font-bold leading-tight text-slate-900 sm:text-xl">{{ $name }}</span>
-        <span class="mt-1 flex min-w-0 items-center gap-1 text-[10px] text-slate-400 sm:text-xs"><i class="fa-solid fa-phone shrink-0 text-[#168cff]" aria-hidden="true"></i><span class="truncate">{{ $phone }}</span></span>
+        <span class="mt-1 flex min-w-0 items-center gap-1 text-[10px] text-slate-400 sm:text-xs"><i class="fa-solid fa-phone shrink-0 text-[#168cff]" aria-hidden="true"></i><span class="truncate">{{ $formattedPhone }}</span></span>
     </span>
     <span class="flex min-w-0 flex-col items-end gap-1 border-l border-slate-100 pl-2 text-right sm:pl-3">
         <span class="whitespace-nowrap text-[10px] font-bold text-slate-800 sm:text-xs">{{ $orderTotal }} order{{ $orderTotal == 1 ? '' : 's' }}</span>
@@ -42,11 +46,11 @@
         </div>
         <div class="col-span-2 rounded-lg bg-slate-50 p-3">
             <dt class="text-xs font-medium text-slate-500">Phone number</dt>
-            <dd class="mt-1 flex items-center gap-1.5 text-sm font-semibold text-slate-900"><i class="fa-solid fa-phone text-[#168cff]" aria-hidden="true"></i>{{ $phone }}</dd>
+            <dd class="mt-1 flex items-center gap-1.5 text-sm font-semibold text-slate-900"><i class="fa-solid fa-phone text-[#168cff]" aria-hidden="true"></i>{{ $formattedPhone }}</dd>
         </div>
         <div class="col-span-2 rounded-lg bg-slate-50 p-3">
-            <dt class="text-xs font-medium text-slate-500">Address</dt>
-            <dd class="mt-1 break-words text-sm font-semibold text-slate-900"><i class="fa-solid fa-map-marker-alt text-[#168cff]" aria-hidden="true"></i> {{ $address ?: 'Not provided' }}</dd>
+            <dt class="text-xs font-medium text-slate-500">Email</dt>
+            <dd class="mt-1 break-words text-sm font-semibold text-slate-900"><i class="fa-solid fa-envelope text-[#168cff]" aria-hidden="true"></i> {{ $email ?: 'Not provided' }}</dd>
         </div>
         <div class="rounded-lg bg-slate-50 p-3">
             <dt class="text-xs font-medium text-slate-500">Total orders</dt>
@@ -82,8 +86,8 @@
                         <input id="customer-phone-{{ $customerId }}" name="contact_number" type="tel" inputmode="numeric" autocomplete="tel" value="{{ $phone }}" required maxlength="13" data-phone-format class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none">
                     </div>
                     <div>
-                        <label for="customer-address-{{ $customerId }}" class="mb-1 block text-xs font-semibold text-slate-700">Address</label>
-                        <textarea id="customer-address-{{ $customerId }}" name="address" required rows="3" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none">{{ $address }}</textarea>
+                        <label for="customer-email-{{ $customerId }}" class="mb-1 block text-xs font-semibold text-slate-700">Email <span class="font-normal text-slate-400">(optional)</span></label>
+                        <input id="customer-email-{{ $customerId }}" name="email" type="email" value="{{ $email }}" maxlength="255" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none">
                     </div>
                     <button type="submit" class="w-full rounded-lg bg-[#168cff] px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-[#0878df]">Save changes</button>
                 </form>

@@ -37,7 +37,7 @@ class ManagerController extends Controller
                 'customers.customer_id as customer_id',
                 'customers.name as fullname',
                 'customers.contact_number as phoneNumber',
-                'customers.address as address',
+                'customers.email as email',
             ])
             ->selectRaw('COUNT(laundry_orders.order_id) as orders_count, SUM(laundry_orders.total_amount) as total_spent, MIN(laundry_orders.order_date) as first_order_date')
             ->when($search !== '', function ($query) use ($search): void {
@@ -46,7 +46,7 @@ class ManagerController extends Controller
                         ->orWhere('customers.contact_number', 'like', "%{$search}%");
                 });
             })
-            ->groupBy('customers.customer_id', 'customers.name', 'customers.contact_number', 'customers.address')
+            ->groupBy('customers.customer_id', 'customers.name', 'customers.contact_number', 'customers.email')
             ->orderBy($sortColumn, $sortDirection)
             ->orderBy('customers.name')
             ->paginate(15)

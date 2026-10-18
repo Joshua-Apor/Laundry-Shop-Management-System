@@ -19,8 +19,8 @@ class SalesReportExporter
             ['Orders', $report['order_count']],
             ['Total sales (PHP)', $report['total_sales']],
             ['Payments collected (PHP)', $report['payments_collected']],
-            ['Outstanding balance (PHP)', $report['outstanding_balance']],
-            ['Average order (PHP)', $report['average_order']],
+            ['Cash payments (PHP)', $report['cash_payments']],
+            ['GCash payments (PHP)', $report['gcash_payments']],
             [],
             ['Order status', 'Orders', 'Sales (PHP)'],
         ];
@@ -87,8 +87,8 @@ class SalesReportExporter
                 ['Orders', (string) $report['order_count']],
                 ['Total sales (PHP)', $this->money($report['total_sales'])],
                 ['Payments collected (PHP)', $this->money($report['payments_collected'])],
-                ['Outstanding balance (PHP)', $this->money($report['outstanding_balance'])],
-                ['Average order (PHP)', $this->money($report['average_order'])],
+                ['Cash payments (PHP)', $this->money($report['cash_payments'])],
+                ['GCash payments (PHP)', $this->money($report['gcash_payments'])],
             ])
             .$this->wordParagraph('Orders by status', true);
 
@@ -139,7 +139,7 @@ class SalesReportExporter
             $content = $this->pdfText(40, 555, 'Laundry Sales Report', 18)
                 .$this->pdfText(40, 532, $report['period'].' report | '.$report['date_label'], 10)
                 .$this->pdfText(40, 507, 'Orders: '.$report['order_count'].'  Total sales (PHP): '.$this->money($report['total_sales']).'  Payments collected (PHP): '.$this->money($report['payments_collected']), 9)
-                .$this->pdfText(40, 490, 'Outstanding balance (PHP): '.$this->money($report['outstanding_balance']).'  Average order (PHP): '.$this->money($report['average_order']), 9)
+                .$this->pdfText(40, 490, 'Cash payments (PHP): '.$this->money($report['cash_payments']).'  GCash payments (PHP): '.$this->money($report['gcash_payments']), 9)
                 .$this->pdfText(40, 463, 'ID', 8)
                 .$this->pdfText(85, 463, 'Date', 8)
                 .$this->pdfText(140, 463, 'Customer', 8)

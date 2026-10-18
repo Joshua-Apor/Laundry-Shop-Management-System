@@ -7,11 +7,11 @@
                 <i class="fa-solid fa-user text-[#168cff]" aria-hidden="true"></i>
                 Customer information
             </h3>
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div class="grid grid-cols-2 gap-2 sm:gap-3">
                 <x-orders.info-item label="Customer name" icon="fa-user-tag">{{ $order->fullname }}</x-orders.info-item>
                 <x-orders.info-item label="Phone number" icon="fa-phone">{{ $order->phoneNumber }}</x-orders.info-item>
-                <div class="sm:col-span-2">
-                    <x-orders.info-item label="Address" icon="fa-location-dot">{{ $order->customerAddress }}</x-orders.info-item>
+                <div class="col-span-2">
+                    <x-orders.info-item label="Email" icon="fa-envelope">{{ $order->customerEmail }}</x-orders.info-item>
                 </div>
             </div>
         </section>
@@ -21,7 +21,7 @@
                 <span class="flex items-center gap-2"><i class="fa-solid fa-shirt text-[#168cff]" aria-hidden="true"></i>Order information</span>
                 <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform group-open:rotate-180" aria-hidden="true"></i>
             </summary>
-            <div class="grid grid-cols-1 gap-3 border-t border-sky-100 p-4 sm:grid-cols-2">
+            <div class="grid grid-cols-2 gap-2 border-t border-sky-100 p-3 sm:gap-3 sm:p-4">
                 <x-orders.info-item label="Status" icon="fa-circle-check">{{ $order->status }}</x-orders.info-item>
                 <x-orders.info-item :label="$order->order_type === 'Self Service' ? 'Self service loads' : 'Drop off weight'" icon="fa-weight-scale">{{ $order->order_type === 'Self Service' ? $order->self_service_loads.' loads' : number_format((float) $order->weight, 2).' kg' }}</x-orders.info-item>
                 <x-orders.info-item label="Order date" icon="fa-calendar-days">{{ $order->order_date }}</x-orders.info-item>
@@ -31,11 +31,11 @@
                     <x-orders.info-item label="Services" icon="fa-soap">{{ $order->services }}</x-orders.info-item>
                 </div>
                 @if (filled($order->specialRequest))
-                    <div class="sm:col-span-2">
+                    <div class="col-span-2">
                         <x-orders.info-item label="Special request" icon="fa-note-sticky">{{ $order->specialRequest }}</x-orders.info-item>
                     </div>
                 @endif
-                <div class="sm:col-span-2">
+                <div class="col-span-2">
                     <x-orders.info-item label="Recorded by" icon="fa-user-gear">{{ $order->employeeName }}</x-orders.info-item>
                 </div>
             </div>
@@ -46,19 +46,26 @@
                 <span class="flex items-center gap-2"><i class="fa-solid fa-credit-card text-[#168cff]" aria-hidden="true"></i>Payment information</span>
                 <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform group-open:rotate-180" aria-hidden="true"></i>
             </summary>
-            <div class="grid grid-cols-1 gap-3 border-t border-sky-100 p-4 sm:grid-cols-2">
-                <x-orders.info-item label="Total amount" icon="fa-receipt">â‚±{{ number_format((float) $order->total_amount, 2) }}</x-orders.info-item>
+            <div class="grid grid-cols-2 gap-2 border-t border-sky-100 p-3 sm:gap-3 sm:p-4">
+                <x-orders.info-item label="Total amount" icon="fa-receipt">₱{{ number_format((float) $order->total_amount, 2) }}</x-orders.info-item>
                 @if ((float) $order->storage_fee > 0)
                     <x-orders.info-item label="Storage fee" icon="fa-box">PHP {{ number_format((float) $order->storage_fee, 2) }}</x-orders.info-item>
                 @endif
-                <x-orders.info-item label="Amount paid" icon="fa-money-bill-wave">â‚±{{ number_format((float) $order->amount_paid, 2) }}</x-orders.info-item>
-                <x-orders.info-item label="Balance" icon="fa-wallet">â‚±{{ number_format((float) $order->balance, 2) }}</x-orders.info-item>
-                <x-orders.info-item label="Payment method" icon="fa-credit-card">{{ $order->paymentMethod }}</x-orders.info-item>
+                <x-orders.info-item label="Amount paid" icon="fa-money-bill-wave">₱{{ number_format((float) $order->amount_paid, 2) }}</x-orders.info-item>
+                <x-orders.info-item label="Balance" icon="fa-wallet">₱{{ number_format((float) $order->balance, 2) }}@if ((float) $order->balance <= 0 && filled($order->initialPaymentMethod) && $order->initialPaymentMethod !== $order->paymentMethod) - {{ $order->paymentMethod }}@endif</x-orders.info-item>
+                <x-orders.info-item label="Payment method" icon="fa-credit-card">{{ $order->initialPaymentMethod ?: $order->paymentMethod }}</x-orders.info-item>
                 <x-orders.info-item label="Payment status" icon="fa-circle-info">{{ $order->paymentStatus }}</x-orders.info-item>
                 <x-orders.info-item label="Payment date" icon="fa-calendar-day">{{ $order->paymentDate }}</x-orders.info-item>
-                <div class="sm:col-span-2">
-                    <x-orders.info-item label="Payment reference" icon="fa-hashtag">{{ $order->referenceNumber }}</x-orders.info-item>
-                </div>
+                @if ($order->balancePaymentId !== null)
+                    <div class="col-span-2 grid grid-cols-2 gap-2 sm:gap-3">
+                        <x-orders.info-item label="Initial payment reference" icon="fa-hashtag">{{ $order->initialReferenceNumber }}</x-orders.info-item>
+                        <x-orders.info-item label="Balance payment reference" icon="fa-hashtag">{{ $order->balancePaymentReferenceNumber }}</x-orders.info-item>
+                    </div>
+                @else
+                    <div class="col-span-2">
+                        <x-orders.info-item label="Initial payment reference" icon="fa-hashtag">{{ $order->initialReferenceNumber }}</x-orders.info-item>
+                    </div>
+                @endif
             </div>
         </details>
 

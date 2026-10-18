@@ -18,8 +18,8 @@ class SalesReportService
      *     order_count: int,
      *     total_sales: float,
      *     payments_collected: float,
-     *     outstanding_balance: float,
-     *     average_order: float,
+     *     cash_payments: float,
+     *     gcash_payments: float,
      *     statuses: array<string, array{count: int, total: float}>,
      *     orders: list<array{order_id: int, order_date: string, customer: string, employee: string, status: string, total: float, paid: float, balance: float}>
      * }
@@ -73,9 +73,18 @@ class SalesReportService
             $statuses[$order['status']]['total'] += $order['total'];
         }
 
-        $paymentsCollected = (float) DB::table('payments')
+        $paymentTotals = DB::table('payments')
             ->whereBetween('payment_date', [$startDate->toDateString(), $endDate->toDateString()])
-            ->sum('amount');
+            ->selectRaw('COALESCE(SUM(amount), 0) as payments_collected')
+            ->selectRaw(
+                'COALESCE(SUM(CASE WHEN payment_method = ? THEN amount ELSE 0 END), 0) as cash_payments',
+                ['Cash'],
+            )
+            ->selectRaw(
+                'COALESCE(SUM(CASE WHEN payment_method = ? THEN amount ELSE 0 END), 0) as gcash_payments',
+                ['GCash'],
+            )
+            ->first();
 
         return [
             'period' => $period,
@@ -87,9 +96,9 @@ class SalesReportService
             'end_date' => $endDate->toDateString(),
             'order_count' => count($orders),
             'total_sales' => $totalSales,
-            'payments_collected' => $paymentsCollected,
-            'outstanding_balance' => array_sum(array_column($orders, 'balance')),
-            'average_order' => count($orders) > 0 ? $totalSales / count($orders) : 0.0,
+            'payments_collected' => (float) $paymentTotals->payments_collected,
+            'cash_payments' => (float) $paymentTotals->cash_payments,
+            'gcash_payments' => (float) $paymentTotals->gcash_payments,
             'statuses' => $statuses,
             'orders' => $orders,
         ];

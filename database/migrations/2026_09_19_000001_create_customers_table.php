@@ -15,7 +15,7 @@ return new class extends Migration
             $table->bigIncrements('customer_id');
             $table->string('name');
             $table->string('contact_number');
-            $table->text('address');
+            $table->string('email')->nullable();
         });
     }
 

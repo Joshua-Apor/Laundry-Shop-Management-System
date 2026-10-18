@@ -4,6 +4,7 @@
     'icon' => null,
     'featured' => false,
     'compact' => false,
+    'stretch' => false,
     'comparison' => null,
     'trendPoints' => null,
     'entryAnimation' => false,
@@ -25,9 +26,10 @@
     @class([
         'flex min-w-0 w-full flex-col rounded-xl border border-sky-100 bg-white shadow-sm',
         'card-entry-animation' => $entryAnimation,
-        'h-16 p-1.5 sm:h-20 sm:p-3' => $compact,
+        'h-full p-1.5 sm:p-3' => $compact && $stretch,
+        'h-16 p-1.5 sm:h-20 sm:p-3' => $compact && ! $stretch,
         'h-24 p-2 sm:h-28 sm:p-3' => ! $featured && ! $compact,
-        'row-span-3 min-h-52 p-3 sm:min-h-64 sm:p-5' => $featured,
+        'row-span-2 min-h-52 p-3 sm:min-h-64 sm:p-5' => $featured,
     ])
 >
     @if ($featured)

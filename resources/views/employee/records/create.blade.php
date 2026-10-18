@@ -153,7 +153,7 @@
                                     name="phone_number"
                                     id="customer-phone"
                                     value="{{ old('phone_number') }}"
-                                    placeholder="09XX XXX XXXX"
+                                    placeholder="09XX-XXX-XXXX"
                                     inputmode="numeric"
                                     autocomplete="tel"
                                     maxlength="13"
@@ -163,27 +163,26 @@
                                 >
 
                             </span>
-
-                            <span class="block text-[11px] font-normal text-slate-400">
-                                Used to send SMS pickup notifications
-                            </span>
                             @error('phone_number')
                                 <span role="alert" class="block text-xs font-medium text-red-600">{{ $message }}</span>
                             @enderror
 
                         </label>
 
-                        {{-- Address --}}
-                        <label class="block space-y-1 text-xs font-semibold text-slate-700">
-                            Address
-
-                            <textarea
-                                name="address"
-                                id="customer-address"
-                                rows="2"
-                                placeholder="Street, barangay, city"
-                                class="w-full resize-none rounded-lg border border-sky-200 bg-white px-3.5 py-2.5 text-sm font-normal text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300"
-                            >{{ old('address') }}</textarea>
+                        {{-- Email --}}
+                        <label class="block space-y-1 text-xs font-semibold text-slate-700">Email
+                            <input
+                                type="email"
+                                name="email"
+                                id="customer-email"
+                                value="{{ old('email') }}"
+                                placeholder="customer@example.com"
+                                autocomplete="email"
+                                class="w-full rounded-lg border border-sky-200 bg-white px-3.5 py-2.5 text-sm font-normal text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300"
+                            >
+                            @error('email')
+                                <span role="alert" class="block text-xs font-medium text-red-600">{{ $message }}</span>
+                            @enderror
                         </label>
 
                     </div>
@@ -513,7 +512,7 @@
                             data-customer-id="{{ $customer->customer_id }}"
                             data-name="{{ $customer->name }}"
                             data-phone="{{ $customer->contact_number }}"
-                            data-address="{{ $customer->address }}"
+                            data-email="{{ $customer->email }}"
                             class="flex w-full items-start justify-between gap-3 rounded-lg border border-sky-100 bg-white p-3 text-left transition-colors hover:border-sky-300 hover:bg-sky-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
                         >
                             <span class="min-w-0">

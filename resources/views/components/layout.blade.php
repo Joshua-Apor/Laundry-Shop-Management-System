@@ -37,7 +37,7 @@
 
 <body hx-boost="true" class="min-h-screen bg-[#F0F8FF] font-sans text-slate-900 antialiased">
 
-    @if (session('success'))
+    @if (session('success') && ! session('receipt_email_warning'))
 
         <div
             data-dropdown-message
@@ -78,6 +78,33 @@
 
         </div>
 
+    @endif
+
+    @if (session('receipt_email_warning'))
+        <div
+            data-dropdown-message
+            data-dropdown-message-duration="7000"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            class="invisible pointer-events-none fixed left-1/2 top-4 z-[100] flex w-[min(22rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-2 items-start gap-3 rounded-xl border border-amber-200 bg-white p-4 text-slate-900 opacity-0 shadow-xl transition duration-300 ease-out"
+        >
+            <span class="grid size-9 shrink-0 place-items-center rounded-full bg-amber-100 text-amber-700">
+                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+            </span>
+            <div class="min-w-0 flex-1">
+                <p class="text-sm font-semibold">Receipt email not sent</p>
+                <p data-dropdown-message-content class="mt-0.5 text-sm leading-5 text-slate-600">{{ session('receipt_email_warning') }}</p>
+            </div>
+            <button
+                type="button"
+                data-dropdown-message-dismiss
+                aria-label="Dismiss notification"
+                class="-mr-1 -mt-1 grid size-8 shrink-0 place-items-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
+            >
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+        </div>
     @endif
 
     @if ($navigation)

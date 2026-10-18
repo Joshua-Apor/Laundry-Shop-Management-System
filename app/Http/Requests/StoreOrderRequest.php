@@ -35,8 +35,8 @@ class StoreOrderRequest extends FormRequest
         return [
             'full_name' => ['required', 'string', 'max:255'],
             'phone_number' => ['required', 'string', 'regex:/^09\\d{9}$/'],
+            'email' => ['nullable', 'email', 'max:255'],
             'customer_id' => ['nullable', 'integer', 'exists:customers,customer_id'],
-            'address' => ['nullable', 'string', 'max:1000'],
             'order_type' => ['required', 'string', Rule::in(['Drop Off', 'Self Service'])],
             'weight' => ['nullable', 'required_if:order_type,Drop Off', 'numeric', 'min:0.1', 'max:999'],
             'self_service_loads' => ['nullable', 'required_if:order_type,Self Service', 'integer', 'min:1', 'max:100'],
@@ -125,7 +125,7 @@ class StoreOrderRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'phone_number.regex' => 'Phone number must use the format 09XX XXX XXXX.',
+            'phone_number.regex' => 'Phone number must use the format 09XX-XXX-XXXX.',
         ];
     }
 }

@@ -3,16 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreOrderRequest;
+use App\Mail\PaymentReceipt;
 use App\Models\Order;
 use App\Services\OrderStorageFeeService;
 use App\Services\TextBeeSmsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Throwable;
 
 class OrderController extends Controller
 {
@@ -21,7 +25,7 @@ class OrderController extends Controller
         abort_unless(auth()->user()?->role === 'employee', 403);
 
         $customers = DB::table('customers')
-            ->select(['customer_id', 'name', 'contact_number', 'address'])
+            ->select(['customer_id', 'name', 'contact_number', 'email'])
             ->orderBy('name')
             ->get();
 
@@ -57,6 +61,7 @@ class OrderController extends Controller
         return view('employee.orders.status', [
             'orders' => $orders,
             'search' => $search,
+            'receipt' => $this->paymentReceipt($request),
         ]);
     }
 
@@ -132,7 +137,71 @@ class OrderController extends Controller
             'search' => $search,
             'filters' => $formFilters,
             'view' => $view,
+            'receipt' => $this->paymentReceipt($request),
         ])->withErrors($validator);
+    }
+
+    /**
+     * @return array{order: Order, payment: object}|null
+     */
+    private function paymentReceipt(Request $request): ?array
+    {
+        $receiptIds = $request->session()->pull('payment_receipt');
+
+        if (! is_array($receiptIds) || ! isset($receiptIds['order_id'], $receiptIds['payment_id'])) {
+            return null;
+        }
+
+        $orderId = (int) $receiptIds['order_id'];
+        $paymentId = (int) $receiptIds['payment_id'];
+
+        if ($orderId < 1 || $paymentId < 1) {
+            return null;
+        }
+
+        return $this->paymentReceiptData($orderId, $paymentId);
+    }
+
+    /**
+     * @return array{order: Order, payment: object}|null
+     */
+    private function paymentReceiptData(int $orderId, int $paymentId): ?array
+    {
+        $order = Order::query()
+            ->withRecordDetails()
+            ->where('laundry_orders.order_id', $orderId)
+            ->first();
+        $payment = DB::table('payments')
+            ->where('order_id', $orderId)
+            ->where('payment_id', $paymentId)
+            ->first(['payment_id', 'payment_date', 'amount', 'payment_method', 'payment_status', 'reference_number']);
+
+        if ($order === null || $payment === null) {
+            return null;
+        }
+
+        return ['order' => $order, 'payment' => $payment];
+    }
+
+    private function sendPaymentReceiptEmail(int $orderId, int $paymentId): ?bool
+    {
+        $receipt = $this->paymentReceiptData($orderId, $paymentId);
+
+        if ($receipt === null || blank($receipt['order']->customerEmail)) {
+            return null;
+        }
+
+        try {
+            Mail::to($receipt['order']->customerEmail)->send(
+                new PaymentReceipt($receipt['order'], $receipt['payment']),
+            );
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return false;
+        }
+
+        return true;
     }
 
     public function show(Order $order): View
@@ -179,9 +248,10 @@ class OrderController extends Controller
         }
 
         $orderCreatedAt = now();
+        $paymentRecordedAt = now();
         $employeeName = $request->user()->name;
 
-        DB::transaction(function () use ($validated, $weight, $selfServiceLoads, $serviceUnits, $serviceFees, $total, $amountPaid, $orderCreatedAt, $employeeName, $selectedServices, $specialRequest, $specialRequestPrice): void {
+        $receipt = DB::transaction(function () use ($validated, $weight, $selfServiceLoads, $serviceUnits, $serviceFees, $total, $amountPaid, $orderCreatedAt, $paymentRecordedAt, $employeeName, $selectedServices, $specialRequest, $specialRequestPrice): array {
             if (isset($validated['customer_id'])) {
                 $customer = DB::table('customers')
                     ->where('customer_id', $validated['customer_id'])
@@ -194,6 +264,9 @@ class OrderController extends Controller
                 }
 
                 $customerId = (int) $customer->customer_id;
+                DB::table('customers')
+                    ->where('customer_id', $customerId)
+                    ->update(['email' => $validated['email'] ?? null]);
             } else {
                 $existingCustomer = DB::table('customers')
                     ->where('contact_number', $validated['phone_number'])
@@ -209,7 +282,7 @@ class OrderController extends Controller
                 $customerId = DB::table('customers')->insertGetId([
                     'name' => $validated['full_name'],
                     'contact_number' => $validated['phone_number'],
-                    'address' => $validated['address'] ?? '',
+                    'email' => $validated['email'] ?? null,
                 ]);
             }
 
@@ -246,19 +319,45 @@ class OrderController extends Controller
                 ]);
             }
 
+            $paymentId = null;
+
             if ($amountPaid > 0) {
-                DB::table('payments')->insert([
+                $receiptNumber = $this->nextPaymentReference($paymentRecordedAt);
+                $paymentId = DB::table('payments')->insertGetId([
                     'order_id' => $orderId,
-                    'payment_date' => now()->toDateString(),
+                    'payment_date' => $paymentRecordedAt->toDateString(),
                     'amount' => $amountPaid,
                     'payment_method' => $validated['payment_method'],
                     'payment_status' => $amountPaid >= $total ? 'Paid' : 'Partial',
-                    'reference_number' => null,
+                    'reference_number' => $receiptNumber,
+                ]);
+
+                DB::table('claim_receipts')->insert([
+                    'order_id' => $orderId,
+                    'receipt_number' => $receiptNumber,
+                    'issue_date' => $paymentRecordedAt->toDateString(),
                 ]);
             }
+
+            return [
+                'order_id' => (int) $orderId,
+                'payment_id' => $paymentId === null ? null : (int) $paymentId,
+            ];
         });
 
-        return redirect()->route('records.index')->with('success', 'Order created successfully.');
+        $emailSent = $receipt['payment_id'] === null
+            ? null
+            : $this->sendPaymentReceiptEmail($receipt['order_id'], $receipt['payment_id']);
+
+        $redirect = redirect()->route('records.index')
+            ->with('success', 'Order created successfully.')
+            ->with('payment_receipt', $receipt);
+
+        if ($emailSent === false) {
+            $redirect->with('receipt_email_warning', 'The payment was recorded, but the receipt email could not be sent. Check the mail configuration.');
+        }
+
+        return $redirect;
     }
 
     public function updateStatus(
@@ -336,7 +435,8 @@ class OrderController extends Controller
 
         $storageFeeService->accrueForOrder((int) $order->getKey());
 
-        DB::transaction(function () use ($order, $validated): void {
+        $paymentRecordedAt = now();
+        $paymentId = DB::transaction(function () use ($order, $validated, $paymentRecordedAt): int {
             $lockedOrder = DB::table('laundry_orders')
                 ->where('order_id', $order->getKey())
                 ->lockForUpdate()
@@ -360,15 +460,59 @@ class OrderController extends Controller
                         : $lockedOrder->order_status,
                 ]);
 
-            DB::table('payments')->insert([
+            $receiptNumber = $this->nextPaymentReference($paymentRecordedAt);
+            $paymentId = (int) DB::table('payments')->insertGetId([
                 'order_id' => $order->getKey(),
-                'payment_date' => now()->toDateString(),
+                'payment_date' => $paymentRecordedAt->toDateString(),
                 'amount' => $balance,
                 'payment_method' => $validated['payment_method'],
                 'payment_status' => 'Paid',
+                'reference_number' => $receiptNumber,
             ]);
+
+            DB::table('claim_receipts')->insert([
+                'order_id' => $order->getKey(),
+                'receipt_number' => $receiptNumber,
+                'issue_date' => $paymentRecordedAt->toDateString(),
+            ]);
+
+            return $paymentId;
         });
 
-        return back()->with('success', "Outstanding balance paid for order #{$order->getKey()}.");
+        $emailSent = $this->sendPaymentReceiptEmail((int) $order->getKey(), $paymentId);
+        $redirect = back()
+            ->with('success', "Outstanding balance paid for order #{$order->getKey()}.")
+            ->with('payment_receipt', [
+                'order_id' => (int) $order->getKey(),
+                'payment_id' => $paymentId,
+            ]);
+
+        if ($emailSent === false) {
+            $redirect->with('receipt_email_warning', 'The payment was recorded, but the receipt email could not be sent. Check the mail configuration.');
+        }
+
+        return $redirect;
+    }
+
+    private function nextPaymentReference(Carbon $paymentRecordedAt): string
+    {
+        $date = $paymentRecordedAt->toDateString();
+
+        DB::table('payment_receipt_sequences')->insertOrIgnore([
+            'receipt_date' => $date,
+            'last_number' => 0,
+        ]);
+
+        $sequence = DB::table('payment_receipt_sequences')
+            ->where('receipt_date', $date)
+            ->lockForUpdate()
+            ->first();
+        $nextNumber = (int) $sequence->last_number + 1;
+
+        DB::table('payment_receipt_sequences')
+            ->where('receipt_date', $date)
+            ->update(['last_number' => $nextNumber]);
+
+        return $paymentRecordedAt->format('md-y').'-'.str_pad((string) $nextNumber, 4, '0', STR_PAD_LEFT);
     }
 }

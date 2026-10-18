@@ -164,26 +164,26 @@
                     </div>
                 </div>
 
-                <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-                    <article class="rounded-xl bg-sky-50 p-4">
+                <div class="grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-5">
+                    <article class="min-w-0 rounded-xl bg-sky-50 p-3 sm:p-4">
                         <p class="text-xs font-semibold text-slate-500">Orders</p>
-                        <p class="mt-1 text-2xl font-bold text-slate-900">{{ number_format($report['order_count']) }}</p>
+                        <p class="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">{{ number_format($report['order_count']) }}</p>
                     </article>
-                    <article class="rounded-xl bg-sky-50 p-4">
+                    <article class="min-w-0 rounded-xl bg-sky-50 p-3 sm:p-4">
                         <p class="text-xs font-semibold text-slate-500">Total sales</p>
-                        <p class="mt-1 text-xl font-bold text-slate-900">PHP {{ number_format($report['total_sales'], 2) }}</p>
+                        <p class="mt-1 break-words text-base font-bold leading-tight text-slate-900 sm:text-xl">PHP {{ number_format($report['total_sales'], 2) }}</p>
                     </article>
-                    <article class="rounded-xl bg-sky-50 p-4">
-                        <p class="text-xs font-semibold text-slate-500">Payments collected in period</p>
-                        <p class="mt-1 text-xl font-bold text-slate-900">PHP {{ number_format($report['payments_collected'], 2) }}</p>
+                    <article class="min-w-0 rounded-xl bg-sky-50 p-3 sm:p-4">
+                        <p class="text-xs font-semibold leading-tight text-slate-500">Payments collected in period</p>
+                        <p class="mt-1 break-words text-base font-bold leading-tight text-slate-900 sm:text-xl">PHP {{ number_format($report['payments_collected'], 2) }}</p>
                     </article>
-                    <article class="rounded-xl bg-sky-50 p-4">
-                        <p class="text-xs font-semibold text-slate-500">Balance on these orders</p>
-                        <p class="mt-1 text-xl font-bold text-slate-900">PHP {{ number_format($report['outstanding_balance'], 2) }}</p>
+                    <article class="min-w-0 rounded-xl bg-sky-50 p-3 sm:p-4">
+                        <p class="text-xs font-semibold text-slate-500">Cash payments</p>
+                        <p class="mt-1 break-words text-base font-bold leading-tight text-slate-900 sm:text-xl">PHP {{ number_format($report['cash_payments'], 2) }}</p>
                     </article>
-                    <article class="rounded-xl bg-sky-50 p-4">
-                        <p class="text-xs font-semibold text-slate-500">Average order</p>
-                        <p class="mt-1 text-xl font-bold text-slate-900">PHP {{ number_format($report['average_order'], 2) }}</p>
+                    <article class="min-w-0 rounded-xl bg-sky-50 p-3 sm:p-4">
+                        <p class="text-xs font-semibold text-slate-500">GCash payments</p>
+                        <p class="mt-1 break-words text-base font-bold leading-tight text-slate-900 sm:text-xl">PHP {{ number_format($report['gcash_payments'], 2) }}</p>
                     </article>
                 </div>
 

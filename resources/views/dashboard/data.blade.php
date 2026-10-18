@@ -4,11 +4,10 @@
         <span class="text-sm font-medium">{{ now()->format('F d, Y') }}</span>
     </div>
 
-    <div class="mx-auto mb-6 grid w-full max-w-5xl grid-cols-[1.35fr_1fr] gap-1.5 sm:gap-2">
+    <div class="mx-auto mb-6 grid w-full max-w-5xl grid-cols-[1.1fr_1fr] grid-rows-2 gap-1.5 sm:gap-2">
         <x-dashboard.metric-card title="Total Revenue" :value="'₱'.number_format($totalRevenue, 2)" :featured="true" :entry-animation="true" :comparison="$totalRevenueComparison" :trend-points="$revenueTrendPoints" />
-        <x-dashboard.metric-card title="Total Orders" :value="$totalOrders" :compact="true" :entry-animation="true" :comparison="$totalOrdersComparison" />
-        <x-dashboard.metric-card title="Completed" :value="$completedOrders" :compact="true" :entry-animation="true" :comparison="$completedOrdersComparison" />
-        <x-dashboard.metric-card title="Ready for Pickup" :value="$readyForPickupOrders" :compact="true" :entry-animation="true" :comparison="$readyForPickupOrdersComparison" />
+        <x-dashboard.metric-card title="Total Orders" :value="$totalOrders" :compact="true" :stretch="true" :entry-animation="true" :comparison="$totalOrdersComparison" />
+        <x-dashboard.metric-card title="Average Order Value" :value="'₱'.number_format($averageOrderValue, 2)" :compact="true" :stretch="true" :entry-animation="true" :comparison="$averageOrderValueComparison" />
     </div>
 
     <div>

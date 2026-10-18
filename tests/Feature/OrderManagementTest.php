@@ -28,7 +28,7 @@ function createOrderManagementCustomer(): int
     return (int) DB::table('customers')->insertGetId([
         'name' => 'Test Customer',
         'contact_number' => '09123456789',
-        'address' => 'Test address',
+        'email' => null,
     ]);
 }
 

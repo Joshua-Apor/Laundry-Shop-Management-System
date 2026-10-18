@@ -93,7 +93,7 @@ class Order extends Model
                 'laundry_orders.pickup_date',
                 'customers.name as fullname',
                 'customers.contact_number as phoneNumber',
-                'customers.address as customerAddress',
+                'customers.email as customerEmail',
 
             ])
             ->selectSub(
@@ -121,6 +121,44 @@ class Order extends Model
             ->selectSub(
                 DB::table('payments')
                     ->whereColumn('payments.order_id', 'laundry_orders.order_id')
+                    ->orderBy('payments.payment_date')
+                    ->orderBy('payments.payment_id')
+                    ->limit(1)
+                    ->select('payment_method'),
+                'initialPaymentMethod',
+            )
+            ->selectSub(
+                DB::table('payments')
+                    ->whereColumn('payments.order_id', 'laundry_orders.order_id')
+                    ->orderBy('payments.payment_date')
+                    ->orderBy('payments.payment_id')
+                    ->limit(1)
+                    ->select('reference_number'),
+                'initialReferenceNumber',
+            )
+            ->selectSub(
+                DB::table('payments')
+                    ->whereColumn('payments.order_id', 'laundry_orders.order_id')
+                    ->orderBy('payments.payment_date')
+                    ->orderBy('payments.payment_id')
+                    ->offset(1)
+                    ->limit(1)
+                    ->select('payment_id'),
+                'balancePaymentId',
+            )
+            ->selectSub(
+                DB::table('payments')
+                    ->whereColumn('payments.order_id', 'laundry_orders.order_id')
+                    ->orderBy('payments.payment_date')
+                    ->orderBy('payments.payment_id')
+                    ->offset(1)
+                    ->limit(1)
+                    ->select('reference_number'),
+                'balancePaymentReferenceNumber',
+            )
+            ->selectSub(
+                DB::table('payments')
+                    ->whereColumn('payments.order_id', 'laundry_orders.order_id')
                     ->orderByDesc('payments.payment_date')
                     ->orderByDesc('payments.payment_id')
                     ->limit(1)
@@ -144,15 +182,6 @@ class Order extends Model
                     ->limit(1)
                     ->select('payment_date'),
                 'paymentDate',
-            )
-            ->selectSub(
-                DB::table('payments')
-                    ->whereColumn('payments.order_id', 'laundry_orders.order_id')
-                    ->orderByDesc('payments.payment_date')
-                    ->orderByDesc('payments.payment_id')
-                    ->limit(1)
-                    ->select('reference_number'),
-                'referenceNumber',
             );
     }
 }

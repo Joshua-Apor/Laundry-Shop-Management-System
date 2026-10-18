@@ -5,11 +5,11 @@ const formatPhoneInput = (input) => {
     let formatted = digits;
 
     if (digits.length > 4) {
-        formatted = `${digits.slice(0, 4)} ${digits.slice(4, 7)}`;
+        formatted = `${digits.slice(0, 4)}-${digits.slice(4, 7)}`;
     }
 
     if (digits.length > 7) {
-        formatted += ` ${digits.slice(7)}`;
+        formatted += `-${digits.slice(7)}`;
     }
 
     input.value = formatted;
@@ -354,7 +354,7 @@ document.addEventListener('click', (event) => {
         document.getElementById('customer-name').value = customerOption.dataset.name;
         document.getElementById('customer-phone').value = customerOption.dataset.phone;
         formatPhoneInput(document.getElementById('customer-phone'));
-        document.getElementById('customer-address').value = customerOption.dataset.address;
+        document.getElementById('customer-email').value = customerOption.dataset.email || '';
         document.getElementById('customer-id').value = customerOption.dataset.customerId;
         customerOption.closest('dialog')?.close();
         suggestionList?.classList.add('hidden');
@@ -480,7 +480,7 @@ document.addEventListener('input', (event) => {
             option.dataset.customerId = customer.dataset.customerId;
             option.dataset.name = customer.dataset.name;
             option.dataset.phone = customer.dataset.phone;
-            option.dataset.address = customer.dataset.address;
+            option.dataset.email = customer.dataset.email;
             option.className = 'block w-full rounded-md px-3 py-2 text-left transition-colors hover:bg-sky-50 focus-visible:bg-sky-50 focus-visible:outline-none';
 
             const name = document.createElement('span');

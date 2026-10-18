@@ -30,7 +30,7 @@
                     :customer-id="$customer->customer_id"
                     :name="$customer->fullname"
                     :phone="$customer->phoneNumber"
-                    :address="$customer->address"
+                    :email="$customer->email"
                     :order-total="$customer->orders_count"
                     :price-total="number_format($customer->total_spent, 2)"
                     :first-order-date="$customer->first_order_date"
