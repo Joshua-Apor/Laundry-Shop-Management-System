@@ -32,7 +32,7 @@
         <div class="space-y-2">
             @forelse ($orders as $order)
                 <div class="relative">
-                    <div class="card-entry-animation relative grid min-h-20 grid-cols-2 items-center gap-x-4 gap-y-3 rounded-2xl border border-sky-200 bg-white px-4 py-4 text-sm shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50/40 sm:grid-cols-[1.1fr_1.4fr_1fr_1.2fr_1fr] sm:gap-4 sm:px-5">
+                    <div class="card-entry-animation relative grid min-h-20 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-3 rounded-2xl border border-sky-200 bg-white px-4 py-4 text-sm shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50/40 sm:grid-cols-[1.1fr_1.4fr_1fr_1.2fr_1fr] sm:gap-4 sm:px-5">
                         <button type="button" data-modal-trigger data-modal-target="record-details-{{ $order->order_id }}" aria-label="View details for order {{ $order->order_id }}" class="absolute inset-0 z-10 rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"></button>
 
                         <span class="pointer-events-none relative z-0">
@@ -43,7 +43,7 @@
                             </span>
                         </span>
 
-                        <span class="pointer-events-none relative z-0 col-span-2 row-start-2 min-w-0 sm:row-auto sm:col-span-1">
+                        <span class="pointer-events-none relative z-0 col-span-full row-start-2 min-w-0 sm:row-auto sm:col-span-1">
                             <span class="block truncate font-medium text-slate-900">{{ $order->fullname }}</span>
                             <span class="block truncate text-xs text-slate-500">{{ $order->phoneNumber }}</span>
                         </span>
@@ -56,7 +56,7 @@
                             @endif
                         </span>
 
-                        <span class="pointer-events-none relative z-0 font-semibold text-slate-900">&#8369;{{ number_format((float) $order->total_amount, 2) }}</span>
+                        <span class="pointer-events-none relative z-0 text-right font-semibold text-slate-900 sm:text-left">&#8369;{{ number_format((float) $order->total_amount, 2) }}</span>
 
                         <div class="relative z-20 col-start-2 row-start-1 flex justify-start sm:col-start-5 sm:row-auto sm:justify-center">
                             <x-orders.status-control :order="$order" />

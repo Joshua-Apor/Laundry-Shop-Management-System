@@ -1,6 +1,6 @@
 <x-layout title="I Laba U" :navigation="false" :full-width="true">
 
-    <div class="grid min-h-screen lg:grid-cols-[1fr_1fr]">
+    <div class="grid min-h-screen lg:grid-cols-[2fr_3fr]">
 
         {{-- LEFT SIDE --}}
         <section
@@ -22,7 +22,7 @@
                     </span>
 
                     <span class="mt-0.5 text-sm font-medium text-white/75">
-                        Laundry Shop Management System
+                        I Laba U Staff Portal
                     </span>
                 </div>
 

@@ -65,10 +65,10 @@ class DatabaseSeeder extends Seeder
             ->keyBy('service_name');
 
         $sampleOrders = [
-            ['customer' => 0, 'days_ago' => 0, 'order_type' => 'Drop Off', 'weight' => 4.50, 'loads' => null, 'services' => ['Drop Off' => 1, 'Cellophane Blue' => 1], 'payment' => 'full', 'status' => 'Processing', 'pickup_days' => null],
-            ['customer' => 1, 'days_ago' => 1, 'order_type' => 'Drop Off', 'weight' => 6.25, 'loads' => null, 'services' => ['Drop Off' => 1, 'Cellophane White' => 1], 'payment' => 'partial', 'status' => 'Processing', 'pickup_days' => null],
-            ['customer' => 2, 'days_ago' => 2, 'order_type' => 'Self Service', 'weight' => null, 'loads' => 2, 'services' => ['Self Service' => 2, 'Dry' => 2, 'Sabon' => 2], 'payment' => 'full', 'status' => 'Ready for Pickup', 'pickup_days' => 0],
-            ['customer' => 3, 'days_ago' => 5, 'order_type' => 'Self Service', 'weight' => null, 'loads' => 1, 'services' => ['Self Service' => 1, 'Dry' => 1, 'Sabon' => 1], 'payment' => 'full', 'status' => 'Completed', 'pickup_days' => -1],
+            ['customer' => 0, 'days_ago' => 4, 'order_type' => 'Drop Off', 'weight' => 4.50, 'loads' => null, 'services' => ['Drop Off' => 1, 'Cellophane Blue' => 1], 'payment' => 'full', 'status' => 'Processing', 'pickup_days' => null],
+            ['customer' => 1, 'days_ago' => 2, 'order_type' => 'Drop Off', 'weight' => 6.25, 'loads' => null, 'services' => ['Drop Off' => 1, 'Cellophane White' => 1], 'payment' => 'partial', 'status' => 'Processing', 'pickup_days' => null],
+            ['customer' => 2, 'days_ago' => 1, 'order_type' => 'Self Service', 'weight' => null, 'loads' => 2, 'services' => ['Self Service' => 2, 'Dry' => 2, 'Sabon' => 2], 'payment' => 'full', 'status' => 'Ready for Pickup', 'pickup_days' => 0],
+            ['customer' => 3, 'days_ago' => 0, 'order_type' => 'Self Service', 'weight' => null, 'loads' => 1, 'services' => ['Self Service' => 1, 'Dry' => 1, 'Sabon' => 1], 'payment' => 'full', 'status' => 'Completed', 'pickup_days' => -1],
         ];
 
         foreach ($sampleOrders as $sampleOrder) {
