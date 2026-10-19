@@ -33,3 +33,4 @@ if (document.readyState === 'loading') {
 }
 
 window.initializeDropdownMessages = initializeDropdownMessages;
+document.addEventListener('htmx:afterSwap', (event) => initializeDropdownMessages(event.target));

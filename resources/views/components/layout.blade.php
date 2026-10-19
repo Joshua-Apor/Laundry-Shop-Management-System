@@ -35,7 +35,7 @@
 </head>
 
 
-<body hx-boost="true" class="min-h-screen bg-[#F0F8FF] font-sans text-slate-900 antialiased">
+<body hx-boost="true" class="min-h-screen bg-[#e8f5fb] font-sans text-slate-900 antialiased">
 
     @if (session('success') && ! session('receipt_email_warning'))
 

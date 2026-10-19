@@ -25,7 +25,7 @@
             </div>
         </form>
         <div data-customer-results>
-            <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" data-customer-list>
+            <div class="grid gap-3" data-customer-list>
                 @forelse ($customers as $customer)
                 <x-customers.customer-cont-modal
                     :initial="strtoupper(substr($customer->fullname, 0, 2))"

@@ -453,10 +453,10 @@
 
         </form>
 
-        <dialog data-order-service-dialog class="m-auto w-[min(34rem,calc(100vw-2rem))] max-w-none rounded-xl border border-slate-200 bg-white p-5 text-slate-900 shadow-xl backdrop:bg-slate-900/40 sm:p-6">
+        <dialog data-order-service-dialog class="m-auto w-[min(34rem,calc(100vw-2rem))] max-w-none rounded-xl border border-sky-200 bg-[#e8f5fb] p-5 text-[#5d2943] shadow-xl backdrop:bg-slate-900/40 sm:p-6">
             <div class="space-y-5">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-900">Select services</h2>
+                    <h2 class="text-center text-lg font-bold text-[#5d2943]">Select services</h2>
                     <p class="mt-1 text-sm text-slate-500">Choose Drop Off or Self Service, then select any additional services.</p>
                 </div>
 

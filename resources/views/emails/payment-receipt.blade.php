@@ -30,10 +30,6 @@
             <h2 style="margin: 0 0 14px; font-size: 16px;">Order details</h2>
             <table role="presentation" style="width: 100%; border-collapse: collapse; font-size: 14px;">
                 <tr><td style="padding: 5px 0; color: #64748b;">Customer</td><td style="padding: 5px 0; text-align: right; font-weight: bold;">{{ $order->fullname }}</td></tr>
-                <tr><td style="padding: 5px 0; color: #64748b;">Phone</td><td style="padding: 5px 0; text-align: right;">{{ $order->phoneNumber }}</td></tr>
-                @if (filled($order->customerEmail))
-                    <tr><td style="padding: 5px 0; color: #64748b;">Email</td><td style="padding: 5px 0; text-align: right;">{{ $order->customerEmail }}</td></tr>
-                @endif
                 <tr><td style="padding: 5px 0; color: #64748b;">Order date</td><td style="padding: 5px 0; text-align: right;">{{ \Illuminate\Support\Carbon::parse($order->order_date)->format('M j, Y') }} · {{ $order->order_time ? \Illuminate\Support\Carbon::parse($order->order_time)->format('g:i A') : 'Time unavailable' }}</td></tr>
                 <tr><td style="padding: 5px 0; color: #64748b;">Laundry type</td><td style="padding: 5px 0; text-align: right;">{{ $order->order_type }}</td></tr>
                 <tr><td style="padding: 5px 0; color: #64748b;">Quantity</td><td style="padding: 5px 0; text-align: right;">{{ $order->order_type === 'Self Service' ? $order->self_service_loads.' loads' : number_format((float) $order->weight, 2).' kg' }}</td></tr>

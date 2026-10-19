@@ -25,7 +25,7 @@
             </div>
         </form>
         <div data-customer-results>
-            <div class="grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-3" data-customer-list>
+            <div class="grid gap-3" data-customer-list>
                 @forelse ($customers as $customer)
                 <x-customers.customer-cont-modal
                     :customer-id="$customer->customer_id"

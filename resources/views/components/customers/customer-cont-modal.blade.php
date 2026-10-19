@@ -19,16 +19,21 @@
     data-modal-trigger
     data-modal-target="{{ $modalId }}"
     aria-label="View details for {{ $name }}"
-    class="card-entry-animation group relative grid min-h-24 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl border border-slate-200 bg-white p-3 text-left shadow-sm transition-[border-color,box-shadow] hover:border-[#168cff]/40 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#168cff] disabled:cursor-wait sm:min-h-28 sm:gap-3 sm:p-4">
-    <span class="min-w-0">
-        <span class="block truncate text-lg font-bold leading-tight text-slate-900 sm:text-xl">{{ $name }}</span>
-        <span class="mt-1 flex min-w-0 items-center gap-1 text-[10px] text-slate-400 sm:text-xs"><i class="fa-solid fa-phone shrink-0 text-[#168cff]" aria-hidden="true"></i><span class="truncate">{{ $formattedPhone }}</span></span>
+    class="card-entry-animation group relative flex min-h-20 w-full items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-left shadow-sm transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-[#168cff]/50 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#168cff] disabled:cursor-wait sm:min-h-24 sm:px-4">
+    <span class="flex min-w-0 items-center gap-3">
+        <span class="grid size-10 shrink-0 place-items-center rounded-full bg-sky-50 text-sm font-bold text-[#168cff] ring-1 ring-sky-100" aria-hidden="true">{{ mb_strtoupper(mb_substr(trim($name), 0, 2)) }}</span>
+        <span class="min-w-0">
+            <span class="block truncate text-base font-bold leading-tight text-slate-900">{{ $name }}</span>
+        </span>
     </span>
-    <span class="flex min-w-0 flex-col items-end gap-1 border-l border-slate-100 pl-2 text-right sm:pl-3">
-        <span class="whitespace-nowrap text-[10px] font-bold text-slate-800 sm:text-xs">{{ $orderTotal }} order{{ $orderTotal == 1 ? '' : 's' }}</span>
-        <span class="whitespace-nowrap text-[9px] text-slate-500 sm:text-[10px]">₱{{ $priceTotal }} spent</span>
+    <span class="flex shrink-0 items-center gap-3 sm:gap-6">
+        <span class="text-right">
+            <span class="block text-sm font-bold text-slate-800">{{ $orderTotal }} order{{ $orderTotal == 1 ? '' : 's' }}</span>
+            <span class="mt-1 block whitespace-nowrap text-xs text-slate-500">₱{{ $priceTotal }} spent</span>
+        </span>
+        <i class="fa-solid fa-chevron-right text-xs text-slate-300 transition-transform group-hover:translate-x-0.5 group-hover:text-[#168cff]" aria-hidden="true"></i>
     </span>
-    <span data-loading-spinner class="absolute right-2 top-2 hidden size-4 animate-spin rounded-full border-2 border-sky-200 border-t-[#168cff]" aria-hidden="true"></span>
+    <span data-loading-spinner class="absolute right-3 top-3 hidden size-4 animate-spin rounded-full border-2 border-sky-200 border-t-[#168cff]" aria-hidden="true"></span>
     <span data-loading-text class="sr-only">View Details</span>
 </button>
 
@@ -40,7 +45,7 @@
     <dl class="grid grid-cols-2 gap-3">
         <div class="col-span-2 rounded-lg bg-slate-50 p-3">
             <dt class="text-xs font-medium text-slate-500">Customer name</dt>
-            <dd class="mt-1 text-lg font-normal text-slate-900">
+            <dd class="mt-1 text-base font-bold leading-tight text-slate-900">
                 {{ $name }}
             </dd>
         </div>

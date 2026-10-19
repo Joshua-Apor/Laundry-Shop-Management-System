@@ -1,10 +1,10 @@
-<x-layout title="I Laba U" :navigation="false" :full-width="true">
+﻿<x-layout title="I Laba U" :navigation="false" :full-width="true">
 
     <div class="grid min-h-screen lg:grid-cols-[2fr_3fr]">
 
         {{-- LEFT SIDE --}}
         <section
-            class="relative flex min-h-[560px] flex-col overflow-hidden bg-[linear-gradient(145deg,#e51f87_0%,#b247b1_44%,#39b9ed_100%)] px-8 py-10 text-white sm:px-12 lg:min-h-screen lg:px-10 xl:px-14"
+            class="relative flex min-h-[560px] flex-col overflow-hidden bg-pink-100 px-8 py-10 text-[#5d2943] sm:px-12 lg:min-h-screen lg:px-10 xl:px-14"
         >
 
             {{-- Logo / Branding --}}
@@ -21,7 +21,7 @@
                         I Laba U
                     </span>
 
-                    <span class="mt-0.5 text-sm font-medium text-white/75">
+                    <span class="mt-0.5 text-sm font-medium text-[#7b4860]">
                         I Laba U Staff Portal
                     </span>
                 </div>
@@ -39,7 +39,7 @@
                     or Naked Tomorrow
                 </h1>
 
-                <p class="mt-5 max-w-xl text-sm leading-6 text-white/80">
+                <p class="mt-5 max-w-xl text-sm leading-6 text-[#7b4860]">
                     Track laundry orders, manage customers, record payments, and notify
                     customers when their laundry is ready — all from one place.
                 </p>
@@ -88,14 +88,14 @@
 
 
             {{-- Footer --}}
-            <p class="relative z-10 text-xs text-white/60">
+            <p class="relative z-10 text-xs text-[#a16a83]">
                 Purok Narra, Tagum City — © 2026
             </p>
 
 
             {{-- Background Decoration --}}
             <span
-                class="absolute -right-24 top-1/2 h-72 w-72 rounded-full bg-white/10 blur-3xl"
+                class="absolute -right-24 top-1/2 h-72 w-72 rounded-full bg-[#5d2943]/10 blur-3xl"
             ></span>
 
         </section>
@@ -191,7 +191,7 @@
                             required
                             autofocus
                             value="{{ old('identifier') }}"
-                            placeholder="Enter your name or email"
+                            placeholder="name/name@example.com"
                             autocomplete="off"
                             spellcheck="false"
                             class="mt-1.5 block w-full rounded-xl border border-[#b9dff3] bg-white px-3.5 py-3 text-sm font-normal outline-none transition placeholder:text-[#a3aeba] focus:border-[#4bb8eb] focus:ring-4 focus:ring-[#4bb8eb]/15"

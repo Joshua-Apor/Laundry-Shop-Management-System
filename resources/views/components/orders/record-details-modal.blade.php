@@ -1,5 +1,9 @@
 @props(['order', 'backModalId' => null])
 
+@php
+    $recordPayments = $order->recordPayments ?? collect();
+@endphp
+
 <x-modal :id="'record-details-'.$order->order_id" :title="'Order #'.$order->order_id" :data-history-detail-modal="$backModalId">
     <div class="space-y-5">
         <section>
@@ -69,12 +73,26 @@
             </div>
         </details>
 
-        <section class="flex items-center justify-between gap-3 rounded-xl border border-sky-100 bg-sky-50/70 p-4">
+        <section class="space-y-3 rounded-xl border border-sky-100 bg-sky-50/70 p-4">
             <div>
-                <h3 class="text-sm font-bold text-slate-900">View Receipt</h3>
-                <p class="mt-1 text-xs text-slate-600">Open a printable summary of this order and its payments.</p>
+                <h3 class="text-sm font-bold text-slate-900">Payment receipts</h3>
+                <p class="mt-1 text-xs text-slate-600">Open the receipt for each payment recorded for this order.</p>
             </div>
-            <button type="button" data-modal-trigger data-modal-target="order-receipt-{{ $order->order_id }}" class="shrink-0 rounded-lg border border-sky-200 bg-white px-3 py-2 text-xs font-bold text-sky-700 transition-colors hover:bg-sky-100">View Receipt</button>
+            @if ($recordPayments->count() > 1)
+                <div class="flex flex-wrap gap-2">
+                    @foreach ($recordPayments as $payment)
+                        <button type="button" data-modal-trigger data-modal-loading-trigger data-modal-target="payment-receipt-{{ $order->order_id }}-{{ $payment->payment_id }}" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-white px-3 py-2 text-xs font-bold text-sky-700 transition-colors hover:bg-sky-100">
+                            <span data-loading-spinner class="hidden size-3 animate-spin rounded-full border-2 border-sky-200 border-t-[#168cff]" aria-hidden="true"></span>
+                            <span>{{ $loop->first ? 'View Partial' : 'View Full' }}</span>
+                        </button>
+                    @endforeach
+                </div>
+            @else
+                <button type="button" data-modal-trigger data-modal-loading-trigger data-modal-target="order-receipt-{{ $order->order_id }}" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-white px-3 py-2 text-xs font-bold text-sky-700 transition-colors hover:bg-sky-100">
+                    <span data-loading-spinner class="hidden size-3 animate-spin rounded-full border-2 border-sky-200 border-t-[#168cff]" aria-hidden="true"></span>
+                    <span>View Receipt</span>
+                </button>
+            @endif
         </section>
 
         @if ($backModalId)
@@ -85,4 +103,12 @@
 
     </div>
 </x-modal>
-<x-orders.order-receipt-modal :order="$order" :back-modal-id="$backModalId" />
+@if ($recordPayments->isNotEmpty())
+    <x-orders.payment-receipt-modal
+        :order="$order"
+        :payment="$recordPayments->last()"
+        :id="'order-receipt-'.$order->order_id" />
+@else
+    <x-orders.order-receipt-modal :order="$order" :back-modal-id="$backModalId" />
+@endif
+

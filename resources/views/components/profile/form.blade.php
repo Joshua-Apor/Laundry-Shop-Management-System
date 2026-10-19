@@ -1,6 +1,6 @@
 @props(['user'])
 
-<form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="space-y-4 pb-20 sm:pb-24">
+<form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="space-y-4">
     @csrf
     @method('PATCH')
 
@@ -39,10 +39,10 @@
         </div>
     </section>
 
-    <dialog data-profile-picture-cropper class="m-auto w-[min(32rem,calc(100vw-2rem))] max-w-none rounded-xl border border-slate-200 bg-white p-5 text-slate-900 shadow-xl backdrop:bg-slate-900/40 sm:p-7">
+    <dialog data-profile-picture-cropper class="m-auto w-[min(32rem,calc(100vw-2rem))] max-w-none rounded-xl border border-sky-200 bg-[#e8f5fb] p-5 text-[#5d2943] shadow-xl backdrop:bg-slate-900/40 sm:p-7">
         <div class="space-y-5">
             <div>
-                <h2 class="text-lg font-bold text-slate-900">Crop profile picture</h2>
+                <h2 class="text-center text-lg font-bold text-[#5d2943]">Crop profile picture</h2>
                 <p class="mt-1 text-xs text-slate-500">Drag the circle to move the crop area. Drag any corner handle to resize it.</p>
             </div>
 
@@ -64,10 +64,10 @@
     </dialog>
 
     @if ($user->profile_picture_path)
-        <dialog id="remove-profile-picture-confirmation" data-modal-dialog class="m-auto w-[min(26rem,calc(100vw-2rem))] max-w-none rounded-xl border border-slate-200 bg-white p-5 text-slate-900 shadow-xl backdrop:bg-slate-900/40">
+        <dialog id="remove-profile-picture-confirmation" data-modal-dialog class="m-auto w-[min(26rem,calc(100vw-2rem))] max-w-none rounded-xl border border-sky-200 bg-[#e8f5fb] p-5 text-[#5d2943] shadow-xl backdrop:bg-slate-900/40">
             <div class="space-y-4">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-900">Remove profile picture?</h2>
+                    <h2 class="text-center text-lg font-bold text-[#5d2943]">Remove profile picture?</h2>
                     <p class="mt-1 text-sm leading-6 text-slate-600">Your profile will show your initials until you add another picture.</p>
                 </div>
                 <div class="flex justify-end gap-2">
@@ -151,10 +151,10 @@
         </button>
     </section>
 
-    <div class="sticky bottom-3 z-20 flex flex-wrap items-center justify-end gap-3 rounded-xl border border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur sm:bottom-4">
+    <div class="flex justify-end">
         <button type="submit" data-loading-button data-loading-message="Saving profile..." class="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-[#168cff] px-6 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#0878df] disabled:cursor-not-allowed disabled:opacity-70">
             <span data-loading-spinner class="hidden size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true"></span>
-            <span data-loading-text><i class="fa-solid fa-floppy-disk mr-1" aria-hidden="true"></i>Save profile</span>
+            <span data-loading-text><i class="fa-solid fa-floppy-disk mr-1" aria-hidden="true"></i>Save changes</span>
         </button>
     </div>
 </form>

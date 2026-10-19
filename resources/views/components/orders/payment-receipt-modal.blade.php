@@ -1,15 +1,15 @@
-@props(['order', 'payment'])
+@props(['order', 'payment', 'id' => 'payment-receipt-modal', 'label' => null])
 
 @php
     $receiptNumber = $payment->reference_number ?: 'Not recorded';
-    $paymentLabel = (int) $order->balancePaymentId === (int) $payment->payment_id
+    $paymentLabel = $label ?? ((int) $order->balancePaymentId === (int) $payment->payment_id
         ? 'Outstanding balance payment'
-        : 'Initial payment';
+        : 'Initial payment');
     $previouslyPaid = max((float) $order->amount_paid - (float) $payment->amount, 0);
 @endphp
 
-<x-modal id="payment-receipt-modal" title="Payment receipt" data-modal-open-on-load>
-    <div class="space-y-5" data-payment-receipt>
+<x-modal :id="$id" title="Payment receipt" :data-modal-open-on-load="$id === 'payment-receipt-modal'">
+    <article class="space-y-5" data-payment-receipt data-print-receipt>
         <header class="border-b border-dashed border-sky-200 pb-4 text-center">
             <img src="{{ asset('images/logo.png') }}" alt="" class="mx-auto mb-2 size-12 object-contain">
             <p class="text-lg font-extrabold text-slate-900">I Laba U</p>
@@ -22,10 +22,6 @@
             <div>
                 <p class="text-xs font-medium text-slate-500">Customer</p>
                 <p class="mt-1 font-semibold text-slate-900">{{ $order->fullname }}</p>
-                <p class="text-xs text-slate-600">{{ $order->phoneNumber }}</p>
-                @if (filled($order->customerEmail))
-                    <p class="mt-1 text-xs text-slate-600">{{ $order->customerEmail }}</p>
-                @endif
             </div>
             <div>
                 <p class="text-xs font-medium text-slate-500">Order date</p>
@@ -100,5 +96,8 @@
             <span>{{ $payment->payment_status }}</span>
         </div>
         <p class="text-center text-xs font-medium text-slate-600">Thank you for choosing I Laba U.</p>
-    </div>
+        <div class="flex justify-end border-t border-slate-100 pt-4">
+            <button type="button" data-print-receipt-button class="inline-flex items-center gap-2 rounded-lg bg-[#168cff] px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-[#0878df]"><i class="fa-solid fa-print" aria-hidden="true"></i>Print / Download PDF</button>
+        </div>
+    </article>
 </x-modal>

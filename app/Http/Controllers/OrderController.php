@@ -132,6 +132,16 @@ class OrderController extends Controller
             ->simplePaginate(15)
             ->withQueryString();
 
+        $paymentsByOrder = DB::table('payments')
+            ->whereIn('order_id', $orders->getCollection()->pluck('order_id'))
+            ->orderBy('payment_id')
+            ->get(['payment_id', 'order_id', 'payment_date', 'amount', 'payment_method', 'payment_status', 'reference_number'])
+            ->groupBy('order_id');
+
+        $orders->getCollection()->each(function (Order $order) use ($paymentsByOrder): void {
+            $order->setAttribute('recordPayments', $paymentsByOrder->get($order->order_id, collect())->values());
+        });
+
         return view('employee.records.index', [
             'orders' => $orders,
             'search' => $search,
