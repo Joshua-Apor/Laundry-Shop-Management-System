@@ -55,7 +55,7 @@ class OrderController extends Controller
             ->orderBy('laundry_orders.order_date')
             ->orderBy('laundry_orders.order_time')
             ->orderBy('laundry_orders.order_id')
-            ->paginate(15)
+            ->simplePaginate(15)
             ->withQueryString();
 
         return view('employee.orders.status', [
@@ -129,7 +129,7 @@ class OrderController extends Controller
             ->orderByDesc('laundry_orders.order_date')
             ->orderByDesc('laundry_orders.order_time')
             ->orderByDesc('laundry_orders.order_id')
-            ->paginate(15)
+            ->simplePaginate(15)
             ->withQueryString();
 
         return view('employee.records.index', [

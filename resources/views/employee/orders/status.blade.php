@@ -5,7 +5,7 @@
                 <h1 class="text-2xl font-bold text-slate-900">Update Order Status</h1>
                 <p class="text-sm text-slate-500">Active orders in Processing or Ready for Pickup.</p>
             </div>
-            <p class="text-sm font-medium text-slate-500">{{ $orders->total() }} matching orders</p>
+            <p class="text-sm font-medium text-slate-500">Showing {{ $orders->count() }} orders on this page</p>
         </div>
 
         <form method="GET" action="{{ route('employee.orders.status') }}" class="flex flex-col gap-3 rounded-2xl border border-sky-200 bg-white p-4 shadow-sm sm:flex-row sm:items-end">

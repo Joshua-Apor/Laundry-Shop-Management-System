@@ -254,28 +254,28 @@
                     <div class="flex w-[clamp(6.5rem,24%,10rem)] shrink-0 flex-col gap-1.5 sm:gap-2">
 
                         {{-- Revoke / Restore Access --}}
-                        <form method="POST"
-                            action="{{ route('manager.employees.access.update', $employee) }}"
-                            class="w-full">
-
-                            @csrf
-                            @method('PATCH')
-
-                            <input type="hidden" name="account_status"
-                                value="{{ $hasAccess ? '0' : '1' }}">
-
-                            <button type="submit"
-                                class="w-full rounded-md border px-1.5 py-2 text-[9px] font-semibold leading-tight transition-colors sm:rounded-lg sm:px-3 sm:text-xs
-                                {{ $hasAccess
-                                    ? 'border-amber-200 bg-white text-amber-700 hover:bg-amber-50'
-                                    : 'border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50' }}">
-
-                                <i class="fa-solid {{ $hasAccess ? 'fa-user-slash' : 'fa-user-check' }} mr-0.5 sm:mr-1"
-                                    aria-hidden="true"></i>
-
-                                {{ $hasAccess ? 'Revoke Access' : 'Restore Access' }}
+                        @if ($hasAccess)
+                            <button type="button"
+                                data-modal-trigger
+                                data-modal-target="employee-revoke-{{ $employee->user_id }}"
+                                class="w-full rounded-md border border-amber-200 bg-white px-1.5 py-2 text-[9px] font-semibold leading-tight text-amber-700 transition-colors hover:bg-amber-50 sm:rounded-lg sm:px-3 sm:text-xs">
+                                <i class="fa-solid fa-user-slash mr-0.5 sm:mr-1" aria-hidden="true"></i>
+                                Revoke Access
                             </button>
-                        </form>
+                        @else
+                            <form method="POST"
+                                action="{{ route('manager.employees.access.update', $employee) }}"
+                                class="w-full">
+                                @csrf
+                                @method('PATCH')
+                                <input type="hidden" name="account_status" value="1">
+                                <button type="submit"
+                                    class="w-full rounded-md border border-emerald-200 bg-white px-1.5 py-2 text-[9px] font-semibold leading-tight text-emerald-700 transition-colors hover:bg-emerald-50 sm:rounded-lg sm:px-3 sm:text-xs">
+                                    <i class="fa-solid fa-user-check mr-0.5 sm:mr-1" aria-hidden="true"></i>
+                                    Restore Access
+                                </button>
+                            </form>
+                        @endif
 
                         {{-- Remove Employee --}}
                         <button type="button"
@@ -291,6 +291,23 @@
 
                     </div>
                 </article>
+
+                @if ($hasAccess)
+                    <x-modal :id="'employee-revoke-'.$employee->user_id" title="Revoke employee access?">
+                        <div class="space-y-5">
+                            <p class="text-sm leading-6 text-slate-600">
+                                Revoke sign-in access for <strong class="text-slate-900">{{ $employee->name }}</strong>? They will no longer be able to access their employee account until access is restored.
+                            </p>
+                            <form method="POST" action="{{ route('manager.employees.access.update', $employee) }}" class="flex justify-end gap-2">
+                                @csrf
+                                @method('PATCH')
+                                <input type="hidden" name="account_status" value="0">
+                                <button type="button" data-modal-close class="rounded-lg border border-slate-200 px-4 py-2.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50">Cancel</button>
+                                <button type="submit" class="rounded-lg bg-amber-600 px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-amber-700">Revoke Access</button>
+                            </form>
+                        </div>
+                    </x-modal>
+                @endif
 
                 {{-- Delete Confirmation Modal --}}
                 <x-modal

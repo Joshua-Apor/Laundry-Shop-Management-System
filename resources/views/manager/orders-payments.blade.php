@@ -6,7 +6,7 @@
                     {{ $view === 'history' ? 'Order History & Payments' : 'Active Orders & Payments' }}
                 </h1>
                 <p class="text-sm text-slate-500">
-                    {{ $orders->total() }} matching orders
+                    Showing {{ $orders->count() }} orders on this page
                 </p>
             </div>
         </div>

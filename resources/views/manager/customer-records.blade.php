@@ -8,10 +8,12 @@
             <span class="shrink-0 rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#168cff] shadow-sm ring-1 ring-sky-100" data-customer-count>{{ number_format($customers->total()) }} total</span>
         </div>
         <form method="GET" action="{{ route('manager.customer-records') }}" class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_13rem] sm:items-end" data-customer-search-form>
-            <div class="relative">
+            <div>
                 <label class="mb-1 block text-xs font-semibold text-slate-600" for="customer-search">Search customers</label>
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-[2.55rem] text-sm text-slate-400" aria-hidden="true"></i>
-                <input id="customer-search" type="search" name="search" value="{{ $search }}" placeholder="Search by name or phone..." data-customer-search-input class="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm text-slate-700 shadow-sm placeholder:text-slate-400 focus:border-[#168cff] focus:outline-none focus:ring-2 focus:ring-sky-100">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400" aria-hidden="true"></i>
+                    <input id="customer-search" type="search" name="search" value="{{ $search }}" placeholder="Search by name or phone..." data-customer-search-input class="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm text-slate-700 shadow-sm placeholder:text-slate-400 focus:border-[#168cff] focus:outline-none focus:ring-2 focus:ring-sky-100">
+                </div>
             </div>
             <div>
                 <label class="mb-1 block text-xs font-semibold text-slate-600" for="customer-sort">Sort customers</label>

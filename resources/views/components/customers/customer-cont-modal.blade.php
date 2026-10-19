@@ -105,7 +105,7 @@
         <p class="text-sm text-slate-500">Order history loads when you open this view.</p>
     </div>
     <div class="mt-5 flex justify-start border-t border-sky-100 pt-4">
-        <button type="button" data-modal-back-target="{{ $modalId }}" class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Back</button>
+        <button type="button" data-modal-back-target="{{ $modalId }}" class="rounded-lg bg-[#F3F4F6] px-4 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200">Back</button>
     </div>
 </x-modal>
 

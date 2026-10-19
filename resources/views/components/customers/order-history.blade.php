@@ -29,8 +29,9 @@
                     <span class="text-slate-500">Total</span>
                     <span class="font-bold text-slate-900">₱{{ number_format((float) $order->total_amount, 2) }}</span>
                 </div>
-                <div class="mt-3 flex justify-end">
+                <div class="mt-3 flex flex-wrap justify-end gap-2">
                     <button type="button" data-modal-trigger data-modal-target="record-details-{{ $order->order_id }}" class="rounded-lg bg-[#168cff] px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-[#0878df]">View Details</button>
+                    <button type="button" data-modal-trigger data-modal-target="order-receipt-{{ $order->order_id }}" class="rounded-lg border border-sky-200 bg-white px-3 py-2 text-xs font-bold text-sky-700 transition-colors hover:bg-sky-50">View Receipt</button>
                 </div>
                 <x-orders.record-details-modal :order="$order" :back-modal-id="$backModalId" />
             </li>

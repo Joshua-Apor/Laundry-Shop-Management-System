@@ -30,6 +30,34 @@ const formatPhoneInput = (input) => {
 
 document.querySelectorAll('[data-phone-format]').forEach(formatPhoneInput);
 
+document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-print-receipt-button]');
+
+    if (!button) {
+        return;
+    }
+
+    const receipt = button.closest('[data-print-receipt]');
+
+    if (!receipt) {
+        return;
+    }
+
+    const printWindow = window.open('', '_blank', 'width=800,height=900');
+
+    if (!printWindow) {
+        window.print();
+        return;
+    }
+
+    printWindow.document.write(`<!doctype html><html><head><title>Order Receipt</title><meta charset="utf-8"><style>body{font:14px Arial,sans-serif;color:#0f172a;padding:32px}article{max-width:640px;margin:auto}header{text-align:center;border-bottom:1px dashed #bae6fd;padding-bottom:16px}header img{width:48px;height:48px;object-fit:contain}section{margin-top:20px;padding:16px;border:1px solid #e0f2fe;border-radius:12px}section div{margin:8px 0}.flex{display:flex;justify-content:space-between;gap:12px}.text-center{text-align:center}.text-xs{font-size:12px}.font-bold,.font-extrabold{font-weight:700}.hidden,button{display:none!important}</style></head><body>${receipt.outerHTML}</body></html>`);
+    printWindow.document.close();
+    printWindow.opener = null;
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+});
+
 async function loadDashboardResults(container) {
     container.setAttribute('aria-busy', 'true');
 

@@ -1,10 +1,10 @@
 @props(['user'])
 
-<form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="space-y-6 rounded-2xl border border-sky-100 bg-white p-5 shadow-sm sm:p-7">
+<form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="space-y-4 pb-20 sm:pb-24">
     @csrf
     @method('PATCH')
 
-    <section class="space-y-4">
+    <section class="space-y-4 rounded-2xl border border-sky-100 bg-white p-5 shadow-sm sm:p-6">
         <div>
             <h2 class="font-bold text-slate-900">Profile picture</h2>
             <p class="mt-1 text-xs text-slate-500">Upload a JPG, PNG, or WebP image up to 2 MB, then crop it to fit.</p>
@@ -78,42 +78,42 @@
         </dialog>
     @endif
 
-    <section class="space-y-4 border-t border-slate-100 pt-5">
-        <div>
-            <h2 class="font-bold text-slate-900">Account details</h2>
-            <p class="mt-1 text-xs text-slate-500">Your role is managed by the system.</p>
+    <section class="space-y-4 rounded-2xl border border-sky-100 bg-white p-5 shadow-sm sm:p-6">
+        <div class="flex items-start gap-3">
+            <span class="grid size-9 shrink-0 place-items-center rounded-lg bg-sky-50 text-sky-700"><i class="fa-solid fa-user-pen" aria-hidden="true"></i></span>
+            <div><h2 class="font-bold text-slate-900">Account details</h2><p class="mt-1 inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-2.5 py-1 text-xs text-slate-600"><i class="fa-solid fa-shield-halved text-slate-400" aria-hidden="true"></i>Your role is managed by the system.</p></div>
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
             <div>
-                <label for="profile-name" class="mb-1 block text-xs font-semibold text-slate-700">Full name</label>
+                <label for="profile-name" class="mb-1 flex items-center gap-2 text-xs font-semibold text-slate-700"><i class="fa-solid fa-user text-slate-400" aria-hidden="true"></i>Full name</label>
                 <input id="profile-name" name="name" type="text" value="{{ old('name', $user->name) }}" required maxlength="255" autocomplete="name" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100">
                 @error('name')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
             </div>
 
             <div>
-                <label for="profile-username" class="mb-1 block text-xs font-semibold text-slate-700">Username</label>
+                <label for="profile-username" class="mb-1 flex items-center gap-2 text-xs font-semibold text-slate-700"><i class="fa-solid fa-at text-slate-400" aria-hidden="true"></i>Username</label>
                 <input id="profile-username" name="username" type="text" value="{{ old('username', $user->username) }}" required maxlength="255" autocomplete="username" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100">
                 @error('username')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
             </div>
 
             <div class="sm:col-span-2">
-                <label for="profile-email" class="mb-1 block text-xs font-semibold text-slate-700">Email</label>
+                <label for="profile-email" class="mb-1 flex items-center gap-2 text-xs font-semibold text-slate-700"><i class="fa-solid fa-envelope text-slate-400" aria-hidden="true"></i>Email</label>
                 <input id="profile-email" name="email" type="email" value="{{ old('email', $user->email) }}" maxlength="255" autocomplete="email" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100">
                 @error('email')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
             </div>
         </div>
     </section>
 
-    <section class="space-y-4 border-t border-slate-100 pt-5">
+    <section class="space-y-4 rounded-2xl border border-sky-100 bg-white p-5 shadow-sm sm:p-6">
         <div>
             <h2 class="font-bold text-slate-900">Change password</h2>
             <p class="mt-1 text-xs text-slate-500">Leave these fields blank to keep your current password. New passwords need at least 8 characters.</p>
         </div>
 
-        <div class="grid gap-4 sm:grid-cols-2">
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div class="sm:col-span-2">
-                <label for="profile-current-password" class="mb-1 block text-xs font-semibold text-slate-700">Current password</label>
+                <label for="profile-current-password" class="mb-1 flex items-center gap-2 text-xs font-semibold text-slate-700"><i class="fa-solid fa-lock text-slate-400" aria-hidden="true"></i>Current password</label>
                 <span class="relative mt-1.5 block">
                     <input id="profile-current-password" name="current_password" type="password" data-password-input autocomplete="current-password" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 pr-11">
                     <button type="button" data-password-toggle aria-label="Show password" class="absolute inset-y-0 right-0 px-3 text-sm text-slate-500 transition hover:text-[#168cff]"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
@@ -122,7 +122,7 @@
             </div>
 
             <div>
-                <label for="profile-password" class="mb-1 block text-xs font-semibold text-slate-700">New password</label>
+                <label for="profile-password" class="mb-1 flex items-center gap-2 text-xs font-semibold text-slate-700"><i class="fa-solid fa-key text-slate-400" aria-hidden="true"></i>New password</label>
                 <span class="relative mt-1.5 block">
                     <input id="profile-password" name="password" type="password" data-password-input minlength="8" autocomplete="new-password" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 pr-11">
                     <button type="button" data-password-toggle aria-label="Show password" class="absolute inset-y-0 right-0 px-3 text-sm text-slate-500 transition hover:text-[#168cff]"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
@@ -131,7 +131,7 @@
             </div>
 
             <div>
-                <label for="profile-password-confirmation" class="mb-1 block text-xs font-semibold text-slate-700">Confirm new password</label>
+                <label for="profile-password-confirmation" class="mb-1 flex items-center gap-2 text-xs font-semibold text-slate-700"><i class="fa-solid fa-key text-slate-400" aria-hidden="true"></i>Confirm new password</label>
                 <span class="relative mt-1.5 block">
                     <input id="profile-password-confirmation" name="password_confirmation" type="password" data-password-input minlength="8" autocomplete="new-password" class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 pr-11">
                     <button type="button" data-password-toggle aria-label="Show password" class="absolute inset-y-0 right-0 px-3 text-sm text-slate-500 transition hover:text-[#168cff]"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
@@ -140,7 +140,7 @@
         </div>
     </section>
 
-    <section class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-5">
+    <section class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-sky-100 bg-sky-50/70 p-5 shadow-sm sm:p-6">
         <div>
             <h2 class="font-bold text-slate-900">Reset password with email</h2>
             <p class="mt-1 text-xs text-slate-500">Verify a code sent to your account email to choose a new password.</p>
@@ -151,8 +151,8 @@
         </button>
     </section>
 
-    <div class="flex flex-wrap items-center justify-end gap-3 border-t border-slate-100 pt-5">
-        <button type="submit" data-loading-button data-loading-message="Saving profile..." class="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#168cff] px-5 text-sm font-bold text-white transition-colors hover:bg-[#0878df] disabled:cursor-not-allowed disabled:opacity-70">
+    <div class="sticky bottom-3 z-20 flex flex-wrap items-center justify-end gap-3 rounded-xl border border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur sm:bottom-4">
+        <button type="submit" data-loading-button data-loading-message="Saving profile..." class="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-[#168cff] px-6 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#0878df] disabled:cursor-not-allowed disabled:opacity-70">
             <span data-loading-spinner class="hidden size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true"></span>
             <span data-loading-text><i class="fa-solid fa-floppy-disk mr-1" aria-hidden="true"></i>Save profile</span>
         </button>

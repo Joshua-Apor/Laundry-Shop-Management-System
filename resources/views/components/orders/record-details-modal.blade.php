@@ -69,6 +69,14 @@
             </div>
         </details>
 
+        <section class="flex items-center justify-between gap-3 rounded-xl border border-sky-100 bg-sky-50/70 p-4">
+            <div>
+                <h3 class="text-sm font-bold text-slate-900">View Receipt</h3>
+                <p class="mt-1 text-xs text-slate-600">Open a printable summary of this order and its payments.</p>
+            </div>
+            <button type="button" data-modal-trigger data-modal-target="order-receipt-{{ $order->order_id }}" class="shrink-0 rounded-lg border border-sky-200 bg-white px-3 py-2 text-xs font-bold text-sky-700 transition-colors hover:bg-sky-100">View Receipt</button>
+        </section>
+
         @if ($backModalId)
             <div class="flex justify-start border-t border-slate-100 pt-4">
                 <button type="button" data-modal-back-target="{{ $backModalId }}" class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Back</button>
@@ -77,3 +85,4 @@
 
     </div>
 </x-modal>
+<x-orders.order-receipt-modal :order="$order" :back-modal-id="$backModalId" />

@@ -6,7 +6,7 @@
                     {{ $view === 'history' ? 'Order History & Payments' : 'Active Orders & Payments' }}
                 </h1>
                 <p class="text-sm text-slate-500">
-                    {{ $orders->total() }} matching orders
+                    Showing {{ $orders->count() }} orders on this page
                 </p>
             </div>
             <a href="{{ route('orders.create') }}" class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#168cff] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0878df]">

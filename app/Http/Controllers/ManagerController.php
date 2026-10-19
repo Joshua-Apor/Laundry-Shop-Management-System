@@ -125,7 +125,7 @@ class ManagerController extends Controller
             ->orderByDesc('laundry_orders.order_date')
             ->orderByDesc('laundry_orders.order_time')
             ->orderByDesc('laundry_orders.order_id')
-            ->paginate(15)
+            ->simplePaginate(15)
             ->withQueryString();
 
         return view('manager.orders-payments', [
