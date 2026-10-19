@@ -24,22 +24,7 @@ class DashboardController extends Controller
                 'exception' => $exception,
             ]);
 
-            $emptyComparison = ['value' => '0%', 'direction' => 'flat'];
-
-            return view('dashboard.data', [
-                'totalOrders' => 0,
-                'averageOrderValue' => 0,
-                'needNotificationOrders' => 0,
-                'totalRevenue' => 0,
-                'revenueTrendPoints' => '',
-                'totalRevenueComparison' => $emptyComparison,
-                'totalOrdersComparison' => $emptyComparison,
-                'averageOrderValueComparison' => $emptyComparison,
-                'completedOrdersComparison' => $emptyComparison,
-                'readyForPickupOrdersComparison' => $emptyComparison,
-                'recentOrders' => collect(),
-                'unclaimedOrders' => collect(),
-            ]);
+            abort(503, 'Dashboard data is temporarily unavailable.');
         }
     }
 

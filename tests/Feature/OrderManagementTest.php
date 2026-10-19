@@ -97,3 +97,16 @@ it('returns a customer order history in descending order with the order details'
     expect($response->getContent())->toContain("Order #{$newerOrderId}")
         ->and(strpos($response->getContent(), "Order #{$newerOrderId}"))->toBeLessThan(strpos($response->getContent(), "Order #{$olderOrderId}"));
 });
+
+it('renders the order detail page for an existing order', function () {
+    $user = User::factory()->create(['role' => 'employee']);
+    $customerId = createOrderManagementCustomer();
+    $orderId = createOrderManagementFixture($customerId, (int) $user->getKey(), 'Processing', '2026-10-20', '10:00:00');
+
+    $this->actingAs($user)
+        ->get(route('records.show', $orderId))
+        ->assertOk()
+        ->assertSee("Order #{$orderId}")
+        ->assertSee('Test Customer')
+        ->assertSee('PHP 175.00');
+});

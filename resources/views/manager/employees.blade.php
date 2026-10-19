@@ -1,6 +1,12 @@
 <x-layout>
     <div class="space-y-4">
 
+        @error('employee')
+            <div role="alert" class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                {{ $message }}
+            </div>
+        @enderror
+
         {{-- Page Header --}}
         <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
@@ -17,7 +23,7 @@
 
             {{-- Add Employee --}}
             <details class="group relative shrink-0"
-                @if ($errors->any()) open @endif>
+                @if ($errors->hasAny(['name', 'username', 'email'])) open @endif>
 
                 <summary
                     class="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-lg bg-[#168cff] px-3 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-[#0878df] [&::-webkit-details-marker]:hidden">
@@ -317,7 +323,7 @@
                     <p class="text-sm leading-6 text-slate-600">
                         This action is irreversible. To confirm deletion, please type
                         the full name <strong>{{ $employee->name }}</strong> below.
-                        Their customer records and orders will be kept.
+                        Employees with order history cannot be permanently deleted. Revoke access to prevent sign-in while keeping their records.
                     </p>
 
                     <form method="POST"

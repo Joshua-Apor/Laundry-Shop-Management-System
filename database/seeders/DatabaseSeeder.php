@@ -19,6 +19,10 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(ServiceSeeder::class);
 
+        if (app()->environment('production') || ! config('app.seed_demo_data')) {
+            return;
+        }
+
         User::query()->updateOrCreate([
             'username' => 'josh',
         ], [

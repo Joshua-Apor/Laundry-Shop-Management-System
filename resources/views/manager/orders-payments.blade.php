@@ -199,6 +199,13 @@
                 </div>
 
                 <x-orders.record-details-modal :order="$order" />
+                @foreach ($order->recordPayments as $payment)
+                    <x-orders.payment-receipt-modal
+                        :order="$order"
+                        :payment="$payment"
+                        :id="'payment-receipt-'.$order->order_id.'-'.$payment->payment_id"
+                        :label="$loop->first ? 'Partial' : 'Final'" />
+                @endforeach
             </div>
             @empty
             <div class="rounded-2xl border border-sky-100 bg-white p-12 text-center text-sm text-slate-400">

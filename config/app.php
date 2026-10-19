@@ -84,6 +84,8 @@ return [
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
+    'seed_demo_data' => (bool) env('SEED_DEMO_DATA', env('APP_ENV', 'production') !== 'production'),
+
     /*
     |--------------------------------------------------------------------------
     | Encryption Key

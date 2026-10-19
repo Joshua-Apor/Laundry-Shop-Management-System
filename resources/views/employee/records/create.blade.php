@@ -421,13 +421,16 @@
                         Additional Price (₱)
 
                         <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            name="special_request_price"
-                            placeholder="e.g. 25.00"
+                            type="text"
+                            inputmode="decimal"
+                            maxlength="8"
+                            data-special-request-price-display
+                            value="{{ old('special_request_price') !== null ? number_format((float) old('special_request_price'), 2, '.', ',') : '' }}"
+                            placeholder="e.g. 1,000.00"
+                            aria-label="Additional price, maximum 9,999"
                             class="w-full rounded-lg border border-sky-200 bg-white px-3.5 py-2.5 text-sm font-normal text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300"
                         >
+                        <input type="hidden" name="special_request_price" value="{{ old('special_request_price') }}">
                     </label>
                 </div>
 

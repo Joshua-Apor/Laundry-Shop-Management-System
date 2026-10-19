@@ -216,6 +216,11 @@ class OrderController extends Controller
 
     public function show(Order $order): View
     {
+        $order = Order::query()
+            ->withRecordDetails()
+            ->where('laundry_orders.order_id', $order->getKey())
+            ->firstOrFail();
+
         return view('employee.records.show', ['order' => $order]);
     }
 

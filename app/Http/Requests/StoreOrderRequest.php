@@ -22,7 +22,7 @@ class StoreOrderRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->role === 'employee';
     }
 
     /**
@@ -50,7 +50,7 @@ class StoreOrderRequest extends FormRequest
             'service_quantities' => ['sometimes', 'array'],
             'service_quantities.*' => ['required', 'integer', 'min:1', 'max:999'],
             'special_request' => ['nullable', 'string', 'max:1000'],
-            'special_request_price' => ['nullable', 'numeric', 'min:0'],
+            'special_request_price' => ['nullable', 'numeric', 'min:0', 'max:9999'],
             'payment_method' => ['required', 'string', 'in:Cash,GCash'],
             'amount_paid' => ['required', 'numeric', 'min:0.01'],
         ];

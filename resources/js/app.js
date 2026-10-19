@@ -735,6 +735,53 @@ if (modalOrderForm) {
         style: 'currency',
         currency: 'PHP',
     }).format(amount);
+    const specialRequestPriceInput = modalOrderForm.querySelector('[data-special-request-price-display]');
+    const specialRequestPriceValue = modalOrderForm.querySelector('[name="special_request_price"]');
+
+    const updateSpecialRequestPrice = () => {
+        if (!specialRequestPriceInput || !specialRequestPriceValue) {
+            return;
+        }
+
+        const selectionStart = specialRequestPriceInput.selectionStart ?? specialRequestPriceInput.value.length;
+        const charactersBeforeCursor = specialRequestPriceInput.value.slice(0, selectionStart).replace(/,/g, '').length;
+        let rawValue = specialRequestPriceInput.value.replace(/,/g, '').replace(/[^\d.]/g, '');
+        const decimalIndex = rawValue.indexOf('.');
+
+        if (decimalIndex !== -1) {
+            rawValue = `${rawValue.slice(0, decimalIndex + 1)}${rawValue.slice(decimalIndex + 1).replace(/\./g, '')}`;
+        }
+
+        let [integerPart, fractionalPart = ''] = rawValue.split('.');
+        integerPart = integerPart.replace(/^0+(?=\d)/, '');
+        fractionalPart = fractionalPart.slice(0, 2);
+
+        if (Number(`${integerPart || 0}.${fractionalPart || 0}`) > 9999) {
+            integerPart = '9999';
+            fractionalPart = '00';
+        }
+
+        const hasDecimal = decimalIndex !== -1;
+        const normalizedValue = `${integerPart}${hasDecimal ? `.${fractionalPart}` : ''}`;
+        const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+        specialRequestPriceInput.value = `${formattedInteger}${hasDecimal ? `.${fractionalPart}` : ''}`;
+        specialRequestPriceValue.value = normalizedValue;
+
+        let cursorPosition = 0;
+        let countedCharacters = 0;
+
+        while (cursorPosition < specialRequestPriceInput.value.length && countedCharacters < charactersBeforeCursor) {
+            if (specialRequestPriceInput.value[cursorPosition] !== ',') {
+                countedCharacters += 1;
+            }
+
+            cursorPosition += 1;
+        }
+
+        specialRequestPriceInput.setSelectionRange(cursorPosition, cursorPosition);
+        updateOrderTotal();
+    };
 
     const updateProgress = (currentStep) => {
         stepIndicators.forEach((indicator) => {
@@ -759,7 +806,7 @@ if (modalOrderForm) {
     const updateOrderTotal = () => {
         const serviceTotal = Array.from(serviceList.querySelectorAll('[data-service-line-total]'))
             .reduce((total, line) => total + Number(line.dataset.serviceLineTotal), 0);
-        const specialRequestPrice = Number(modalOrderForm.querySelector('[name="special_request_price"]')?.value || 0);
+        const specialRequestPrice = Number(specialRequestPriceValue?.value || 0);
 
         const orderTotal = serviceTotal + specialRequestPrice;
 
@@ -956,7 +1003,9 @@ if (modalOrderForm) {
         updateProgress(2);
         modal.close();
     });
-    modalOrderForm.querySelector('[name="special_request_price"]')?.addEventListener('input', updateOrderTotal);
+    specialRequestPriceInput?.addEventListener('input', updateSpecialRequestPrice);
+
+    updateSpecialRequestPrice();
 
     if (oldSelectedType) {
         typeInput.value = oldSelectedType;

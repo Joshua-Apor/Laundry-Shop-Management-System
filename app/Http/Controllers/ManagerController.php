@@ -128,6 +128,15 @@ class ManagerController extends Controller
             ->simplePaginate(15)
             ->withQueryString();
 
+        $paymentsByOrder = DB::table('payments')
+            ->whereIn('order_id', $orders->getCollection()->pluck('order_id'))
+            ->orderBy('payment_id')
+            ->get(['payment_id', 'order_id', 'payment_date', 'amount', 'payment_method', 'payment_status', 'reference_number'])
+            ->groupBy('order_id');
+
+        $orders->getCollection()->each(function (Order $order) use ($paymentsByOrder): void {
+            $order->setAttribute('recordPayments', $paymentsByOrder->get($order->order_id, collect())->values());
+        });
         return view('manager.orders-payments', [
             'orders' => $orders,
             'search' => $search,
@@ -180,7 +189,7 @@ class ManagerController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
         ]);
 
-        $password = Str::random(random_int(8, 10));
+        $password = Str::random(12);
         $employee = User::query()->create([
             'name' => $validated['name'],
             'username' => $validated['username'],
@@ -222,8 +231,29 @@ class ManagerController extends Controller
             'confirmation_name' => ['required', 'string', Rule::in([$expectedName])],
         ]);
 
-        DB::table(config('session.table', 'sessions'))->where('user_id', $employee->getKey())->delete();
-        $employee->forceDelete();
+        $deleted = DB::transaction(function () use ($employee): bool {
+            $employee->newQuery()
+                ->whereKey($employee->getKey())
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if (DB::table('laundry_orders')->where('user_id', $employee->getKey())->exists()) {
+                return false;
+            }
+
+            DB::table(config('session.table', 'sessions'))
+                ->where('user_id', $employee->getKey())
+                ->delete();
+            $employee->forceDelete();
+
+            return true;
+        });
+
+        if (! $deleted) {
+            return redirect()->route('manager.employees')->withErrors([
+                'employee' => 'This employee has order history and cannot be permanently deleted. Revoke account access instead.',
+            ]);
+        }
 
         return redirect()->route('manager.employees')->with('success', 'Employee permanently deleted.');
     }
