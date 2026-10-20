@@ -428,11 +428,15 @@ class OrderController extends Controller
                 $customerPhoneNumber = (string) $customer->contact_number;
                 $customerName = (string) $customer->name;
                 $orderId = (int) $order->getKey();
+                $hasOutstandingBalance = (float) DB::table('laundry_orders')
+                    ->where('order_id', $orderId)
+                    ->value('balance') > 0;
 
                 defer(fn () => $textBeeSmsService->sendReadyForPickupNotification(
                     $customerPhoneNumber,
                     $customerName,
                     $orderId,
+                    $hasOutstandingBalance,
                 ));
             }
         }

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 
 class TextBeeSmsService
 {
-    public function sendReadyForPickupNotification(string $phoneNumber, string $customerName, int $orderId): void
+    public function sendReadyForPickupNotification(string $phoneNumber, string $customerName, int $orderId, bool $hasOutstandingBalance): void
     {
         $apiKey = config('services.textbee.api_key');
 
@@ -30,7 +30,7 @@ class TextBeeSmsService
             return;
         }
 
-        $messageEnding = ', your I Laba U laundry order is ready for pickup. Please pay the remaining balance before claiming it.';
+        $messageEnding = ', your I Laba U laundry order is ready for pickup.'.($hasOutstandingBalance ? ' Please pay the remaining balance before claiming it.' : ' Please visit the shop to claim it.');
         $customerNameLength = max(0, 120 - mb_strlen('Hi '.$messageEnding));
         $customerName = mb_substr(trim($customerName), 0, $customerNameLength);
         $message = "Hi {$customerName}{$messageEnding}";

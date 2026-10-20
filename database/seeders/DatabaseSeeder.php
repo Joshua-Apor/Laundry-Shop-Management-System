@@ -87,14 +87,15 @@ class DatabaseSeeder extends Seeder
             ['customer' => 7, 'days_ago' => 2, 'weight' => 9.00, 'payment' => 'full', 'status' => 'Completed'],
             ['customer' => 0, 'days_ago' => 2, 'order_type' => 'Self Service', 'loads' => 1, 'payment' => 'full', 'status' => 'Ready for Pickup'],
             ['customer' => 2, 'days_ago' => 1, 'weight' => 4.00, 'payment' => 'full', 'status' => 'Completed'],
-            ['customer' => 5, 'days_ago' => 0, 'weight' => 5.50, 'payment' => 'full', 'status' => 'Processing'],
-            ['customer' => 7, 'days_ago' => 0, 'order_type' => 'Self Service', 'loads' => 3, 'payment' => 'full', 'status' => 'Processing'],
+            ['customer' => 5, 'days_ago' => 0, 'minutes_before_now' => 1, 'weight' => 5.50, 'payment' => 'full', 'status' => 'Processing'],
+            ['customer' => 7, 'days_ago' => 0, 'minutes_before_now' => 0, 'order_type' => 'Self Service', 'loads' => 3, 'payment' => 'full', 'status' => 'Processing'],
         ];
 
         $receiptNumbersByDate = [];
+        $seededAt = now();
 
         foreach ($sampleOrders as $sampleOrder) {
-            $orderDate = now()->subDays($sampleOrder['days_ago'])->toDateString();
+            $orderDate = $seededAt->copy()->subDays($sampleOrder['days_ago'])->toDateString();
             $orderType = $sampleOrder['order_type'] ?? 'Drop Off';
             $weight = isset($sampleOrder['weight']) ? (float) $sampleOrder['weight'] : null;
             $loads = $sampleOrder['loads'] ?? null;
@@ -115,7 +116,15 @@ class DatabaseSeeder extends Seeder
             $total = round(array_sum($serviceFees), 2);
             $paid = $sampleOrder['payment'] === 'full' ? $total : round($total / 2, 2);
             $pickupDate = $sampleOrder['status'] === 'Completed' ? $orderDate : null;
-            $orderTime = Carbon::parse($orderDate)->setTime(9 + ($sampleOrder['customer'] % 8), 15)->format('H:i:s');
+            $sampleOrderTime = isset($sampleOrder['minutes_before_now'])
+                ? $seededAt->copy()->subMinutes($sampleOrder['minutes_before_now'])
+                : Carbon::parse($orderDate)->setTime(9 + ($sampleOrder['customer'] % 8), 15);
+
+            if ($sampleOrderTime->toDateString() !== $orderDate) {
+                $sampleOrderTime = $seededAt->copy()->startOfDay();
+            }
+
+            $orderTime = $sampleOrderTime->format('H:i:s');
 
             DB::table('laundry_orders')->updateOrInsert(
                 [

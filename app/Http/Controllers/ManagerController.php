@@ -137,6 +137,7 @@ class ManagerController extends Controller
         $orders->getCollection()->each(function (Order $order) use ($paymentsByOrder): void {
             $order->setAttribute('recordPayments', $paymentsByOrder->get($order->order_id, collect())->values());
         });
+
         return view('manager.orders-payments', [
             'orders' => $orders,
             'search' => $search,
@@ -189,7 +190,7 @@ class ManagerController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
         ]);
 
-        $password = Str::random(12);
+        $password = Str::random(8);
         $employee = User::query()->create([
             'name' => $validated['name'],
             'username' => $validated['username'],

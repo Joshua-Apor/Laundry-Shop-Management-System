@@ -22,7 +22,7 @@ it('sends the new employee a welcome email with an alphanumeric temporary passwo
         ->assertRedirect(route('manager.employees'));
 
     Mail::assertSent(EmployeeWelcome::class, function (EmployeeWelcome $mail) use ($email): bool {
-        return $mail->hasTo($email) && preg_match('/\A[A-Za-z0-9]{12}\z/', $mail->password) === 1;
+        return $mail->hasTo($email) && preg_match('/\A[A-Za-z0-9]{8}\z/', $mail->password) === 1;
     });
 });
 
