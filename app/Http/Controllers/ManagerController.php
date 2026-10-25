@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\EmployeeWelcome;
 use App\Models\Order;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,28 +25,49 @@ class ManagerController extends Controller
         $search = $request->string('search')->trim()->toString();
         $sort = $request->string('sort')->toString();
         $sort = in_array($sort, ['alphabetical', 'newest', 'oldest'], true) ? $sort : 'newest';
+        $filterInput = $request->query();
+        $validator = Validator::make($filterInput, [
+            'activity' => ['nullable', 'in:all,today,week,custom'],
+            'date_from' => ['nullable', 'date_format:Y-m-d'],
+            'date_to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:date_from'],
+        ]);
+        $dateFilters = $validator->passes() ? $validator->validated() : [];
+        $activity = $dateFilters['activity'] ?? 'all';
+        $today = CarbonImmutable::today();
+        [$dateFrom, $dateTo] = match ($activity) {
+            'today' => [$today->toDateString(), $today->toDateString()],
+            'week' => [$today->startOfWeek()->toDateString(), $today->endOfWeek()->toDateString()],
+            'custom' => [$dateFilters['date_from'] ?? null, $dateFilters['date_to'] ?? null],
+            default => [null, null],
+        };
 
         [$sortColumn, $sortDirection] = match ($sort) {
             'alphabetical' => ['customers.name', 'asc'],
             'oldest' => ['first_order_date', 'asc'],
-            default => ['first_order_date', 'desc'],
+            default => ['latest_order_date', 'desc'],
         };
 
         $customers = Order::query()
             ->leftJoin('customers', 'customers.customer_id', '=', 'laundry_orders.customer_id')
+            ->whereNull('customers.deleted_at')
             ->select([
                 'customers.customer_id as customer_id',
                 'customers.name as fullname',
                 'customers.contact_number as phoneNumber',
                 'customers.email as email',
             ])
-            ->selectRaw('COUNT(laundry_orders.order_id) as orders_count, SUM(laundry_orders.total_amount) as total_spent, MIN(laundry_orders.order_date) as first_order_date')
+            ->selectRaw('COUNT(laundry_orders.order_id) as orders_count, SUM(laundry_orders.total_amount) as total_spent, MIN(laundry_orders.order_date) as first_order_date, MAX(laundry_orders.order_date) as latest_order_date')
             ->when($search !== '', function ($query) use ($search): void {
                 $query->where(function ($query) use ($search): void {
                     $query->where('customers.name', 'like', "%{$search}%")
                         ->orWhere('customers.contact_number', 'like', "%{$search}%");
                 });
             })
+            ->when($dateFrom !== null, fn ($query) => $query->whereExists(function ($orders) use ($dateFrom, $dateTo): void {
+                $orders->selectRaw('1')->from('laundry_orders as activity_orders')
+                    ->whereColumn('activity_orders.customer_id', 'customers.customer_id')
+                    ->whereBetween('activity_orders.order_date', [$dateFrom, $dateTo]);
+            }))
             ->groupBy('customers.customer_id', 'customers.name', 'customers.contact_number', 'customers.email')
             ->orderBy($sortColumn, $sortDirection)
             ->orderBy('customers.name')
@@ -56,6 +78,9 @@ class ManagerController extends Controller
             'customers' => $customers,
             'search' => $search,
             'sort' => $sort,
+            'activity' => $activity,
+            'dateFrom' => $dateFilters['date_from'] ?? $dateFrom,
+            'dateTo' => $dateFilters['date_to'] ?? $dateTo,
         ]);
     }
 
@@ -73,6 +98,7 @@ class ManagerController extends Controller
             'payment_method' => ['nullable', Rule::in(['Cash', 'GCash'])],
             'date_from' => ['nullable', 'date_format:Y-m-d'],
             'date_to' => ['nullable', 'date_format:Y-m-d', Rule::when($request->filled('date_from'), ['after_or_equal:date_from'])],
+            'date_preset' => ['nullable', Rule::in(['today', 'week', 'all', 'custom'])],
         ]);
         $filters = $validator->passes() ? $validator->validated() : [];
         $formFilters = collect($filterInput)
@@ -81,6 +107,22 @@ class ManagerController extends Controller
         $searchQuery = is_string($filters['search'] ?? null) ? trim($filters['search']) : '';
         $search = is_scalar($formFilters['search'] ?? null) ? trim((string) $formFilters['search']) : '';
         $view = ($filterInput['view'] ?? 'active') === 'history' ? 'history' : 'active';
+        $datePreset = $filters['date_preset'] ?? ($view === 'active' ? 'today' : 'all');
+        if ($datePreset === 'today') {
+            $filters['date_from'] = now()->toDateString();
+            $filters['date_to'] = now()->toDateString();
+        } elseif ($datePreset === 'week') {
+            $filters['date_from'] = now()->startOfWeek()->toDateString();
+            $filters['date_to'] = now()->endOfWeek()->toDateString();
+        } elseif ($datePreset === 'all') {
+            unset($filters['date_from'], $filters['date_to']);
+        } elseif ($datePreset === 'custom' && empty($filters['date_from']) && empty($filters['date_to'])) {
+            $filters['date_from'] = now()->toDateString();
+            $filters['date_to'] = now()->toDateString();
+        }
+        $formFilters['date_preset'] = $datePreset;
+        $formFilters['date_from'] = $filters['date_from'] ?? '';
+        $formFilters['date_to'] = $filters['date_to'] ?? '';
 
         $orders = Order::query()
             ->withRecordDetails()
@@ -125,7 +167,7 @@ class ManagerController extends Controller
             ->orderByDesc('laundry_orders.order_date')
             ->orderByDesc('laundry_orders.order_time')
             ->orderByDesc('laundry_orders.order_id')
-            ->simplePaginate(15)
+            ->paginate(15)
             ->withQueryString();
 
         $paymentsByOrder = DB::table('payments')
@@ -143,6 +185,7 @@ class ManagerController extends Controller
             'search' => $search,
             'filters' => $formFilters,
             'view' => $view,
+            'datePreset' => $datePreset,
         ])->withErrors($validator);
     }
 

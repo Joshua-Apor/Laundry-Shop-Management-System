@@ -221,7 +221,11 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-sky-50">
-                                @forelse ($report['orders'] as $order)
+                                @forelse ($report['order_groups'] as $dateKey => $orderGroup)
+                                    <tr>
+                                        <td colspan="8" class="px-2 py-1"><x-timeline-divider :date-key="$dateKey" /></td>
+                                    </tr>
+                                    @foreach ($orderGroup as $order)
                                     <tr>
                                         <td class="px-4 py-3"><span class="inline-flex rounded-md border border-sky-200 bg-sky-50 px-1.5 py-0.5 font-mono text-xs font-bold text-sky-800">#{{ $order['order_id'] }}</span></td>
                                         <td class="px-4 py-3 text-slate-600">{{ $order['order_date'] }}</td>
@@ -232,6 +236,7 @@
                                         <td class="px-4 py-3 text-slate-600">{{ number_format($order['paid'], 2) }}</td>
                                         <td class="px-4 py-3 text-slate-600">{{ number_format($order['balance'], 2) }}</td>
                                     </tr>
+                                    @endforeach
                                 @empty
                                     <tr><td colspan="8" class="px-4 py-8 text-center text-slate-400">No orders in this period.</td></tr>
                                 @endforelse

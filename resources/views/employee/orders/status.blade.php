@@ -5,10 +5,10 @@
                 <h1 class="text-2xl font-bold text-slate-900">Update Order Status</h1>
                 <p class="text-sm text-slate-500">Active orders in Processing or Ready for Pickup.</p>
             </div>
-            <p class="text-sm font-medium text-slate-500">Showing {{ $orders->count() }} orders on this page</p>
+            <p class="text-sm font-medium text-slate-500">Active orders in Processing or Ready for Pickup.</p>
         </div>
 
-        <form method="GET" action="{{ route('employee.orders.status') }}" class="flex flex-col gap-3 rounded-2xl border border-sky-200 bg-white p-4 shadow-sm sm:flex-row sm:items-end">
+        <form method="GET" action="{{ route('employee.orders.status') }}" class="flex flex-col gap-3 rounded-2xl border border-sky-200 bg-white p-4 shadow-sm sm:flex-row sm:items-end" data-order-filter-form>
             <div class="grow">
                 <label for="order-status-search" class="mb-1 block text-xs font-semibold text-slate-700">Search active orders</label>
                 <input id="order-status-search" type="search" name="search" value="{{ $search }}" placeholder="Order ID, customer name, or phone" class="w-full rounded-lg border border-sky-200 bg-white px-4 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300">
@@ -21,6 +21,8 @@
             </div>
         </form>
 
+        <div data-order-results class="space-y-2 transition-opacity aria-busy:opacity-60" aria-busy="false">
+        <p class="mb-2 text-xs font-medium text-slate-700">Showing {{ $orders->firstItem() ?? 0 }} to {{ $orders->lastItem() ?? 0 }} of {{ $orders->total() }} orders</p>
         <div class="hidden grid-cols-[1.1fr_1.4fr_1fr_1.2fr_1fr] gap-4 px-5 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:grid">
             <span>Order Number</span>
             <span>Customer Name</span>
@@ -30,7 +32,17 @@
         </div>
 
         <div class="space-y-2">
-            @forelse ($orders as $order)
+            @php
+                $timelineGroups = $orders->getCollection()->groupBy(function ($order) {
+                    $date = \Illuminate\Support\Carbon::parse($order->order_date);
+
+                    return $date->lt(now()->startOfYear()) ? $date->format('Y') : $date->toDateString();
+                })->sortKeysDesc();
+            @endphp
+            @forelse ($timelineGroups as $timelineKey => $timelineOrders)
+                <section class="space-y-2" aria-label="Order activity date group">
+                    <x-timeline-divider :date-key="$timelineKey" />
+                    @foreach ($timelineOrders as $order)
                 <div class="relative">
                     <div class="card-entry-animation relative grid min-h-20 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-3 rounded-2xl border border-sky-200 bg-white px-4 py-4 text-sm shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50/40 sm:grid-cols-[1.1fr_1.4fr_1fr_1.2fr_1fr] sm:gap-4 sm:px-5">
                         <button type="button" data-modal-trigger data-modal-target="record-details-{{ $order->order_id }}" aria-label="View details for order {{ $order->order_id }}" class="absolute inset-0 z-10 rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"></button>
@@ -64,6 +76,8 @@
                     </div>
                     <x-orders.record-details-modal :order="$order" />
                 </div>
+                    @endforeach
+                </section>
             @empty
                 <div class="rounded-2xl border border-sky-100 bg-white p-12 text-center text-sm text-slate-400">
                     {{ $search === '' ? 'No active orders need a status update.' : 'No active orders matched your search.' }}
@@ -71,7 +85,13 @@
             @endforelse
         </div>
 
-        {{ $orders->links() }}
+        <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p class="text-xs font-medium text-slate-700">Showing {{ $orders->firstItem() ?? 0 }} to {{ $orders->lastItem() ?? 0 }} of {{ $orders->total() }} orders</p>
+            <div class="flex justify-center [&_[aria-current=page]>span]:rounded-lg [&_[aria-current=page]>span]:border-[#168cff] [&_[aria-current=page]>span]:bg-[#168cff] [&_[aria-current=page]>span]:text-white [&_a]:rounded-lg [&_a:hover]:bg-sky-50 [&_a:hover]:text-[#168cff] sm:justify-end">
+                {{ $orders->links() }}
+            </div>
+        </div>
+        </div>
     </div>
 
     @if ($receipt)

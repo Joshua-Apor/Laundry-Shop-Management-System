@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Order;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class SalesReportService
@@ -21,7 +22,8 @@ class SalesReportService
      *     cash_payments: float,
      *     gcash_payments: float,
      *     statuses: array<string, array{count: int, total: float}>,
-     *     orders: list<array{order_id: int, order_date: string, customer: string, employee: string, status: string, total: float, paid: float, balance: float}>
+     *     orders: list<array{order_id: int, order_date: string, customer: string, employee: string, status: string, total: float, paid: float, balance: float}>,
+     *     order_groups: Collection<int|string, Collection<int, array{order_id: int, order_date: string, customer: string, employee: string, status: string, total: float, paid: float, balance: float}>>
      * }
      */
     public function generate(string $period, string $date, ?string $endDate = null): array
@@ -49,8 +51,8 @@ class SalesReportService
                 'laundry_orders.amount_paid as paid',
                 'laundry_orders.balance',
             ])
-            ->orderBy('laundry_orders.order_date')
-            ->orderBy('laundry_orders.order_id')
+            ->orderByDesc('laundry_orders.order_date')
+            ->orderByDesc('laundry_orders.order_id')
             ->get()
             ->map(fn (Order $order): array => [
                 'order_id' => (int) $order->order_id,
@@ -63,6 +65,16 @@ class SalesReportService
                 'balance' => (float) $order->balance,
             ])
             ->all();
+
+        $orderGroups = collect($orders)
+            ->groupBy(function (array $order): string {
+                $orderDate = CarbonImmutable::createFromFormat('!Y-m-d', $order['order_date']);
+
+                return $orderDate->year < CarbonImmutable::today()->year
+                    ? $orderDate->format('Y')
+                    : $orderDate->toDateString();
+            })
+            ->sortKeysDesc();
 
         $totalSales = array_sum(array_column($orders, 'total'));
         $statuses = [];
@@ -101,6 +113,7 @@ class SalesReportService
             'gcash_payments' => (float) $paymentTotals->gcash_payments,
             'statuses' => $statuses,
             'orders' => $orders,
+            'order_groups' => $orderGroups,
         ];
     }
 }

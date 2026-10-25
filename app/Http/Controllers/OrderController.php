@@ -25,6 +25,7 @@ class OrderController extends Controller
         abort_unless(auth()->user()?->role === 'employee', 403);
 
         $customers = DB::table('customers')
+            ->whereNull('deleted_at')
             ->select(['customer_id', 'name', 'contact_number', 'email'])
             ->orderBy('name')
             ->get();
@@ -52,10 +53,10 @@ class OrderController extends Controller
                         ->orWhere('laundry_orders.order_id', 'like', "%{$search}%");
                 });
             })
-            ->orderBy('laundry_orders.order_date')
-            ->orderBy('laundry_orders.order_time')
-            ->orderBy('laundry_orders.order_id')
-            ->simplePaginate(15)
+            ->orderByDesc('laundry_orders.order_date')
+            ->orderByDesc('laundry_orders.order_time')
+            ->orderByDesc('laundry_orders.order_id')
+            ->paginate(15)
             ->withQueryString();
 
         return view('employee.orders.status', [
@@ -77,6 +78,7 @@ class OrderController extends Controller
             'payment_method' => ['nullable', Rule::in(['Cash', 'GCash'])],
             'date_from' => ['nullable', 'date_format:Y-m-d'],
             'date_to' => ['nullable', 'date_format:Y-m-d', Rule::when($request->filled('date_from'), ['after_or_equal:date_from'])],
+            'date_preset' => ['nullable', Rule::in(['today', 'week', 'all', 'custom'])],
         ]);
         $filters = $validator->passes() ? $validator->validated() : [];
         $formFilters = collect($filterInput)
@@ -85,6 +87,22 @@ class OrderController extends Controller
         $searchQuery = is_string($filters['search'] ?? null) ? trim($filters['search']) : '';
         $search = is_scalar($formFilters['search'] ?? null) ? trim((string) $formFilters['search']) : '';
         $view = ($filterInput['view'] ?? 'active') === 'history' ? 'history' : 'active';
+        $datePreset = $filters['date_preset'] ?? ($view === 'active' ? 'today' : 'all');
+        if ($datePreset === 'today') {
+            $filters['date_from'] = now()->toDateString();
+            $filters['date_to'] = now()->toDateString();
+        } elseif ($datePreset === 'week') {
+            $filters['date_from'] = now()->startOfWeek()->toDateString();
+            $filters['date_to'] = now()->endOfWeek()->toDateString();
+        } elseif ($datePreset === 'all') {
+            unset($filters['date_from'], $filters['date_to']);
+        } elseif ($datePreset === 'custom' && empty($filters['date_from']) && empty($filters['date_to'])) {
+            $filters['date_from'] = now()->toDateString();
+            $filters['date_to'] = now()->toDateString();
+        }
+        $formFilters['date_preset'] = $datePreset;
+        $formFilters['date_from'] = $filters['date_from'] ?? '';
+        $formFilters['date_to'] = $filters['date_to'] ?? '';
 
         $orders = Order::query()
             ->withRecordDetails()
@@ -129,7 +147,7 @@ class OrderController extends Controller
             ->orderByDesc('laundry_orders.order_date')
             ->orderByDesc('laundry_orders.order_time')
             ->orderByDesc('laundry_orders.order_id')
-            ->simplePaginate(15)
+            ->paginate(15)
             ->withQueryString();
 
         $paymentsByOrder = DB::table('payments')
@@ -147,6 +165,7 @@ class OrderController extends Controller
             'search' => $search,
             'filters' => $formFilters,
             'view' => $view,
+            'datePreset' => $datePreset,
             'receipt' => $this->paymentReceipt($request),
         ])->withErrors($validator);
     }

@@ -1,8 +1,18 @@
 @if ($orders->isEmpty())
     <p class="rounded-lg bg-slate-50 p-4 text-sm text-slate-500">No orders found for this customer.</p>
 @else
+    <p class="mb-2 text-xs font-medium text-slate-700">Showing {{ $orders->firstItem() ?? 0 }} to {{ $orders->lastItem() ?? 0 }} of {{ $orders->total() }} orders</p>
     <ol class="max-h-72 space-y-3 overflow-y-auto pr-1">
-        @foreach ($orders as $order)
+        @php
+            $timelineGroups = $orders->getCollection()->groupBy(function ($order) {
+                $date = \Illuminate\Support\Carbon::parse($order->order_date);
+
+                return $date->lt(now()->startOfYear()) ? $date->format('Y') : $date->toDateString();
+            })->sortKeysDesc();
+        @endphp
+        @foreach ($timelineGroups as $timelineKey => $timelineOrders)
+            <li class="list-none" aria-label="Order date group"><x-timeline-divider :date-key="$timelineKey" /></li>
+            @foreach ($timelineOrders as $order)
             @php
                 $statusClasses = match (strtolower($order->status)) {
                     'completed' => 'border-emerald-200 bg-emerald-50 text-emerald-700',
@@ -35,6 +45,13 @@
                 </div>
                 <x-orders.record-details-modal :order="$order" :back-modal-id="$backModalId" />
             </li>
+            @endforeach
         @endforeach
     </ol>
+    <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-xs font-medium text-slate-700">Showing {{ $orders->firstItem() ?? 0 }} to {{ $orders->lastItem() ?? 0 }} of {{ $orders->total() }} orders</p>
+        <div class="flex justify-center [&_[aria-current=page]>span]:rounded-lg [&_[aria-current=page]>span]:border-[#168cff] [&_[aria-current=page]>span]:bg-[#168cff] [&_[aria-current=page]>span]:text-white [&_a]:rounded-lg [&_a:hover]:bg-sky-50 [&_a:hover]:text-[#168cff] sm:justify-end">
+            {{ $orders->links() }}
+        </div>
+    </div>
 @endif

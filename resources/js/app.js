@@ -148,6 +148,7 @@ async function loadCustomerOrderHistory(container) {
 
 let customerSearchTimer;
 let customerSearchController;
+let orderResultsController;
 
 async function refreshCustomerResults(form, url = null, addHistoryEntry = false) {
     customerSearchController?.abort();
@@ -165,6 +166,7 @@ async function refreshCustomerResults(form, url = null, addHistoryEntry = false)
 
     form.setAttribute('aria-busy', 'true');
     results?.setAttribute('aria-busy', 'true');
+    results?.classList.add('opacity-60', 'pointer-events-none');
 
     try {
         const response = await fetch(requestUrl, {
@@ -202,6 +204,55 @@ async function refreshCustomerResults(form, url = null, addHistoryEntry = false)
             customerSearchController = null;
             form.removeAttribute('aria-busy');
             results?.removeAttribute('aria-busy');
+            results?.classList.remove('opacity-60', 'pointer-events-none');
+        }
+    }
+}
+
+async function refreshOrderResults(form, url = null) {
+    orderResultsController?.abort();
+
+    const controller = new AbortController();
+    orderResultsController = controller;
+    const requestUrl = new URL(url ?? form.action, window.location.origin);
+
+    if (!url) {
+        requestUrl.search = new URLSearchParams(new FormData(form)).toString();
+    }
+
+    const results = document.querySelector('[data-order-results]');
+    results?.setAttribute('aria-busy', 'true');
+    results?.classList.add('opacity-60', 'pointer-events-none');
+
+    try {
+        const response = await fetch(requestUrl, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'text/html' },
+            credentials: 'same-origin',
+            signal: controller.signal,
+        });
+
+        if (!response.ok || response.redirected) {
+            throw new Error('Order results request failed.');
+        }
+
+        const documentContent = new DOMParser().parseFromString(await response.text(), 'text/html');
+        const updatedResults = documentContent.querySelector('[data-order-results]');
+
+        if (!results || !updatedResults) {
+            throw new Error('Order results were incomplete.');
+        }
+
+        results.innerHTML = updatedResults.innerHTML;
+        window.history.pushState({}, '', requestUrl);
+    } catch (error) {
+        if (error.name !== 'AbortError') {
+            window.location.assign(requestUrl);
+        }
+    } finally {
+        if (orderResultsController === controller) {
+            orderResultsController = null;
+            results?.removeAttribute('aria-busy');
+            results?.classList.remove('opacity-60', 'pointer-events-none');
         }
     }
 }
@@ -236,10 +287,26 @@ document.addEventListener('change', (event) => {
         window.clearTimeout(customerSearchTimer);
         refreshCustomerResults(event.target.form);
     }
+
+    if (event.target.matches('[data-customer-activity], [data-customer-search-form] input[type="date"]')) {
+        window.clearTimeout(customerSearchTimer);
+        refreshCustomerResults(event.target.form);
+    }
+
+    if (event.target.matches('[data-order-date-preset], [data-order-filter-form] input[type="date"]')) {
+        refreshOrderResults(event.target.form);
+    }
 });
 
 document.addEventListener('submit', (event) => {
     const form = event.target;
+
+    if (form.matches('[data-order-filter-form]')) {
+        event.preventDefault();
+        refreshOrderResults(form);
+        return;
+    }
+
     const button = event.submitter?.matches('[data-loading-button]')
         ? event.submitter
         : form.querySelector('[data-loading-button]');
@@ -328,6 +395,23 @@ document.addEventListener('click', (event) => {
     refreshCustomerResults(form, paginationLink.href, true);
 });
 
+document.addEventListener('click', (event) => {
+    const paginationLink = event.target.closest('[data-order-results] a[href]');
+
+    if (!paginationLink || paginationLink.origin !== window.location.origin) {
+        return;
+    }
+
+    const form = document.querySelector('[data-order-filter-form]');
+
+    if (!form) {
+        return;
+    }
+
+    event.preventDefault();
+    refreshOrderResults(form, paginationLink.href);
+});
+
 window.addEventListener('popstate', () => {
     const form = document.querySelector('[data-customer-search-form]');
 
@@ -338,9 +422,43 @@ window.addEventListener('popstate', () => {
     const url = new URL(window.location.href);
     form.querySelector('[name="search"]').value = url.searchParams.get('search') ?? '';
     form.querySelector('[name="sort"]').value = url.searchParams.get('sort') ?? 'newest';
+    form.querySelector('[name="activity"]').value = url.searchParams.get('activity') ?? 'all';
+    form.querySelectorAll('[name="date_from"], [name="date_to"]').forEach((input) => {
+        input.value = url.searchParams.get(input.name) ?? '';
+    });
     refreshCustomerResults(form, url.href);
 });
+
+window.addEventListener('popstate', () => {
+    const form = document.querySelector('[data-order-filter-form]');
+
+    if (!form) {
+        return;
+    }
+
+    const url = new URL(window.location.href);
+    form.querySelectorAll('[name]').forEach((input) => {
+        if (url.searchParams.has(input.name)) {
+            input.value = url.searchParams.get(input.name);
+        }
+    });
+    refreshOrderResults(form, url.href);
+});
 document.addEventListener('click', (event) => {
+    const historyPaginationLink = event.target.closest('[data-customer-order-history] a[href]');
+
+    if (historyPaginationLink) {
+        event.preventDefault();
+        const historyContainer = historyPaginationLink.closest('[data-customer-order-history]');
+
+        if (historyContainer) {
+            historyContainer.dataset.historyUrl = historyPaginationLink.href;
+            loadCustomerOrderHistory(historyContainer);
+        }
+
+        return;
+    }
+
     const historyRetryButton = event.target.closest('[data-customer-history-retry]');
 
     if (historyRetryButton) {

@@ -196,5 +196,7 @@ class DatabaseSeeder extends Seeder
                 ['last_number' => max((int) DB::table('payment_receipt_sequences')->where('receipt_date', $orderDate)->value('last_number'), $receiptNumbersByDate[$orderDate])],
             );
         }
+
+        $this->call(CustomerOrderTimelineSeeder::class);
     }
 }

@@ -6,7 +6,7 @@
                     {{ $view === 'history' ? 'Order History & Payments' : 'Active Orders & Payments' }}
                 </h1>
                 <p class="text-sm text-slate-500">
-                    Showing {{ $orders->count() }} orders on this page
+                    Order activity and payment records.
                 </p>
             </div>
         </div>
@@ -28,7 +28,7 @@
             <a href="{{ route('manager.orders-payments', ['view' => 'history']) }}" @class(['border-b-2 px-3 py-2 text-sm font-semibold', 'border-[#168cff] text-[#168cff]' => $view === 'history', 'border-transparent text-slate-500 hover:text-slate-800' => $view !== 'history'])>Order history</a>
         </nav>
 
-        <form method="GET" action="{{ route('manager.orders-payments') }}" class="card-entry-animation space-y-4 rounded-2xl border border-sky-200 bg-white p-4 shadow-sm">
+        <form method="GET" action="{{ route('manager.orders-payments') }}" class="card-entry-animation space-y-4 rounded-2xl border border-sky-200 bg-white p-4 shadow-sm" data-order-filter-form>
             <input type="hidden" name="view" value="{{ $view }}">
             {{-- Search Bar & Filter Toggle Row --}}
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -56,6 +56,15 @@
                 </summary>
 
                 <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 pt-2 border-t border-sky-100">
+                    <div>
+                        <label for="order-date-preset" class="mb-1 block text-xs font-semibold text-slate-700">Date range</label>
+                        <select id="order-date-preset" name="date_preset" data-order-date-preset class="w-full rounded-lg border border-sky-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
+                            <option value="today" @selected($datePreset === 'today')>Today</option>
+                            <option value="week" @selected($datePreset === 'week')>This week</option>
+                            <option value="all" @selected($datePreset === 'all')>All time</option>
+                            <option value="custom" @selected($datePreset === 'custom')>Custom range</option>
+                        </select>
+                    </div>
                     <div>
                         <label for="min-total" class="mb-1 block text-xs font-semibold text-slate-700">Minimum total</label>
                         <input id="min-total" type="number" name="min_total" value="{{ $filters['min_total'] ?? '' }}" min="0" step="0.01" placeholder="0.00" class="w-full rounded-lg border border-sky-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
@@ -129,6 +138,8 @@
         </form>
 
         {{-- Table Header --}}
+        <div data-order-results class="transition-opacity aria-busy:opacity-60" aria-busy="false">
+        <p class="mb-2 text-xs font-medium text-slate-700">Showing {{ $orders->firstItem() ?? 0 }} to {{ $orders->lastItem() ?? 0 }} of {{ $orders->total() }} orders</p>
         <div class="hidden grid-cols-[1.1fr_1.4fr_1fr_1.2fr_1fr] gap-4 px-5 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:grid">
             <span>Order Number</span>
             <span>Customer Name</span>
@@ -142,7 +153,17 @@
         </div>
 
         <div class="space-y-2" data-manager-order-list>
-            @forelse ($orders as $order)
+            @php
+                $timelineGroups = $orders->getCollection()->groupBy(function ($order) {
+                    $date = \Illuminate\Support\Carbon::parse($order->order_date);
+
+                    return $date->lt(now()->startOfYear()) ? $date->format('Y') : $date->toDateString();
+                })->sortKeysDesc();
+            @endphp
+            @forelse ($timelineGroups as $timelineKey => $timelineOrders)
+            <section class="space-y-2" aria-label="Order activity date group">
+                <x-timeline-divider :date-key="$timelineKey" />
+                @foreach ($timelineOrders as $order)
             <div class="relative">
                 <div
                     class="card-entry-animation relative grid min-h-20 grid-cols-2 items-center gap-x-4 gap-y-3 rounded-2xl border border-sky-200 bg-white px-4 py-4 text-sm shadow-sm transition-colors hover:border-sky-300 hover:bg-sky-50/40 sm:grid-cols-[1.1fr_1.4fr_1fr_1.2fr_1fr] sm:gap-4 sm:px-5">
@@ -207,6 +228,8 @@
                         :label="$loop->first ? 'Partial' : 'Final'" />
                 @endforeach
             </div>
+                @endforeach
+            </section>
             @empty
             <div class="rounded-2xl border border-sky-100 bg-white p-12 text-center text-sm text-slate-400">
                 No orders found.
@@ -214,6 +237,12 @@
             @endforelse
         </div>
 
-        {{ $orders->links() }}
+        <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p class="text-xs font-medium text-slate-700">Showing {{ $orders->firstItem() ?? 0 }} to {{ $orders->lastItem() ?? 0 }} of {{ $orders->total() }} orders</p>
+            <div class="flex justify-center [&_[aria-current=page]>span]:rounded-lg [&_[aria-current=page]>span]:border-[#168cff] [&_[aria-current=page]>span]:bg-[#168cff] [&_[aria-current=page]>span]:text-white [&_a]:rounded-lg [&_a:hover]:bg-sky-50 [&_a:hover]:text-[#168cff] sm:justify-end">
+                {{ $orders->links() }}
+            </div>
+        </div>
+        </div>
     </div>
 </x-layout>

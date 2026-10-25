@@ -107,7 +107,7 @@ class DashboardController extends Controller
 
         $recentOrders = Order::query()
             ->withRecordDetails()
-            ->whereDate('laundry_orders.order_date', $today)
+            ->where('laundry_orders.order_date', $today)
             ->where('laundry_orders.order_status', '!=', 'Completed')
             ->addSelect('laundry_orders.order_id as id')
             ->orderBy('laundry_orders.order_date')
@@ -118,7 +118,7 @@ class DashboardController extends Controller
 
         $unclaimedOrders = Order::query()
             ->withRecordDetails()
-            ->whereDate('laundry_orders.order_date', '<', $today)
+            ->where('laundry_orders.order_date', '<', $today)
             ->where('laundry_orders.order_status', '!=', 'Completed')
             ->addSelect('laundry_orders.order_id as id')
             ->orderBy('laundry_orders.order_date')

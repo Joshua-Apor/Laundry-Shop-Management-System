@@ -13,8 +13,12 @@ it('seeds demo users customers and orders by default outside production', functi
 
     $this->assertDatabaseHas('users', ['username' => 'josh', 'role' => 'employee']);
     $this->assertDatabaseHas('users', ['username' => 'manager', 'role' => 'manager']);
-    $this->assertDatabaseCount('customers', 8);
-    $this->assertDatabaseCount('laundry_orders', 12);
+    $this->assertDatabaseCount('customers', 28);
+    $this->assertDatabaseCount('laundry_orders', 32);
+    $this->assertDatabaseHas('customers', [
+        'name' => 'Timeline Customer 20',
+        'contact_number' => '09170000020',
+    ]);
 });
 
 it('skips demo data in production even when explicitly enabled', function () {

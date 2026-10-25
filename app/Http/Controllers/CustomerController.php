@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\Order;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,28 +20,43 @@ class CustomerController extends Controller
         $search = $request->string('search')->trim()->toString();
         $sort = $request->string('sort')->toString();
         $sort = in_array($sort, ['alphabetical', 'newest', 'oldest'], true) ? $sort : 'newest';
+        $filterInput = $request->query();
+        $validator = validator($filterInput, [
+            'activity' => ['nullable', 'in:all,today,week,custom'],
+            'date_from' => ['nullable', 'date_format:Y-m-d'],
+            'date_to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:date_from'],
+        ]);
+        $dateFilters = $validator->passes() ? $validator->validated() : [];
+        $activity = $dateFilters['activity'] ?? 'all';
+        [$dateFrom, $dateTo] = $this->customerActivityRange($activity, $dateFilters);
 
         [$sortColumn, $sortDirection] = match ($sort) {
             'alphabetical' => ['customers.name', 'asc'],
             'oldest' => ['first_order_date', 'asc'],
-            default => ['first_order_date', 'desc'],
+            default => ['latest_order_date', 'desc'],
         };
 
         $customers = Order::query()
             ->leftJoin('customers', 'customers.customer_id', '=', 'laundry_orders.customer_id')
+            ->whereNull('customers.deleted_at')
             ->select([
                 'customers.customer_id as customer_id',
                 'customers.name as fullname',
                 'customers.contact_number as phoneNumber',
                 'customers.email as email',
             ])
-            ->selectRaw('COUNT(laundry_orders.order_id) as orders_count, SUM(laundry_orders.total_amount) as total_spent, MIN(laundry_orders.order_date) as first_order_date')
+            ->selectRaw('COUNT(laundry_orders.order_id) as orders_count, SUM(laundry_orders.total_amount) as total_spent, MIN(laundry_orders.order_date) as first_order_date, MAX(laundry_orders.order_date) as latest_order_date')
             ->when($search !== '', function ($query) use ($search): void {
                 $query->where(function ($query) use ($search): void {
                     $query->where('customers.name', 'like', "%{$search}%")
                         ->orWhere('customers.contact_number', 'like', "%{$search}%");
                 });
             })
+            ->when($dateFrom !== null, fn ($query) => $query->whereExists(function ($orders) use ($dateFrom, $dateTo): void {
+                $orders->selectRaw('1')->from('laundry_orders as activity_orders')
+                    ->whereColumn('activity_orders.customer_id', 'customers.customer_id')
+                    ->whereBetween('activity_orders.order_date', [$dateFrom, $dateTo]);
+            }))
             ->groupBy('customers.customer_id', 'customers.name', 'customers.contact_number', 'customers.email')
             ->orderBy($sortColumn, $sortDirection)
             ->orderBy('customers.name')
@@ -50,6 +67,9 @@ class CustomerController extends Controller
             'customers' => $customers,
             'search' => $search,
             'sort' => $sort,
+            'activity' => $activity,
+            'dateFrom' => $dateFilters['date_from'] ?? $dateFrom,
+            'dateTo' => $dateFilters['date_to'] ?? $dateTo,
         ]);
     }
 
@@ -64,7 +84,8 @@ class CustomerController extends Controller
             ->orderByDesc('laundry_orders.order_date')
             ->orderByDesc('laundry_orders.order_time')
             ->orderByDesc('laundry_orders.order_id')
-            ->get();
+            ->paginate(15)
+            ->withQueryString();
 
         return view('components.customers.order-history', [
             'orders' => $orders,
@@ -107,9 +128,26 @@ class CustomerController extends Controller
             'confirmation_name' => ['required', 'string', Rule::in([$expectedName])],
         ]);
 
-        $deleted = DB::table('customers')->where('customer_id', $customer)->delete();
-        abort_if($deleted === 0, 404);
+        $customerModel = Customer::query()->find($customer);
+        abort_if($customerModel === null, 404);
+        $customerModel->delete();
 
-        return back()->with('success', 'Customer and associated order history removed.');
+        return back()->with('success', 'Customer removed from active records. Order history was retained.');
+    }
+
+    /**
+     * @param  array{date_from?: string, date_to?: string}  $dateFilters
+     * @return array{?string, ?string}
+     */
+    private function customerActivityRange(string $activity, array $dateFilters): array
+    {
+        $today = CarbonImmutable::today();
+
+        return match ($activity) {
+            'today' => [$today->toDateString(), $today->toDateString()],
+            'week' => [$today->startOfWeek()->toDateString(), $today->endOfWeek()->toDateString()],
+            'custom' => [$dateFilters['date_from'] ?? $today->toDateString(), $dateFilters['date_to'] ?? $today->toDateString()],
+            default => [null, null],
+        };
     }
 }
