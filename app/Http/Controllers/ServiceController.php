@@ -17,7 +17,7 @@ class ServiceController extends Controller
         $services = DB::table('services')
             ->whereNull('deleted_at')
             ->orderBy('service_name')
-            ->get(['service_id', 'service_name', 'description', 'base_price', 'price_unit']);
+            ->get(['service_id', 'service_name', 'description', 'base_price', 'price_unit', 'available_for']);
 
         return view('manager.services', ['services' => $services]);
     }
@@ -30,6 +30,7 @@ class ServiceController extends Controller
             'service_name' => ['required', 'string', 'max:255', Rule::unique('services', 'service_name')->whereNull('deleted_at')],
             'base_price' => ['required', 'numeric', 'min:0', 'max:99999999.99'],
             'price_unit' => ['required', 'string', 'max:30'],
+            'available_for' => ['required', Rule::in(['Drop Off', 'Self Service', 'Both'])],
         ]);
 
         DB::table('services')->insert([
@@ -37,6 +38,7 @@ class ServiceController extends Controller
             'description' => null,
             'base_price' => $validated['base_price'],
             'price_unit' => $validated['price_unit'],
+            'available_for' => $validated['available_for'],
         ]);
 
         return redirect()->route('manager.services')->with('success', 'Service added.');

@@ -13,12 +13,12 @@ class ServiceSeeder extends Seeder
     public function run(): void
     {
         $services = [
-            ['service_name' => 'Cellophane Blue', 'base_price' => 15, 'price_unit' => '/piece'],
-            ['service_name' => 'Cellophane White', 'base_price' => 10, 'price_unit' => '/piece'],
-            ['service_name' => 'Drop Off', 'base_price' => 35, 'price_unit' => '/kilo'],
-            ['service_name' => 'Dry', 'base_price' => 35, 'price_unit' => '/20 Mins'],
-            ['service_name' => 'Sabon', 'base_price' => 10, 'price_unit' => '/piece'],
-            ['service_name' => 'Self Service', 'base_price' => 65, 'price_unit' => '/load'],
+            ['service_name' => 'Cellophane Blue', 'base_price' => 15, 'price_unit' => '/piece', 'available_for' => 'Both'],
+            ['service_name' => 'Cellophane White', 'base_price' => 10, 'price_unit' => '/piece', 'available_for' => 'Both'],
+            ['service_name' => 'Drop Off', 'base_price' => 35, 'price_unit' => '/kilo', 'available_for' => 'Drop Off'],
+            ['service_name' => 'Dry', 'base_price' => 35, 'price_unit' => '/20 Mins', 'available_for' => 'Self Service'],
+            ['service_name' => 'Sabon', 'base_price' => 10, 'price_unit' => '/piece', 'available_for' => 'Self Service'],
+            ['service_name' => 'Self Service', 'base_price' => 65, 'price_unit' => '/load', 'available_for' => 'Self Service'],
         ];
 
         foreach ($services as $service) {

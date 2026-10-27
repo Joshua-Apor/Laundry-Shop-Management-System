@@ -23,40 +23,26 @@
                 <label class="mb-1 block text-xs font-semibold text-slate-600" for="customer-sort">Sort customers</label>
                 <select id="customer-sort" name="sort" data-customer-sort class="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-700 shadow-sm focus:border-[#168cff] focus:outline-none focus:ring-2 focus:ring-sky-100">
                     <option value="alphabetical" @selected($sort === 'alphabetical')>Alphabetical</option>
-                    <option value="newest" @selected($sort === 'newest')>Newest activity</option>
-                    <option value="oldest" @selected($sort === 'oldest')>Oldest first order</option>
+                    <option value="newest" @selected($sort === 'newest')>Latest Customer First</option>
+                    <option value="oldest" @selected($sort === 'oldest')>First Customer First</option>
                 </select>
             </div>
         </form>
         <div data-customer-results class="transition-opacity" aria-busy="false">
             <p class="mb-2 text-xs font-medium text-slate-700">Showing {{ $customers->firstItem() ?? 0 }} to {{ $customers->lastItem() ?? 0 }} of {{ $customers->total() }} customers</p>
-            @php
-                $timelineGroups = $customers->getCollection()->groupBy(function ($customer) {
-                    $date = \Illuminate\Support\Carbon::parse($customer->latest_order_date);
-
-                    return $date->lt(now()->startOfYear()) ? $date->format('Y') : $date->toDateString();
-                })->sortKeysDesc();
-            @endphp
-            <div class="space-y-4" data-customer-list>
-                @forelse ($timelineGroups as $timelineKey => $customerGroup)
-                <section aria-label="Customer activity date group">
-                    <x-timeline-divider :date-key="$timelineKey" />
-                    <div class="grid gap-3">
-                @foreach ($customerGroup as $customer)
-                <x-customers.customer-cont-modal
-                    :initial="strtoupper(substr($customer->fullname, 0, 2))"
-                    :customer-id="$customer->customer_id"
-                    :name="$customer->fullname"
-                    :phone="$customer->phoneNumber"
-                    :email="$customer->email"
-                    :order-total="$customer->orders_count"
-                    :price-total="number_format($customer->total_spent, 2)"
-                    :first-order-date="$customer->first_order_date"
-                    :modal-id="'customer-details-'.$customer->customer_id"
-                    :history-url="route('customers.orders', $customer->customer_id)" />
-                @endforeach
-                </div>
-                </section>
+            <div class="grid gap-3" data-customer-list>
+                @forelse ($customers as $customer)
+                    <x-customers.customer-cont-modal
+                        :initial="strtoupper(substr($customer->fullname, 0, 2))"
+                        :customer-id="$customer->customer_id"
+                        :name="$customer->fullname"
+                        :phone="$customer->phoneNumber"
+                        :email="$customer->email"
+                        :order-total="$customer->orders_count"
+                        :price-total="number_format($customer->total_spent, 2)"
+                        :first-order-date="$customer->first_order_date"
+                        :modal-id="'customer-details-'.$customer->customer_id"
+                        :history-url="route('customers.orders', $customer->customer_id)" />
                 @empty
                     <p class="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500 sm:col-span-2 xl:col-span-3">No customers with orders yet.</p>
                 @endforelse

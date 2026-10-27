@@ -1,5 +1,5 @@
 <x-layout>
-    <div class="mx-auto max-w-6xl space-y-6 p-6">
+    <div class="mx-auto max-w-6xl space-y-4 p-4 sm:space-y-6 sm:p-6">
         <div class="flex items-center justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-bold text-slate-900">
@@ -28,7 +28,7 @@
             <a href="{{ route('manager.orders-payments', ['view' => 'history']) }}" @class(['border-b-2 px-3 py-2 text-sm font-semibold', 'border-[#168cff] text-[#168cff]' => $view === 'history', 'border-transparent text-slate-500 hover:text-slate-800' => $view !== 'history'])>Order history</a>
         </nav>
 
-        <form method="GET" action="{{ route('manager.orders-payments') }}" class="card-entry-animation space-y-4 rounded-2xl border border-sky-200 bg-white p-4 shadow-sm" data-order-filter-form>
+        <form method="GET" action="{{ route('manager.orders-payments') }}" class="card-entry-animation space-y-4 rounded-2xl border border-sky-200 bg-white p-3 shadow-sm sm:p-4" data-order-filter-form>
             <input type="hidden" name="view" value="{{ $view }}">
             {{-- Search Bar & Filter Toggle Row --}}
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -45,7 +45,7 @@
             </div>
 
             {{-- Collapsible Advanced Filters --}}
-            <details class="group" @if($hasActiveFilters) open @endif>
+            <details class="group">
                 <summary class="inline-flex cursor-pointer list-none items-center gap-2 rounded-lg border border-sky-200 bg-slate-50 px-3.5 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-sky-50 [&::-webkit-details-marker]:hidden">
                     <i class="fa-solid fa-filter text-sky-600" aria-hidden="true"></i>
                     <span>Advanced Filters</span>
@@ -55,7 +55,7 @@
                     <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform group-open:rotate-180" aria-hidden="true"></i>
                 </summary>
 
-                <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 pt-2 border-t border-sky-100">
+                <div class="mt-4 grid grid-cols-2 gap-3 border-t border-sky-100 pt-2 lg:grid-cols-4">
                     <div>
                         <label for="order-date-preset" class="mb-1 block text-xs font-semibold text-slate-700">Date range</label>
                         <select id="order-date-preset" name="date_preset" data-order-date-preset class="w-full rounded-lg border border-sky-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
