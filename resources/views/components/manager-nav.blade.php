@@ -66,7 +66,7 @@
                     @endif
                 </a>
 
-                {{-- Orders & Payments --}}
+                {{-- Records --}}
                 <a href="{{ route('manager.orders-payments') }}"
                     @class([
                         'flex items-center gap-3 rounded-xl px-3.5 py-3 font-semibold transition-all duration-200',
@@ -74,7 +74,7 @@
                         'text-[#5d2943] hover:bg-blue-100 hover:text-[#2f7dcc]' => !request()->routeIs('manager.orders-payments'),
                     ])>
                     <i class="fa-solid fa-receipt w-5 text-center" aria-hidden="true"></i>
-                    <span>Orders & Payments</span>
+                    <span>Records</span>
 
                     @if (request()->routeIs('manager.orders-payments'))
                         <i class="fa-solid fa-chevron-right ml-auto text-xs" aria-hidden="true"></i>
@@ -89,7 +89,7 @@
                         'text-[#5d2943] hover:bg-blue-100 hover:text-[#2f7dcc]' => !request()->routeIs('manager.services*'),
                     ])>
                     <i class="fa-solid fa-soap w-5 text-center" aria-hidden="true"></i>
-                    <span>Services</span>
+                    <span>Products and Services</span>
 
                     @if (request()->routeIs('manager.services*'))
                         <i class="fa-solid fa-chevron-right ml-auto text-xs" aria-hidden="true"></i>
@@ -256,7 +256,7 @@
                         Customer Records
                     </a>
 
-                    {{-- Mobile Orders & Payments --}}
+                    {{-- Mobile Records --}}
                     <a href="{{ route('manager.orders-payments') }}"
                         @class([
                             'flex items-center gap-3 rounded-xl px-3.5 py-3 font-semibold transition-colors',
@@ -264,7 +264,7 @@
                             'text-[#5d2943] hover:bg-blue-100 hover:text-[#2f7dcc]' => !request()->routeIs('manager.orders-payments'),
                         ])>
                         <i class="fa-solid fa-receipt w-5 text-center" aria-hidden="true"></i>
-                        Orders & Payments
+                        Records
                     </a>
 
                     {{-- Mobile Services --}}
@@ -275,7 +275,7 @@
                             'text-[#5d2943] hover:bg-blue-100 hover:text-[#2f7dcc]' => !request()->routeIs('manager.services*'),
                         ])>
                         <i class="fa-solid fa-soap w-5 text-center" aria-hidden="true"></i>
-                        Services
+                        Products and Services
                     </a>
 
                     {{-- Mobile Sales Reports --}}

@@ -283,18 +283,6 @@
                             </form>
                         @endif
 
-                        {{-- Remove Employee --}}
-                        <button type="button"
-                            data-modal-trigger
-                            data-modal-target="employee-delete-{{ $employee->user_id }}"
-                            class="w-full rounded-md border border-red-200 bg-white px-1.5 py-2 text-[9px] font-semibold leading-tight text-red-600 transition-colors hover:bg-red-50 sm:rounded-lg sm:px-3 sm:text-xs">
-
-                            <i class="fa-solid fa-trash mr-0.5 sm:mr-1"
-                                aria-hidden="true"></i>
-
-                            Remove
-                        </button>
-
                     </div>
                 </article>
 
@@ -314,66 +302,6 @@
                         </div>
                     </x-modal>
                 @endif
-
-                {{-- Delete Confirmation Modal --}}
-                <x-modal
-                    :id="'employee-delete-' . $employee->user_id"
-                    title="Permanently delete employee?">
-
-                    <p class="text-sm leading-6 text-slate-600">
-                        This action is irreversible. To confirm deletion, please type
-                        the full name <strong>{{ $employee->name }}</strong> below.
-                        Employees with order history cannot be permanently deleted. Revoke access to prevent sign-in while keeping their records.
-                    </p>
-
-                    <form method="POST"
-                        action="{{ route('manager.employees.destroy', $employee) }}"
-                        data-name-confirmation-form
-                        data-confirmation-name="{{ $employee->name }}"
-                        class="mt-4 space-y-4">
-
-                        @csrf
-                        @method('DELETE')
-
-                        <label
-                            for="employee-delete-name-{{ $employee->user_id }}"
-                            class="block text-xs font-semibold text-slate-700">
-                            Employee name
-                        </label>
-
-                        <input
-                            id="employee-delete-name-{{ $employee->user_id }}"
-                            name="confirmation_name"
-                            type="text"
-                            autocomplete="off"
-                            data-name-confirmation-input
-                            aria-describedby="employee-delete-help-{{ $employee->user_id }}"
-                            class="-mt-3 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:ring-2 focus:ring-sky-200">
-
-                        <p
-                            id="employee-delete-help-{{ $employee->user_id }}"
-                            class="-mt-3 text-xs text-slate-500">
-                            Enter the name exactly as shown above.
-                        </p>
-
-                        <div class="flex justify-end gap-2">
-
-                            <button type="button"
-                                data-modal-close
-                                class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
-                                Cancel
-                            </button>
-
-                            <button type="submit"
-                                disabled
-                                data-name-confirmation-submit
-                                class="cursor-not-allowed rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white opacity-50 transition-opacity">
-                                Delete Permanently
-                            </button>
-
-                        </div>
-                    </form>
-                </x-modal>
 
             @empty
 

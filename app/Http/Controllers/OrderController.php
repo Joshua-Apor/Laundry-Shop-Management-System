@@ -33,7 +33,7 @@ class OrderController extends Controller
         $services = DB::table('services')
             ->whereNull('deleted_at')
             ->orderBy('service_name')
-            ->get(['service_id', 'service_name', 'base_price', 'price_unit']);
+            ->get(['service_id', 'service_name', 'base_price', 'price_unit', 'available_for']);
 
         return view('employee.records.create', ['customers' => $customers, 'services' => $services]);
     }
@@ -252,7 +252,7 @@ class OrderController extends Controller
         $serviceQuantities = $validated['service_quantities'] ?? [];
         $selectedServices = DB::table('services')
             ->whereIn('service_id', $validated['services'])
-            ->get(['service_id', 'service_name', 'base_price', 'price_unit']);
+            ->get(['service_id', 'service_name', 'base_price', 'price_unit', 'available_for']);
         $serviceUnits = $selectedServices->mapWithKeys(function (object $service) use ($weight, $selfServiceLoads, $serviceQuantities): array {
             $quantity = match ($service->service_name) {
                 'Drop Off' => $weight,

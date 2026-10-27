@@ -24,7 +24,7 @@ class ManagerController extends Controller
 
         $search = $request->string('search')->trim()->toString();
         $sort = $request->string('sort')->toString();
-        $sort = in_array($sort, ['alphabetical', 'newest', 'oldest'], true) ? $sort : 'newest';
+        $sort = in_array($sort, ['alphabetical', 'newest', 'oldest'], true) ? $sort : 'alphabetical';
         $filterInput = $request->query();
         $validator = Validator::make($filterInput, [
             'activity' => ['nullable', 'in:all,today,week,custom'],
@@ -44,7 +44,7 @@ class ManagerController extends Controller
         [$sortColumn, $sortDirection] = match ($sort) {
             'alphabetical' => ['customers.name', 'asc'],
             'oldest' => ['first_order_date', 'asc'],
-            default => ['latest_order_date', 'desc'],
+            default => ['first_order_date', 'desc'],
         };
 
         $customers = Order::query()
@@ -262,44 +262,6 @@ class ManagerController extends Controller
             : 'Employee account created and welcome email sent.';
 
         return redirect()->route('manager.employees')->with('success', $successMessage);
-    }
-
-    public function destroyEmployee(Request $request, User $employee): RedirectResponse
-    {
-        abort_unless($request->user()?->role === 'manager', 403);
-        abort_unless($employee->role === 'employee', 404);
-        $expectedName = trim($employee->name);
-
-        $request->merge(['confirmation_name' => $request->string('confirmation_name')->trim()->toString()]);
-        $request->validate([
-            'confirmation_name' => ['required', 'string', Rule::in([$expectedName])],
-        ]);
-
-        $deleted = DB::transaction(function () use ($employee): bool {
-            $employee->newQuery()
-                ->whereKey($employee->getKey())
-                ->lockForUpdate()
-                ->firstOrFail();
-
-            if (DB::table('laundry_orders')->where('user_id', $employee->getKey())->exists()) {
-                return false;
-            }
-
-            DB::table(config('session.table', 'sessions'))
-                ->where('user_id', $employee->getKey())
-                ->delete();
-            $employee->forceDelete();
-
-            return true;
-        });
-
-        if (! $deleted) {
-            return redirect()->route('manager.employees')->withErrors([
-                'employee' => 'This employee has order history and cannot be permanently deleted. Revoke account access instead.',
-            ]);
-        }
-
-        return redirect()->route('manager.employees')->with('success', 'Employee permanently deleted.');
     }
 
     public function updateEmployeeAccess(Request $request, User $employee): RedirectResponse

@@ -784,11 +784,41 @@ document.addEventListener('paste', (event) => {
 
 let profilePictureResizeHandler = null;
 
+function normalizePriceUnit(input) {
+    const originalValue = input.value;
+
+    if (originalValue === '') {
+        return;
+    }
+
+    const cursorPosition = input.selectionStart ?? originalValue.length;
+    const normalizedValue = `/${originalValue.replaceAll('/', '')}`;
+
+    if (normalizedValue === originalValue) {
+        return;
+    }
+
+    input.value = normalizedValue;
+    const nextCursorPosition = Math.max(
+        1,
+        Math.min(normalizedValue.length, cursorPosition + (originalValue.startsWith('/') ? 0 : 1)),
+    );
+    input.setSelectionRange(nextCursorPosition, nextCursorPosition);
+}
+
+document.addEventListener('input', (event) => {
+    if (event.target instanceof HTMLInputElement && event.target.matches('[data-price-unit-input]')) {
+        normalizePriceUnit(event.target);
+    }
+});
+
 function initializePage() {
     if (profilePictureResizeHandler) {
         window.removeEventListener('resize', profilePictureResizeHandler);
         profilePictureResizeHandler = null;
     }
+
+    document.querySelectorAll('[data-price-unit-input]').forEach(normalizePriceUnit);
 
     document.querySelectorAll('[data-dashboard-results]').forEach((container) => {
         loadDashboardResults(container);
@@ -1064,7 +1094,7 @@ if (modalOrderForm) {
         modalAddons.classList.toggle('hidden', !chosenType);
         modalAddonOptions.forEach((option) => {
             const checkbox = option.querySelector('[data-order-modal-addon-input]');
-            const visible = option.dataset.orderModalAddon === 'Both' || chosenType === 'Self Service';
+            const visible = option.dataset.orderModalAddon === 'Both' || option.dataset.orderModalAddon === chosenType;
 
             option.classList.toggle('hidden', !visible);
             checkbox.disabled = !visible;
@@ -1169,7 +1199,7 @@ if (orderForm && !document.querySelector('[data-order-service-dialog]')) {
         addonsFieldset.classList.toggle('hidden', orderType === '');
 
         addonOptions.forEach((option) => {
-            const isAvailable = option.dataset.orderAddonOption === 'Both' || orderType === 'Self Service';
+            const isAvailable = option.dataset.orderAddonOption === 'Both' || option.dataset.orderAddonOption === orderType;
             const checkbox = option.querySelector('[data-order-addon]');
             const quantityLabel = option.querySelector('[data-order-addon-quantity-label]');
             const quantityInput = option.querySelector('[data-order-addon-quantity]');

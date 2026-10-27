@@ -66,28 +66,28 @@ class StoreOrderRequest extends FormRequest
             $serviceIds = $this->input('services', []);
 
             if (in_array($orderType, ['Drop Off', 'Self Service'], true) && is_array($serviceIds)) {
-                $selectedNames = DB::table('services')
+                $selectedServices = DB::table('services')
                     ->whereIn('service_id', $serviceIds)
                     ->whereNull('deleted_at')
-                    ->pluck('service_name')
-                    ->all();
-                $allowedNames = DB::table('services')
-                    ->whereNull('deleted_at')
-                    ->when(
-                        $orderType === 'Drop Off',
-                        fn ($query) => $query->whereNotIn('service_name', ['Self Service', 'Dry', 'Sabon']),
-                        fn ($query) => $query->where('service_name', '!=', 'Drop Off'),
-                    )
-                    ->pluck('service_name')
-                    ->all();
+                    ->get(['service_name', 'available_for']);
+                $selectedNames = $selectedServices->pluck('service_name')->all();
+                $hasRequiredBaseService = in_array($orderType, $selectedNames, true);
+                $hasWrongBaseService = $selectedServices->contains(fn (object $service): bool => in_array($service->service_name, ['Drop Off', 'Self Service'], true)
+                    && $service->service_name !== $orderType
+                );
 
-                if (! in_array($orderType, $selectedNames, true)) {
+                if (! $hasRequiredBaseService || $hasWrongBaseService) {
                     $validator->errors()->add('services', 'Please select the laundry service again.');
-                } elseif (array_diff($selectedNames, $allowedNames) !== []) {
-                    $validator->errors()->add('services', 'Some selected services are not available for this laundry type.');
+                } else {
+                    $hasUnavailableService = $selectedServices
+                        ->whereNotIn('service_name', ['Drop Off', 'Self Service'])
+                        ->contains(fn (object $service): bool => ! in_array($service->available_for, [$orderType, 'Both'], true));
+
+                    if ($hasUnavailableService) {
+                        $validator->errors()->add('services', 'Some selected services are not available for this laundry type.');
+                    }
                 }
             }
-
             if ($validator->errors()->hasAny(['phone_number', 'customer_id'])) {
                 return;
             }

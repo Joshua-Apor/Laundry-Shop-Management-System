@@ -52,7 +52,7 @@
                     @endif
                 </a>
 
-                {{-- Customers --}}
+                {{-- Customer Records --}}
                 <a href="{{ route('customers.index') }}"
                     @class([
                         'flex items-center gap-3 rounded-xl px-3.5 py-3 font-semibold transition-all duration-200',
@@ -60,7 +60,7 @@
                         'text-[#5d2943] hover:bg-blue-100 hover:text-[#2f7dcc]' => !request()->routeIs('customers.*'),
                     ])>
                     <i class="fa-solid fa-users w-5 text-center text-base" aria-hidden="true"></i>
-                    <span>Customers</span>
+                    <span>Customer Records</span>
 
                     @if (request()->routeIs('customers.*'))
                         <i class="fa-solid fa-chevron-right ml-auto text-xs" aria-hidden="true"></i>
@@ -239,7 +239,7 @@
                         Dashboard
                     </a>
 
-                    {{-- Customers --}}
+                    {{-- Customer Records --}}
                     <a href="{{ route('customers.index') }}"
                         @class([
                             'flex items-center gap-3 rounded-xl px-3.5 py-3 font-semibold transition-all duration-200',
@@ -247,7 +247,7 @@
                             'text-[#5d2943] hover:bg-blue-100 hover:text-[#2f7dcc]' => !request()->routeIs('customers.*'),
                         ])>
                         <i class="fa-solid fa-users w-5 text-center" aria-hidden="true"></i>
-                        Customers
+                        Customer Records
                     </a>
 
                     {{-- New Order --}}

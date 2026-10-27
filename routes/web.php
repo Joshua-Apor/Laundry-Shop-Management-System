@@ -58,7 +58,6 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function (): vo
     Route::get('/manager/employees', [ManagerController::class, 'employees'])->name('manager.employees');
     Route::post('/manager/employees', [ManagerController::class, 'storeEmployee'])->name('manager.employees.store');
     Route::patch('/manager/employees/{employee}/access', [ManagerController::class, 'updateEmployeeAccess'])->name('manager.employees.access.update');
-    Route::delete('/manager/employees/{employee}', [ManagerController::class, 'destroyEmployee'])->name('manager.employees.destroy');
     Route::patch('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
     Route::get('/customers/{customer}/orders', [CustomerController::class, 'history'])->name('customers.orders');
     Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');

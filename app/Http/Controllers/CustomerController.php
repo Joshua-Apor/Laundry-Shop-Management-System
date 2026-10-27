@@ -19,7 +19,7 @@ class CustomerController extends Controller
 
         $search = $request->string('search')->trim()->toString();
         $sort = $request->string('sort')->toString();
-        $sort = in_array($sort, ['alphabetical', 'newest', 'oldest'], true) ? $sort : 'newest';
+        $sort = in_array($sort, ['alphabetical', 'newest', 'oldest'], true) ? $sort : 'alphabetical';
         $filterInput = $request->query();
         $validator = validator($filterInput, [
             'activity' => ['nullable', 'in:all,today,week,custom'],
@@ -33,7 +33,7 @@ class CustomerController extends Controller
         [$sortColumn, $sortDirection] = match ($sort) {
             'alphabetical' => ['customers.name', 'asc'],
             'oldest' => ['first_order_date', 'asc'],
-            default => ['latest_order_date', 'desc'],
+            default => ['first_order_date', 'desc'],
         };
 
         $customers = Order::query()

@@ -51,7 +51,7 @@
                     <legend class="text-sm font-semibold text-slate-700">Additional services</legend>
                     <div class="grid gap-3 sm:grid-cols-2">
                         @foreach ($services->whereNotIn('service_name', ['Drop Off', 'Self Service']) as $service)
-                            <div data-order-addon-option="{{ in_array($service->service_name, ['Dry', 'Sabon'], true) ? 'Self Service' : 'Both' }}" class="hidden rounded-xl border border-sky-200 p-3">
+                            <div data-order-addon-option="{{ $service->available_for }}" class="hidden rounded-xl border border-sky-200 p-3">
                                 <label class="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
                                     <input type="checkbox" name="services[]" value="{{ $service->service_id }}" @checked(in_array((string) $service->service_id, old('services', []), true)) data-order-addon disabled class="rounded text-sky-600 focus:ring-sky-500">
                                     {{ $service->service_name }} <span class="font-normal text-slate-500">(₱{{ number_format((float) $service->base_price, 2) }} {{ $service->price_unit }})</span>
@@ -479,7 +479,7 @@
                     <legend class="mb-2 text-sm font-semibold text-slate-700">Additional services</legend>
                     <div class="grid gap-2 sm:grid-cols-2">
                         @foreach ($services->whereNotIn('service_name', ['Drop Off', 'Self Service']) as $service)
-                            <label data-order-modal-addon="{{ in_array($service->service_name, ['Dry', 'Sabon'], true) ? 'Self Service' : 'Both' }}" class="flex cursor-pointer items-center gap-2 rounded-lg border border-sky-200 p-3 text-sm text-slate-700 has-[:checked]:border-sky-500 has-[:checked]:bg-sky-50">
+                            <label data-order-modal-addon="{{ $service->available_for }}" class="flex cursor-pointer items-center gap-2 rounded-lg border border-sky-200 p-3 text-sm text-slate-700 has-[:checked]:border-sky-500 has-[:checked]:bg-sky-50">
                                 <input type="checkbox" value="{{ $service->service_id }}" data-order-modal-addon-input data-service-name="{{ $service->service_name }}" data-service-price="{{ $service->base_price }}" data-service-unit="{{ $service->price_unit }}" class="rounded text-sky-600 focus:ring-sky-500">
                                 <span>{{ $service->service_name }} <span class="text-slate-500">(₱{{ number_format((float) $service->base_price, 2) }} {{ $service->price_unit }})</span></span>
                             </label>
