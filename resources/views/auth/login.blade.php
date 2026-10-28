@@ -60,10 +60,10 @@
 
                     <span class="flex items-center gap-3">
                         <i
-                            class="fa-solid fa-comment-sms w-5 text-center text-lg"
+                            class="fa-solid fa-envelope w-5 text-center text-lg"
                             aria-hidden="true"
                         ></i>
-                        SMS Notifications
+                        Email Notifications
                     </span>
 
                     <span class="flex items-center gap-3">

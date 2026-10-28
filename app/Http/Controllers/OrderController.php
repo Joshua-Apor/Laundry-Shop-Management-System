@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreOrderRequest;
+use App\Mail\OrderReadyForPickup;
 use App\Mail\PaymentReceipt;
 use App\Models\Order;
 use App\Services\OrderStorageFeeService;
-use App\Services\TextBeeSmsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -395,7 +395,6 @@ class OrderController extends Controller
         Request $request,
         Order $order,
         OrderStorageFeeService $storageFeeService,
-        TextBeeSmsService $textBeeSmsService,
     ): RedirectResponse {
         abort_unless($request->user()?->role === 'employee', 403);
 
@@ -435,29 +434,34 @@ class OrderController extends Controller
             ]);
         }
 
+        $redirect = back()->with('success', "Order #{$order->order_id} moved to {$nextStatus}.");
+
         if ($nextStatus === 'Ready for Pickup') {
             $customer = DB::table('customers')
                 ->where('customer_id', $order->customer_id)
-                ->first(['name', 'contact_number']);
+                ->first(['name', 'email']);
 
-            if ($customer !== null) {
-                $customerPhoneNumber = (string) $customer->contact_number;
-                $customerName = (string) $customer->name;
-                $orderId = (int) $order->getKey();
-                $hasOutstandingBalance = (float) DB::table('laundry_orders')
-                    ->where('order_id', $orderId)
-                    ->value('balance') > 0;
+            if ($customer === null || blank($customer->email)) {
+                $redirect->with('ready_for_pickup_email_warning', 'The order is ready for pickup, but the customer does not have an email address.');
+            } else {
+                $remainingBalance = (float) DB::table('laundry_orders')
+                    ->where('order_id', $order->getKey())
+                    ->value('balance');
 
-                defer(fn () => $textBeeSmsService->sendReadyForPickupNotification(
-                    $customerPhoneNumber,
-                    $customerName,
-                    $orderId,
-                    $hasOutstandingBalance,
-                ));
+                try {
+                    Mail::to($customer->email)->send(new OrderReadyForPickup(
+                        (string) $customer->name,
+                        (int) $order->getKey(),
+                        $remainingBalance,
+                    ));
+                } catch (Throwable $exception) {
+                    report($exception);
+                    $redirect->with('ready_for_pickup_email_warning', 'The order is ready for pickup, but the email could not be sent. Check the mail configuration.');
+                }
             }
         }
 
-        return back()->with('success', "Order #{$order->order_id} moved to {$nextStatus}.");
+        return $redirect;
     }
 
     public function recordPayment(Request $request, Order $order, OrderStorageFeeService $storageFeeService): RedirectResponse

@@ -69,4 +69,4 @@ Two production capabilities still need an explicit Render infrastructure decisio
 ## Integrations
 
 - Email uses the configured Laravel mailer. Configure production mail credentials before relying on employee invitations, password reset codes, or payment receipts.
-- Ready-for-pickup SMS uses TextBee. Set `TEXTBEE_API_KEY` and, if needed, `TEXTBEE_DEVICE_ID` in the environment. Without an API key, the application logs that the SMS was skipped.
+- When an order is marked ready for pickup, the customer receives an email if their customer record has an email address. Configure the Laravel `MAIL_*` settings to deliver these notifications.

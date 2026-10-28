@@ -37,7 +37,7 @@
 
 <body hx-boost="true" class="min-h-screen bg-[#e8f5fb] font-sans text-slate-900 antialiased">
 
-    @if (session('success') && ! session('receipt_email_warning'))
+    @if (session('success') && ! session('receipt_email_warning') && ! session('ready_for_pickup_email_warning'))
 
         <div
             data-dropdown-message
@@ -80,7 +80,7 @@
 
     @endif
 
-    @if (session('receipt_email_warning'))
+    @if (session('receipt_email_warning') || session('ready_for_pickup_email_warning'))
         <div
             data-dropdown-message
             data-dropdown-message-duration="7000"
@@ -93,8 +93,8 @@
                 <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
             </span>
             <div class="min-w-0 flex-1">
-                <p class="text-sm font-semibold">Receipt email not sent</p>
-                <p data-dropdown-message-content class="mt-0.5 text-sm leading-5 text-slate-600">{{ session('receipt_email_warning') }}</p>
+                <p class="text-sm font-semibold">Email could not be sent</p>
+                <p data-dropdown-message-content class="mt-0.5 text-sm leading-5 text-slate-600">{{ session('receipt_email_warning') ?? session('ready_for_pickup_email_warning') }}</p>
             </div>
             <button
                 type="button"
