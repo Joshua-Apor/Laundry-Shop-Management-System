@@ -298,9 +298,6 @@ class OrderController extends Controller
                 }
 
                 $customerId = (int) $customer->customer_id;
-                DB::table('customers')
-                    ->where('customer_id', $customerId)
-                    ->update(['email' => $validated['email'] ?? null]);
             } else {
                 $existingCustomer = DB::table('customers')
                     ->where('contact_number', $validated['phone_number'])

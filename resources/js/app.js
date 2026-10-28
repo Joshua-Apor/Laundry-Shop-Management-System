@@ -493,6 +493,20 @@ document.addEventListener('click', (event) => {
         return;
     }
 
+    const clearExistingCustomerButton = event.target.closest('[data-clear-existing-customer]');
+
+    if (clearExistingCustomerButton) {
+        document.getElementById('customer-id').value = '';
+        document.querySelectorAll('[data-customer-detail-field]').forEach((field) => {
+            field.readOnly = false;
+            field.value = '';
+        });
+        document.querySelector('[data-existing-customer-state]')?.setAttribute('hidden', '');
+        document.getElementById('customer-name')?.focus();
+
+        return;
+    }
+
     const suggestionList = document.querySelector('[data-customer-suggestions]');
     const customerOption = event.target.closest('[data-customer-option]');
 
@@ -502,6 +516,10 @@ document.addEventListener('click', (event) => {
         formatPhoneInput(document.getElementById('customer-phone'));
         document.getElementById('customer-email').value = customerOption.dataset.email || '';
         document.getElementById('customer-id').value = customerOption.dataset.customerId;
+        document.querySelectorAll('[data-customer-detail-field]').forEach((field) => {
+            field.readOnly = true;
+        });
+        document.querySelector('[data-existing-customer-state]')?.removeAttribute('hidden');
         customerOption.closest('dialog')?.close();
         suggestionList?.classList.add('hidden');
         document.getElementById('customer-name').setAttribute('aria-expanded', 'false');
@@ -852,8 +870,8 @@ if (modalOrderForm) {
     const oldAddonInputs = firstPhase.querySelectorAll('[data-order-addon]:checked');
     const chosenServices = new Map();
     const oldSelectedType = typeInput.value || firstPhase.querySelector('[data-order-type-choice]:checked')?.value || '';
-    const oldWeight = firstPhase.querySelector('[data-order-weight]')?.value || '0';
-    const oldLoads = firstPhase.querySelector('[data-order-loads]')?.value || '0';
+    const oldWeight = firstPhase.querySelector('[data-order-weight]')?.value || '';
+    const oldLoads = firstPhase.querySelector('[data-order-loads]')?.value || '';
     let baseQuantity = oldSelectedType === 'Drop Off' ? oldWeight : oldSelectedType === 'Self Service' ? oldLoads : '';
     const baseQuantities = new Map();
 
@@ -1001,7 +1019,7 @@ if (modalOrderForm) {
         quantityInput.maxLength = step === '1' ? String(maximum).length : String(maximum).length + 2;
         quantityInput.pattern = step === '1' ? '[0-9]*' : '[0-9]*\\.?[0-9]*';
         quantityInput.name = quantityName;
-        quantityInput.value = quantity || '0';
+        quantityInput.value = Number(quantity) > 0 ? quantity : '';
         quantityInput.min = minimum;
         quantityInput.max = maximum;
         quantityInput.step = step;

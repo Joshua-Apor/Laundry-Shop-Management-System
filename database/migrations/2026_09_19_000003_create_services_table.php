@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->decimal('base_price', 10, 2);
             $table->string('price_unit', 30)->default('/order');
+            $table->string('available_for', 20)->default('Both');
             $table->softDeletes();
         });
     }

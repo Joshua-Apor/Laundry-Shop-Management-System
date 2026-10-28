@@ -27,6 +27,8 @@ return new class extends Migration
                 ->references('service_id')
                 ->on('services')
                 ->cascadeOnDelete();
+
+            $table->index(['order_id', 'service_id'], 'order_services_order_service_index');
         });
     }
 

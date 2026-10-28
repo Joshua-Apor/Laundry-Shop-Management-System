@@ -269,18 +269,13 @@
                                 Revoke Access
                             </button>
                         @else
-                            <form method="POST"
-                                action="{{ route('manager.employees.access.update', $employee) }}"
-                                class="w-full">
-                                @csrf
-                                @method('PATCH')
-                                <input type="hidden" name="account_status" value="1">
-                                <button type="submit"
-                                    class="w-full rounded-md border border-emerald-200 bg-white px-1.5 py-2 text-[9px] font-semibold leading-tight text-emerald-700 transition-colors hover:bg-emerald-50 sm:rounded-lg sm:px-3 sm:text-xs">
-                                    <i class="fa-solid fa-user-check mr-0.5 sm:mr-1" aria-hidden="true"></i>
-                                    Restore Access
-                                </button>
-                            </form>
+                            <button type="button"
+                                data-modal-trigger
+                                data-modal-target="employee-restore-{{ $employee->user_id }}"
+                                class="w-full rounded-md border border-emerald-200 bg-white px-1.5 py-2 text-[9px] font-semibold leading-tight text-emerald-700 transition-colors hover:bg-emerald-50 sm:rounded-lg sm:px-3 sm:text-xs">
+                                <i class="fa-solid fa-user-check mr-0.5 sm:mr-1" aria-hidden="true"></i>
+                                Restore Access
+                            </button>
                         @endif
 
                     </div>
@@ -297,7 +292,28 @@
                                 @method('PATCH')
                                 <input type="hidden" name="account_status" value="0">
                                 <button type="button" data-modal-close class="rounded-lg border border-slate-200 px-4 py-2.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50">Cancel</button>
-                                <button type="submit" class="rounded-lg bg-amber-600 px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-amber-700">Revoke Access</button>
+                                <button type="submit" data-loading-button data-loading-message="Revoking access..." class="inline-flex items-center justify-center gap-2 rounded-lg bg-amber-600 px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-70">
+                                    <span data-loading-spinner class="hidden size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true"></span>
+                                    <span data-loading-text>Revoke Access</span>
+                                </button>
+                            </form>
+                        </div>
+                    </x-modal>
+                @else
+                    <x-modal :id="'employee-restore-'.$employee->user_id" title="Restore employee access?">
+                        <div class="space-y-5">
+                            <p class="text-sm leading-6 text-slate-600">
+                                Restore sign-in access for <strong class="text-slate-900">{{ $employee->name }}</strong>? They will be able to access their employee account again.
+                            </p>
+                            <form method="POST" action="{{ route('manager.employees.access.update', $employee) }}" class="flex justify-end gap-2">
+                                @csrf
+                                @method('PATCH')
+                                <input type="hidden" name="account_status" value="1">
+                                <button type="button" data-modal-close class="rounded-lg border border-slate-200 px-4 py-2.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50">Cancel</button>
+                                <button type="submit" data-loading-button data-loading-message="Restoring access..." class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70">
+                                    <span data-loading-spinner class="hidden size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true"></span>
+                                    <span data-loading-text>Restore Access</span>
+                                </button>
                             </form>
                         </div>
                     </x-modal>

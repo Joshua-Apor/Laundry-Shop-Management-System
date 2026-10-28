@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Customer;
 use App\Models\Order;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class CustomerController extends Controller
@@ -113,26 +111,6 @@ class CustomerController extends Controller
         abort_if($updated === 0 && ! DB::table('customers')->where('customer_id', $customer)->exists(), 404);
 
         return back()->with('success', 'Customer information updated.');
-    }
-
-    public function destroy(Request $request, int $customer): RedirectResponse
-    {
-        abort_unless(in_array($request->user()?->role, ['manager', 'employee'], true), 403);
-
-        $customerRecord = DB::table('customers')->where('customer_id', $customer)->first(['name']);
-        abort_if($customerRecord === null, 404);
-        $expectedName = trim($customerRecord->name);
-
-        $request->merge(['confirmation_name' => $request->string('confirmation_name')->trim()->toString()]);
-        $request->validate([
-            'confirmation_name' => ['required', 'string', Rule::in([$expectedName])],
-        ]);
-
-        $customerModel = Customer::query()->find($customer);
-        abort_if($customerModel === null, 404);
-        $customerModel->delete();
-
-        return back()->with('success', 'Customer removed from active records. Order history was retained.');
     }
 
     /**

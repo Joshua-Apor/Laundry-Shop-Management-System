@@ -24,6 +24,8 @@ return new class extends Migration
                 ->references('order_id')
                 ->on('laundry_orders')
                 ->cascadeOnDelete();
+
+            $table->index(['order_id', 'payment_date', 'payment_id'], 'payments_order_date_id_index');
         });
     }
 

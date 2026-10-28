@@ -26,16 +26,22 @@ return new class extends Migration
             $table->decimal('balance', 10, 2)->default(0);
             $table->string('order_status');
             $table->date('pickup_date')->nullable();
+            $table->timestamp('ready_for_pickup_at')->nullable();
+            $table->decimal('storage_fee', 10, 2)->default(0);
+
+            $table->index(['order_date', 'order_time', 'order_id'], 'laundry_orders_date_time_id_index');
+            $table->index(['order_status', 'order_date', 'order_time', 'order_id'], 'laundry_orders_status_date_time_id_index');
+            $table->index(['customer_id', 'order_date', 'order_time', 'order_id'], 'laundry_orders_customer_date_time_id_index');
 
             $table->foreign('customer_id')
                 ->references('customer_id')
                 ->on('customers')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
 
             $table->foreign('user_id')
                 ->references('user_id')
                 ->on('users')
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
         });
     }
 

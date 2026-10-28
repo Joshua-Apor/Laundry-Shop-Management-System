@@ -37,13 +37,13 @@
 
                 <div data-order-type-fields="Drop Off" class="mt-5 hidden">
                     <label class="block space-y-1 text-sm font-semibold text-slate-700">Laundry weight (kg)
-                        <input type="number" name="weight" min="0.1" step="0.1" value="{{ old('weight', '0') }}" data-order-weight disabled class="w-full rounded-lg border border-sky-200 px-3.5 py-2.5 text-sm font-normal focus:outline-none focus:ring-2 focus:ring-sky-300">
+                        <input type="number" name="weight" min="0.1" step="0.1" value="{{ old('weight') }}" data-order-weight disabled class="w-full rounded-lg border border-sky-200 px-3.5 py-2.5 text-sm font-normal focus:outline-none focus:ring-2 focus:ring-sky-300">
                     </label>
                 </div>
 
                 <div data-order-type-fields="Self Service" class="mt-5 hidden">
                     <label class="block space-y-1 text-sm font-semibold text-slate-700">Number of loads
-                        <input type="number" name="self_service_loads" min="1" max="100" step="1" value="{{ old('self_service_loads', '0') }}" data-order-loads disabled class="w-full rounded-lg border border-sky-200 px-3.5 py-2.5 text-sm font-normal focus:outline-none focus:ring-2 focus:ring-sky-300">
+                        <input type="number" name="self_service_loads" min="1" max="100" step="1" value="{{ old('self_service_loads') }}" data-order-loads disabled class="w-full rounded-lg border border-sky-200 px-3.5 py-2.5 text-sm font-normal focus:outline-none focus:ring-2 focus:ring-sky-300">
                     </label>
                 </div>
 
@@ -105,7 +105,6 @@
                         Choose Existing Customer
                     </button>
 
-
                     <div class="space-y-4">
 
                         {{-- Full Name --}}
@@ -117,7 +116,7 @@
                                 <input
                                     type="text"
                                     name="full_name"
-                                    id="customer-name"
+                                    id="customer-name" data-customer-detail-field @readonly(filled(old('customer_id')))
                                     value="{{ old('full_name') }}"
                                     placeholder="e.g. Maria Santos"
                                     autocomplete="off"
@@ -125,7 +124,7 @@
                                     aria-controls="customer-suggestions"
                                     aria-expanded="false"
                                     required
-                                    class="w-full rounded-lg border border-sky-200 bg-white px-3.5 py-2.5 text-sm font-normal text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300"
+                                    class="w-full rounded-lg border border-sky-200 bg-white px-3.5 py-2.5 text-sm font-normal text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300 read-only:cursor-not-allowed read-only:bg-slate-50 read-only:text-slate-500"
                                 >
                                 <span
                                     id="customer-suggestions"
@@ -151,7 +150,7 @@
                                 <input
                                     type="tel"
                                     name="phone_number"
-                                    id="customer-phone"
+                                    id="customer-phone" data-customer-detail-field @readonly(filled(old('customer_id')))
                                     value="{{ old('phone_number') }}"
                                     placeholder="09XX-XXX-XXXX"
                                     inputmode="numeric"
@@ -159,7 +158,7 @@
                                     maxlength="13"
                                     data-phone-format
                                     required
-                                    class="w-full px-3.5 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none"
+                                    class="w-full px-3.5 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none read-only:cursor-not-allowed read-only:bg-slate-50 read-only:text-slate-500"
                                 >
 
                             </span>
@@ -174,11 +173,11 @@
                             <input
                                 type="email"
                                 name="email"
-                                id="customer-email"
+                                id="customer-email" data-customer-detail-field @readonly(filled(old('customer_id')))
                                 value="{{ old('email') }}"
                                 placeholder="customer@example.com"
                                 autocomplete="email"
-                                class="w-full rounded-lg border border-sky-200 bg-white px-3.5 py-2.5 text-sm font-normal text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300"
+                                class="w-full rounded-lg border border-sky-200 bg-white px-3.5 py-2.5 text-sm font-normal text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-300 read-only:cursor-not-allowed read-only:bg-slate-50 read-only:text-slate-500"
                             >
                             @error('email')
                                 <span role="alert" class="block text-xs font-medium text-red-600">{{ $message }}</span>

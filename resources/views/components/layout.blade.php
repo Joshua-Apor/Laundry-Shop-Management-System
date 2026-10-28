@@ -130,7 +130,7 @@
             </form>
         </x-modal>
 
-        @if (auth()->user()->role === 'employee' && auth()->user()->must_change_password && ! session('password_reset_prompt_dismissed'))
+        @if (in_array(auth()->user()->role, ['employee', 'manager'], true) && auth()->user()->must_change_password && ! session('password_reset_prompt_dismissed'))
             <x-auth.first-login-password-reset-modal />
         @endif
     @endauth
