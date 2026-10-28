@@ -44,8 +44,8 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function (): vo
     Route::post('/profile/password/verify', [ProfilePasswordResetController::class, 'verifyCode'])->middleware('throttle:10,1')->name('profile.password.code.verify');
     Route::post('/profile/password/reset', [ProfilePasswordResetController::class, 'resetPassword'])->middleware('throttle:10,1')->name('profile.password.reset');
     Route::post('/profile/password/cancel', [ProfilePasswordResetController::class, 'cancel'])->name('profile.password.cancel');
-    Route::post('/employee/password/initial', [ProfileController::class, 'updateInitialPassword'])->name('employee.password.initial.update');
-    Route::post('/employee/password/initial/later', [ProfileController::class, 'deferInitialPassword'])->name('employee.password.initial.defer');
+    Route::post('/password/initial', [ProfileController::class, 'updateInitialPassword'])->name('password.initial.update');
+    Route::post('/password/initial/later', [ProfileController::class, 'deferInitialPassword'])->name('password.initial.defer');
     Route::get('/employee/dashboard', [DashboardController::class, 'index'])->name('employee.dashboard');
     Route::get('/manager/dashboard', [DashboardController::class, 'index'])->name('manager.dashboard');
     Route::get('/manager/customer-records', [ManagerController::class, 'customerRecords'])->name('manager.customer-records');
@@ -60,7 +60,6 @@ Route::middleware(['auth', EnsureAccountIsActive::class])->group(function (): vo
     Route::patch('/manager/employees/{employee}/access', [ManagerController::class, 'updateEmployeeAccess'])->name('manager.employees.access.update');
     Route::patch('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
     Route::get('/customers/{customer}/orders', [CustomerController::class, 'history'])->name('customers.orders');
-    Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
 
     Route::prefix('employee')->group(function (): void {
         Route::get('/records', [OrderController::class, 'index'])->name('records.index');

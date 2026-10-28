@@ -13,7 +13,7 @@ class ProfileController extends Controller
     public function updateInitialPassword(Request $request): RedirectResponse
     {
         $user = $request->user();
-        abort_unless($user?->role === 'employee' && $user->must_change_password, 403);
+        abort_unless($user !== null && in_array($user->role, ['employee', 'manager'], true) && $user->must_change_password, 403);
 
         $validated = $request->validate([
             'password' => ['required', 'string', 'min:8', 'confirmed'],
@@ -24,17 +24,18 @@ class ProfileController extends Controller
         $user->save();
         $request->session()->forget('password_reset_prompt_dismissed');
 
-        return redirect()->route('employee.dashboard')->with('success', 'Password updated successfully.');
+        return redirect()->route($user->role === 'manager' ? 'manager.dashboard' : 'employee.dashboard')
+            ->with('success', 'Password updated successfully.');
     }
 
     public function deferInitialPassword(Request $request): RedirectResponse
     {
         $user = $request->user();
-        abort_unless($user?->role === 'employee' && $user->must_change_password, 403);
+        abort_unless($user !== null && in_array($user->role, ['employee', 'manager'], true) && $user->must_change_password, 403);
 
         $request->session()->put('password_reset_prompt_dismissed', true);
 
-        return redirect()->route('employee.dashboard');
+        return redirect()->route($user->role === 'manager' ? 'manager.dashboard' : 'employee.dashboard');
     }
 
     public function edit(Request $request): View
