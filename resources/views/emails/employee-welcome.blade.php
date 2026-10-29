@@ -14,7 +14,9 @@
         <p>Your employee account has been created. Use these details to sign in:</p>
         <p><strong>Username:</strong> {{ $username }}</p>
         <p><strong>Temporary password:</strong> {{ $password }}</p>
-        <p>Please sign in and change your password as soon as possible.</p>
+        <p>This is the link to access the Laundry Shop Management System. Please log in using the credentials provided above:</p>
+        <p><a href="https://laundry-shop-management-system-p4ok.onrender.com/login" style="color: #0878df; font-weight: bold;">Log in to the system</a></p>
+        <p>Please change your password as soon as possible after signing in.</p>
     </main>
 </body>
 </html>

@@ -54,6 +54,7 @@ class ServiceController extends Controller
             ->first(['service_id', 'service_name']);
 
         abort_if($serviceRecord === null, 404);
+        abort_if(in_array($serviceRecord->service_name, ['Drop Off', 'Self Service'], true), 403);
         $expectedName = trim($serviceRecord->service_name);
 
         $request->merge(['confirmation_name' => $request->string('confirmation_name')->trim()->toString()]);

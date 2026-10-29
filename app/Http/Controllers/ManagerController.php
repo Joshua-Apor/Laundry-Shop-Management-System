@@ -207,14 +207,20 @@ class ManagerController extends Controller
             ->orderBy('name')
             ->get();
 
+        $employeeIdsWithOrders = DB::table('laundry_orders')
+            ->whereIn('user_id', $employees->modelKeys())
+            ->distinct()
+            ->pluck('user_id');
+
         $activeEmployeeIds = DB::table(config('session.table', 'sessions'))
             ->whereNotNull('user_id')
             ->where('last_activity', '>=', now()->subMinutes(config('session.lifetime'))->timestamp)
             ->pluck('user_id')
             ->unique();
 
-        $employees->each(function (User $employee) use ($activeEmployeeIds): void {
+        $employees->each(function (User $employee) use ($activeEmployeeIds, $employeeIdsWithOrders): void {
             $employee->setAttribute('is_logged_in', $activeEmployeeIds->contains($employee->getKey()));
+            $employee->setAttribute('has_orders', $employeeIdsWithOrders->contains($employee->getKey()));
         });
 
         return view('manager.employees', [
@@ -262,6 +268,31 @@ class ManagerController extends Controller
             : 'Employee account created and welcome email sent.';
 
         return redirect()->route('manager.employees')->with('success', $successMessage);
+    }
+
+    public function destroyEmployee(Request $request, User $employee): RedirectResponse
+    {
+        abort_unless($request->user()?->role === 'manager', 403);
+        abort_unless($employee->role === 'employee', 404);
+
+        if (DB::table('laundry_orders')->where('user_id', $employee->getKey())->exists()) {
+            return redirect()->route('manager.employees')->withErrors([
+                'employee' => 'This employee cannot be deleted because they have order records.',
+            ]);
+        }
+
+        $request->merge(['confirmation_name' => $request->string('confirmation_name')->trim()->toString()]);
+        $request->validate([
+            'confirmation_name' => ['required', 'string', Rule::in([trim($employee->name)])],
+        ]);
+
+        DB::table(config('session.table', 'sessions'))
+            ->where('user_id', $employee->getKey())
+            ->delete();
+
+        $employee->forceDelete();
+
+        return redirect()->route('manager.employees')->with('success', 'Employee deleted.');
     }
 
     public function updateEmployeeAccess(Request $request, User $employee): RedirectResponse

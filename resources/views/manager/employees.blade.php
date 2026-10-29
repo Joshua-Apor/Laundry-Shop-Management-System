@@ -278,6 +278,16 @@
                             </button>
                         @endif
 
+                        @unless ($employee->has_orders)
+                            <button type="button"
+                                data-modal-trigger
+                                data-modal-target="employee-delete-{{ $employee->user_id }}"
+                                class="w-full rounded-md border border-red-200 bg-white px-1.5 py-2 text-[9px] font-semibold leading-tight text-red-700 transition-colors hover:bg-red-50 sm:rounded-lg sm:px-3 sm:text-xs">
+                                <i class="fa-solid fa-trash mr-0.5 sm:mr-1" aria-hidden="true"></i>
+                                Delete Employee
+                            </button>
+                        @endunless
+
                     </div>
                 </article>
 
@@ -318,6 +328,27 @@
                         </div>
                     </x-modal>
                 @endif
+
+                @unless ($employee->has_orders)
+                    <x-modal :id="'employee-delete-'.$employee->user_id" title="Delete employee?">
+                        <div class="space-y-5">
+                            <p class="text-sm leading-6 text-slate-600">
+                                Permanently delete <strong class="text-slate-900">{{ $employee->name }}</strong>? This action is available only while they have no order records.
+                            </p>
+                            <form method="POST" action="{{ route('manager.employees.destroy', $employee) }}" data-name-confirmation-form data-confirmation-name="{{ $employee->name }}" class="space-y-4">
+                                @csrf
+                                @method('DELETE')
+                                <label for="employee-delete-name-{{ $employee->user_id }}" class="block text-xs font-semibold text-slate-700">Type the employee name to confirm</label>
+                                <input id="employee-delete-name-{{ $employee->user_id }}" name="confirmation_name" type="text" autocomplete="off" data-name-confirmation-input aria-describedby="employee-delete-help-{{ $employee->user_id }}" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:ring-2 focus:ring-red-200">
+                                <p id="employee-delete-help-{{ $employee->user_id }}" class="text-xs text-slate-500">Once an order record exists, this employee cannot be deleted.</p>
+                                <div class="flex justify-end gap-2">
+                                    <button type="button" data-modal-close class="rounded-lg border border-slate-200 px-4 py-2.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50">Cancel</button>
+                                    <button type="submit" disabled data-name-confirmation-submit class="cursor-not-allowed rounded-lg bg-red-600 px-4 py-2.5 text-xs font-bold text-white opacity-50 transition-opacity">Delete Employee</button>
+                                </div>
+                            </form>
+                        </div>
+                    </x-modal>
+                @endunless
 
             @empty
 

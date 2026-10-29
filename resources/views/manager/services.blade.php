@@ -188,25 +188,31 @@
                         {{ $service->price_unit }}
                         <span class="mt-1 block text-xs font-normal text-slate-500">{{ $service->available_for }}</span>
                     </p>
-                    <button type="button" data-modal-trigger data-modal-target="service-delete-{{ $service->service_id }}" class="inline-flex shrink-0 items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50">
-                        <i class="fa-solid fa-trash" aria-hidden="true"></i>
-                        Delete
-                    </button>
+                    @if (in_array($service->service_name, ['Drop Off', 'Self Service'], true))
+                        <span class="text-xs font-semibold text-slate-500">Required service</span>
+                    @else
+                        <button type="button" data-modal-trigger data-modal-target="service-delete-{{ $service->service_id }}" class="inline-flex shrink-0 items-center gap-1 rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50">
+                            <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                            Delete
+                        </button>
+                    @endif
                 </div>
-                <x-modal :id="'service-delete-'.$service->service_id" title="Delete service?">
-                    <p class="text-sm leading-6 text-slate-600">This action is irreversible. To confirm deletion, please type the full name <strong>{{ $service->service_name }}</strong> below. Existing order records will be preserved.</p>
-                    <form method="POST" action="{{ route('manager.services.destroy', $service->service_id) }}" data-name-confirmation-form data-confirmation-name="{{ $service->service_name }}" class="mt-4 space-y-4">
-                        @csrf
-                        @method('DELETE')
-                        <label for="service-delete-name-{{ $service->service_id }}" class="block text-xs font-semibold text-slate-700">Product or service name</label>
-                        <input id="service-delete-name-{{ $service->service_id }}" name="confirmation_name" type="text" autocomplete="off" data-name-confirmation-input aria-describedby="service-delete-help-{{ $service->service_id }}" class="-mt-3 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:ring-2 focus:ring-sky-200">
-                        <p id="service-delete-help-{{ $service->service_id }}" class="-mt-3 text-xs text-slate-500">Enter the name exactly as shown above.</p>
-                        <div class="flex justify-end gap-2">
-                            <button type="button" data-modal-close class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Cancel</button>
-                            <button type="submit" disabled data-name-confirmation-submit class="cursor-not-allowed rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white opacity-50 transition-opacity">Delete Permanently</button>
-                        </div>
-                    </form>
-                </x-modal>
+                @unless (in_array($service->service_name, ['Drop Off', 'Self Service'], true))
+                    <x-modal :id="'service-delete-'.$service->service_id" title="Delete service?">
+                        <p class="text-sm leading-6 text-slate-600">This action is irreversible. To confirm deletion, please type the full name <strong>{{ $service->service_name }}</strong> below. Existing order records will be preserved.</p>
+                        <form method="POST" action="{{ route('manager.services.destroy', $service->service_id) }}" data-name-confirmation-form data-confirmation-name="{{ $service->service_name }}" class="mt-4 space-y-4">
+                            @csrf
+                            @method('DELETE')
+                            <label for="service-delete-name-{{ $service->service_id }}" class="block text-xs font-semibold text-slate-700">Product or service name</label>
+                            <input id="service-delete-name-{{ $service->service_id }}" name="confirmation_name" type="text" autocomplete="off" data-name-confirmation-input aria-describedby="service-delete-help-{{ $service->service_id }}" class="-mt-3 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors focus:ring-2 focus:ring-sky-200">
+                            <p id="service-delete-help-{{ $service->service_id }}" class="-mt-3 text-xs text-slate-500">Enter the name exactly as shown above.</p>
+                            <div class="flex justify-end gap-2">
+                                <button type="button" data-modal-close class="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Cancel</button>
+                                <button type="submit" disabled data-name-confirmation-submit class="cursor-not-allowed rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white opacity-50 transition-opacity">Delete Permanently</button>
+                            </div>
+                        </form>
+                    </x-modal>
+                @endunless
             @empty
                 <p class="px-4 py-8 text-center text-sm text-slate-500">
                     No products or services have been added yet.

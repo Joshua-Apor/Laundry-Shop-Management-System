@@ -1,6 +1,7 @@
 @props([
     'id',
     'title',
+    'showClose' => true,
 ])
 
 <dialog
@@ -24,14 +25,16 @@
             </h2>
         </div>
 
-        <button
-            type="button"
-            data-modal-close
-            aria-label="Close {{ strtolower($title) }}"
-            class="absolute right-4 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-xl border border-[#ead4dd] bg-white text-[#7b4860] transition duration-200 hover:border-[#e6007e] hover:bg-[#e6007e] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2f7dcc] sm:right-5"
-        >
-            <i class="fa-solid fa-xmark text-base" aria-hidden="true"></i>
-        </button>
+        @if ($showClose)
+            <button
+                type="button"
+                data-modal-close
+                aria-label="Close {{ strtolower($title) }}"
+                class="absolute right-4 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-xl border border-[#ead4dd] bg-white text-[#7b4860] transition duration-200 hover:border-[#e6007e] hover:bg-[#e6007e] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2f7dcc] sm:right-5"
+            >
+                <i class="fa-solid fa-xmark text-base" aria-hidden="true"></i>
+            </button>
+        @endif
     </div>
 
     {{-- Modal Content --}}
